@@ -1,0 +1,138 @@
+```{r}
+library(readr)
+library(dplyr)
+library(stringr)
+library(glue)
+```
+
+```{r}
+#DATA IMPORT
+
+mvpf_inputs <- readxl::read_excel("/Users/larapesceares/CCJ/Data/CCJ_quantified_values.xlsx")
+#CPI_table <- (columns: year, factor_to_2025)  # multiplier to convert to 2025$
+```
+
+```{r}
+#FUNCTIONS
+
+# pull a row by row_var
+row_by <- function(var) {
+  mvpf_inputs %>% filter(row_var == var) %>% slice(1)
+}
+
+# for row-var, get selected value and its source year (may be NA)
+get_selected <- function(var) {
+  r <- row_by(var)
+  list(
+    value = as.numeric(r$selected_value),
+    year  = suppressWarnings(as.integer(r$source_dollar_year))
+  )
+}
+
+# convert to 2025$ using CPI_table
+to_2025 <- function(value, year) {
+  if (is.na(year)) return(value)
+  fac <- CPI_table$factor_to_2025[CPI_table$year == year]
+  if (length(fac) == 0) stop(glue("No CPI factor for year {year} in CPI_table."), call. = FALSE)
+  value * fac[1]
+}
+
+# return numeric 2025$ and a readable equation string
+value_2025 <- function(var, digits = 2) {
+  s   <- get_selected(var)
+  v25 <- to_2025(s$value, s$year)
+  eq  <- if (is.na(s$year)) {
+    glue("{var}: {round(s$value,digits)} (assumed 2025$)")
+  } else {
+    fac <- CPI_table$factor_to_2025[CPI_table$year == s$year][1]
+    glue("{var}: {round(s$value,digits)} × CPI[{s$year}]={round(fac,4)} = {round(v25,digits)} (2025$)")
+  }
+  list(v = v25, eq = eq)
+}
+
+`%or0%` <- function(x, y=0) if (is.null(x) || length(x)==0 || is.na(x)) y else x
+
+# Sum rows then apply bucket sign for negative vs. positive impacts (sign = +1 or −1 in editable)
+sum_rows <- function(vars, sign = +1, label = NULL) {
+  if (length(vars)==0) return(list(total = 0))
+  vals  <- lapply(vars, value_2025)
+  total <- sign * sum(sapply(vals, `[[`, "v"), na.rm = TRUE)
+  if (!is.null(label)) {
+    cat(label, "components:\n")
+    for (i in seq_along(vars)) cat("  ", ifelse(sign>0,"+ ","- "), vals[[i]]$eq, "\n", sep = "")
+    cat("  = ", round(total,2), " (2025$)\n\n", sep = "")
+  }
+  list(total = total)
+}
+```
+
+```{r}
+
+# CALCULATOR INPUTS (Edit components to adjust)
+
+# Detainee Value
+LT_detainee_rows <- c("x")  #placeholder
+
+ST_detainee_rows <- c("wtp_freedom", "income_reduced") 
+
+# Society Value
+LT_society_rows <- c("crime_prev_value_post")   #placeholder
+ST_society_rows <- c("crime_prev_value")        #placeholder
+
+# Government Costs
+LT_govt_rows <- c("supervision_cost_longterm", "case_proc_longrun")  #placeholder
+ST_govt_rows <- c("ccj_funding_2018")                                #placeholder
+
+# Ns
+N_det     <- value_2025("n_detainees")$v %or0% 1
+N_society <- value_2025("n_society")$v  %or0% N_det
+
+```
+
+```{r}
+# CALCULATOR
+
+# Detainee Value (numerator, negative)
+LT_det <- sum_rows(LT_detainee_rows, sign = -1, label = "Long-term value to detainee")
+ST_det <- sum_rows(ST_detainee_rows, sign = -1, label = "Short-term value to detainee")
+
+# Society Value (numerator, positive)
+LT_soc <- sum_rows(LT_society_rows, sign = +1, label = "Long-term value to society")
+ST_soc <- sum_rows(ST_society_rows, sign = +1, label = "Short-term value to society")
+
+# Government Costs (denominator, positive)
+LT_gov <- sum_rows(LT_govt_rows, sign = +1, label = "Long-term cost to government")
+ST_gov <- sum_rows(ST_govt_rows, sign = +1, label = "Short-term cost to government")
+
+# Combine ST + LT within each population (per-person amounts, already signed via sum_rows)
+det_per <- LT_det$total + ST_det$total      # detainee 
+soc_per <- LT_soc$total + ST_soc$total      # society
+
+# Convert to totals by applying population Ns
+det_total <- det_per * N_det
+soc_total <- soc_per * N_society
+
+# Government is already an annual total; just add LT + ST with no weights
+gov_total <- LT_gov$total + ST_gov$total
+
+# Build numerator/denominator totals (2025$)
+numerator_total   <- soc_total + det_total
+denominator_total <- gov_total
+
+# Derive per-detainee views from totals (nice for comparison)
+numerator_per     <- numerator_total   / N_det
+denominator_per   <- denominator_total / N_det
+
+cat(glue("
+Totals (2025$):
+  Detainee total (ST+LT): {round(det_per,2)} × N_det={N_det} → {round(det_total,2)}
+  Society total  (ST+LT): {round(soc_per,2)} × N_soc={N_society} → {round(soc_total,2)}
+  Government total (ST+LT): {round(gov_total,2)}
+
+Numerator_total   = {round(numerator_total,2)}
+Denominator_total = {round(denominator_total,2)}
+
+Per-detainee (derived):
+  Numerator_per   = {round(numerator_per,2)}
+  Denominator_per = {round(denominator_per,2)}
+"))
