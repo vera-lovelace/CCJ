@@ -51,16 +51,62 @@ value_2025 <- function(var, digits = 2) {
   list(v = v25, eq = eq)
 }
 
-# Sum rows then apply bucket sign for negative vs. positive impacts (sign = +1 or −1 in editable)
-sum_rows <- function(vars, sign = +1, label = NULL) {
-  if (length(vars)==0) return(list(total = 0))
-  vals  <- lapply(vars, value_2025)
-  total <- sign * sum(sapply(vals, `[[`, "v"), na.rm = TRUE)
+# Sum rows, apply per-row sign from sheet, print equations
+sum_rows <- function(vars, label = NULL, digits = 2) {
+  vars <- as.character(vars)
+  vars <- vars[!is.na(vars) & nzchar(vars)]
+  if (length(vars) == 0) {
+    if (!is.null(label)) cat(label, "components:\n  = 0 (2025$)\n\n")
+    return(list(total = 0))
+  }
+
+  v_signed_vec <- numeric(length(vars))
+  eq_lines <- character(length(vars))
+
+  for (i in seq_along(vars)) {
+    v <- vars[i]
+
+    # base value + year
+    sel <- get_selected(v)
+    base_val <- as.numeric(sel$value)
+    yr <- sel$year
+
+    # CPI factor and unsigned 2025 value
+    if (is.na(yr)) {
+      fac <- NA_real_
+      v25_unsigned <- base_val
+    } else {
+      fac <- CPI_table$factor_to_2025[CPI_table$year == yr][1]
+      v25_unsigned <- to_2025(base_val, yr)
+    }
+
+    # sheet sign: "positive" / "negative"
+    s_raw <- tolower(trimws(as.character(row_by(v)$sign)))
+    sgn   <- if (s_raw == "negative") -1 else 1
+
+    # signed values
+    base_signed <- sgn * base_val
+    v25_signed  <- sgn * v25_unsigned
+
+    # store for summation
+    v_signed_vec[i] <- v25_signed
+
+    # build the signed equation line
+    if (is.na(yr)) {
+      eq_lines[i] <- glue("{v}: {round(base_signed, digits)} (assumed 2025$)")
+    } else {
+      eq_lines[i] <- glue("{v}: {round(base_signed, digits)} × CPI[{yr}]={round(fac, 4)} = {round(v25_signed, digits)} (2025$)")
+    }
+  }
+
+  total <- sum(v_signed_vec, na.rm = TRUE)
+
   if (!is.null(label)) {
     cat(label, "components:\n")
-    for (i in seq_along(vars)) cat("  ", ifelse(sign>0,"+ ","- "), vals[[i]]$eq, "\n", sep = "")
-    cat("  = ", round(total,2), " (2025$)\n\n", sep = "")
+    for (ln in eq_lines) cat("  ", ln, "\n", sep = "")
+    cat("  = ", round(total, 2), " (2025$)\n\n", sep = "")
   }
+
   list(total = total)
 }
 
@@ -68,56 +114,64 @@ sum_rows <- function(vars, sign = +1, label = NULL) {
 or_default <- function(x, default = 0) {
   if (is.null(x) || length(x) == 0 || is.na(x[1])) default else x
 }
+
+
 ```
 
 ```{r}
 # CALCULATOR INPUTS (Edit components to adjust)
 
-# Detainee Value
-LT_detainee_rows <- c("income_reduced")  
-ST_detainee_rows <- c("wtp_rhv") 
+# Detainee Value (row_var vectors)
+LT_det_rows <- c("income_reduced")
+ST_det_rows <- c("lost_wages", "wtp_freedom")
 
-# Society Value
-LT_society_pos_rows <- c("wrongful_death_wtp_life")  
-ST_society_rows <- c("crime_prev_measure")        
+# Society Value (row_var vectors)
+LT_soc_rows <- c("wrongful_death_wtp_life")
+ST_soc_rows <- c("crime_prev_measure")
 
-# Government Costs
-LT_govt_rows <- c("inc_conv_len")  
-ST_govt_rows <- c("ccj_funding_2018")                                
+# Government Costs (row_var vectors)
+LT_gov_rows <- c("inc_conv_len")
+ST_gov_rows <- c("ccj_funding_2018")
 
-# Ns
-N_det     <- or_default(value_2025("n_detainees")$v, 1)
-N_society <- or_default(value_2025("n_society")$v, 1)
+# Ns (counts)
+N_det <- or_default(value_2025("n_detainees")$v, 1)
+N_soc <- or_default(value_2025("n_society")$v, 1)
 
 ```
 
 ```{r}
 # CALCULATOR
 
-# Detainee Value (numerator, negative)
-LT_det <- sum_rows(LT_detainee_rows, sign = -1, label = "Long-term value to detainee")
-ST_det <- sum_rows(ST_detainee_rows, sign = -1, label = "Short-term value to detainee")
+# Sum each bucket (sheet-driven signs inside sum_rows)
 
-# Society Value (numerator, positive)
-LT_soc <- sum_rows(LT_society_rows, sign = +1, label = "Long-term value to society")
-ST_soc <- sum_rows(ST_society_rows, sign = +1, label = "Short-term value to society")
+# Detainee
+LT_det <- sum_rows(LT_det_rows, label = "Long-term value to detainee")
+ST_det <- sum_rows(ST_det_rows, label = "Short-term value to detainee")
 
-# Government Costs (denominator, positive)
-LT_gov <- sum_rows(LT_govt_rows, sign = +1, label = "Long-term cost to government")
-ST_gov <- sum_rows(ST_govt_rows, sign = +1, label = "Short-term cost to government")
+# Society
+LT_soc <- sum_rows(LT_soc_rows, label = "Long-term value to society")
+ST_soc <- sum_rows(ST_soc_rows, label = "Short-term value to society")
 
-# Government is already an annual total; just add LT + ST with no weights
+# Gov
+LT_gov <- sum_rows(LT_gov_rows, label = "Long-term cost to government")
+ST_gov <- sum_rows(ST_gov_rows, label = "Short-term cost to government")
+
+# Combine ST + LT within each population (per-person amounts; already signed by sheet)
+det_per <- LT_det$total + ST_det$total
+soc_per <- LT_soc$total + ST_soc$total
+
+# Weight by Ns to convert to totals
+det_total <- det_per * N_det
+soc_total <- soc_per * N_det   # society benefits are per detainee right now
+
+# Government total is annual; add LT + ST with no weights
 gov_total <- LT_gov$total + ST_gov$total
 
 # Build numerator/denominator totals (2025$)
 numerator_total   <- soc_total + det_total
 denominator_total <- gov_total
 
-# Ns
-N_det     <- or_default(value_2025("n_detainees")$v, 1)
-N_society <- or_default(value_2025("n_society")$v, 1)
-
-# MVPF!
+# MVPF
 MVPF_total <- if (denominator_total == 0) NA_real_ else numerator_total / denominator_total
 
 cat(glue("
