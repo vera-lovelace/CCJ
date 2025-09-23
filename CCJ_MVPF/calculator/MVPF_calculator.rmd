@@ -75,11 +75,11 @@ or_default <- function(x, default = 0) {
 
 # Detainee Value
 LT_detainee_rows <- c("income_reduced")  
-ST_detainee_rows <- c("wtp_freedom", "lost_wages") 
+ST_detainee_rows <- c("wtp_rhv") 
 
 # Society Value
 LT_society_rows <- c("wrongful_death_wtp_life", "haven_cost_of_crime")   
-ST_society_rows <- c("crime_prev_measure", "case_outcomes_released")        
+ST_society_rows <- c("crime_prev_measure")        
 
 # Government Costs
 LT_govt_rows <- c("inc_conv_len")  
@@ -125,9 +125,8 @@ denominator_total <- gov_total
 N_det     <- or_default(value_2025("n_detainees")$v, 1)
 N_society <- or_default(value_2025("n_society")$v, 1)
 
-# Derive per-detainee views from totals (nice for comparison)
-numerator_per     <- numerator_total   / N_det
-denominator_per   <- denominator_total / N_det
+# MVPF!
+MVPF_total <- if (denominator_total == 0) NA_real_ else numerator_total / denominator_total
 
 cat(glue("
 Totals (2025$):
@@ -137,9 +136,7 @@ Totals (2025$):
 
 Numerator_total   = {round(numerator_total,2)}
 Denominator_total = {round(denominator_total,2)}
-
-Per-detainee (derived):
-  Numerator_per   = {round(numerator_per,2)}
-  Denominator_per = {round(denominator_per,2)}
+MVPF_total        = {round(MVPF_total,4)}
 "))
+
 ```
