@@ -9,7 +9,8 @@ library(glue)
 #DATA IMPORT
 
 mvpf_inputs <- readxl::read_excel("/Users/larapesceares/CCJ/Data/CCJ_quantified_values.xlsx")
-#CPI_table <- (columns: year, factor_to_2025)  # multiplier to convert to 2025$
+CPI_table <- readr::read_csv("/Users/larapesceares/CCJ/Data/CPI.csv") 
+# CPI multipliers to convert to 2025$
 ```
 
 ```{r}
@@ -50,8 +51,6 @@ value_2025 <- function(var, digits = 2) {
   list(v = v25, eq = eq)
 }
 
-`%or0%` <- function(x, y=0) if (is.null(x) || length(x)==0 || is.na(x)) y else x
-
 # Sum rows then apply bucket sign for negative vs. positive impacts (sign = +1 or −1 in editable)
 sum_rows <- function(vars, sign = +1, label = NULL) {
   if (length(vars)==0) return(list(total = 0))
@@ -64,28 +63,31 @@ sum_rows <- function(vars, sign = +1, label = NULL) {
   }
   list(total = total)
 }
+
+# Default to x when values are NA
+or_default <- function(x, default = 0) {
+  if (is.null(x) || length(x) == 0 || is.na(x[1])) default else x
+}
 ```
 
 ```{r}
-
 # CALCULATOR INPUTS (Edit components to adjust)
 
 # Detainee Value
-LT_detainee_rows <- c("x")  #placeholder
-
-ST_detainee_rows <- c("wtp_freedom", "income_reduced") 
+LT_detainee_rows <- c("income_reduced")  
+ST_detainee_rows <- c("wtp_freedom", "lost_wages") 
 
 # Society Value
-LT_society_rows <- c("crime_prev_value_post")   #placeholder
-ST_society_rows <- c("crime_prev_value")        #placeholder
+LT_society_rows <- c("wrongful_death_wtp_life", "haven_cost_of_crime")   
+ST_society_rows <- c("crime_prev_measure", "case_outcomes_released")        
 
 # Government Costs
-LT_govt_rows <- c("supervision_cost_longterm", "case_proc_longrun")  #placeholder
-ST_govt_rows <- c("ccj_funding_2018")                                #placeholder
+LT_govt_rows <- c("inc_conv_len")  
+ST_govt_rows <- c("ccj_funding_2018")                                
 
 # Ns
-N_det     <- value_2025("n_detainees")$v %or0% 1
-N_society <- value_2025("n_society")$v  %or0% N_det
+N_det     <- or_default(value_2025("n_detainees")$v, 1)
+N_society <- or_default(value_2025("n_society")$v, 1)
 
 ```
 
@@ -119,6 +121,10 @@ gov_total <- LT_gov$total + ST_gov$total
 numerator_total   <- soc_total + det_total
 denominator_total <- gov_total
 
+# Ns
+N_det     <- or_default(value_2025("n_detainees")$v, 1)
+N_society <- or_default(value_2025("n_society")$v, 1)
+
 # Derive per-detainee views from totals (nice for comparison)
 numerator_per     <- numerator_total   / N_det
 denominator_per   <- denominator_total / N_det
@@ -136,3 +142,4 @@ Per-detainee (derived):
   Numerator_per   = {round(numerator_per,2)}
   Denominator_per = {round(denominator_per,2)}
 "))
+```
