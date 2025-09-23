@@ -78,7 +78,7 @@ LT_detainee_rows <- c("income_reduced")
 ST_detainee_rows <- c("wtp_rhv") 
 
 # Society Value
-LT_society_rows <- c("wrongful_death_wtp_life", "haven_cost_of_crime")   
+LT_society_pos_rows <- c("wrongful_death_wtp_life")  
 ST_society_rows <- c("crime_prev_measure")        
 
 # Government Costs
@@ -106,14 +106,6 @@ ST_soc <- sum_rows(ST_society_rows, sign = +1, label = "Short-term value to soci
 LT_gov <- sum_rows(LT_govt_rows, sign = +1, label = "Long-term cost to government")
 ST_gov <- sum_rows(ST_govt_rows, sign = +1, label = "Short-term cost to government")
 
-# Combine ST + LT within each population (per-person amounts, already signed via sum_rows)
-det_per <- LT_det$total + ST_det$total      # detainee 
-soc_per <- LT_soc$total + ST_soc$total      # society
-
-# Convert to totals by applying population Ns
-det_total <- det_per * N_det
-soc_total <- soc_per * N_society
-
 # Government is already an annual total; just add LT + ST with no weights
 gov_total <- LT_gov$total + ST_gov$total
 
@@ -131,7 +123,7 @@ MVPF_total <- if (denominator_total == 0) NA_real_ else numerator_total / denomi
 cat(glue("
 Totals (2025$):
   Detainee total (ST+LT): {round(det_per,2)} × N_det={N_det} → {round(det_total,2)}
-  Society total  (ST+LT): {round(soc_per,2)} × N_soc={N_society} → {round(soc_total,2)}
+  Society total  (ST+LT): {round(soc_per,2)} × N_det={N_det} → {round(soc_total,2)}
   Government total (ST+LT): {round(gov_total,2)}
 
 Numerator_total   = {round(numerator_total,2)}
