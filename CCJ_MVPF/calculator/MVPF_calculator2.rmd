@@ -299,3 +299,9 @@ ggplot(MVPF_table_plot, aes(x = reorder(components, plot_value), y = plot_value,
        title = "MVPF Component Breakdown (capped at 18,500)")
 
 ```
+
+```{r}
+# convert data to html-based structure to use in python plotly dash 
+
+
+```
