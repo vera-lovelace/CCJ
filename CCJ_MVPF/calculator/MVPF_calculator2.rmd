@@ -217,7 +217,7 @@ results <- bind_rows(
   calculate_mvpf_df(alt_id = 1), 
   calculate_mvpf_df(alt_id = 2, ST_detainee_rows = c("lost_wages")), # only lost_wages
   calculate_mvpf_df(alt_id = 3, LT_society_rows = c("wrongful_death_wtp_life")), # only this society row
-  calculate_mvpf_df(alt_id = 4, LT_govt_rows = c("inc_conv_len", "other_cost")) # add another govt cost
+  calculate_mvpf_df(alt_id = 4, LT_govt_rows = c("inc_conv_len")) # add another govt cost
 )
 
 print(results)
@@ -225,12 +225,6 @@ print(results)
 
 ```
 
-```{r}
-
-print(calculate_mvpf_df(alt_id = 2, ST_detainee_rows = c("lost_wages")))
-print(calculate_mvpf_df(alt_id = 3, LT_society_rows = c("wrongful_death_wtp_life")))
-print(calculate_mvpf_df(alt_id = 4, LT_govt_rows = c("inc_conv_len", "other_cost")))
-```
 
 
 ```{r}
