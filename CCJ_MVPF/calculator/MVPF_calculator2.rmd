@@ -1,0 +1,307 @@
+```{r}
+install.packages("readr")
+install.packages("dplyr")
+install.packages("stringr")
+install.packages("glue")
+install.packages("ggplot2")
+install.packages("treemapify")
+install.packages("tidyr")
+
+library(ggplot2)
+library(tidyr)
+library(treemapify)
+
+library(readr)
+library(dplyr)
+library(stringr)
+library(glue)
+```
+
+```{r}
+#DATA IMPORT
+setwd("~/PycharmProjects/CCJ/Data") #The ~ refers to your home directory so you may need to edit the green text to match the location of your files
+
+mvpf_inputs <- readxl::read_excel("CCJ_quantified_values.xlsx")
+CPI_table <- readr::read_csv("CPI.csv") 
+# CPI multipliers to convert to 2025$
+```
+
+```{r}
+#FUNCTIONS
+
+# pull a row by row_var
+row_by <- function(var) {
+  mvpf_inputs %>% filter(row_var == var) %>% slice(1)
+}
+
+# for row-var, get selected value and its source year (may be NA)
+get_selected <- function(var) {
+  r <- row_by(var)
+  list(
+    value = as.numeric(r$selected_value),
+    year  = suppressWarnings(as.integer(r$source_dollar_year))
+  )
+}
+
+# convert to 2025$ using CPI_table
+to_2025 <- function(value, year) {
+  if (is.na(year)) return(value)
+  fac <- CPI_table$factor_to_2025[CPI_table$year == year]
+  if (length(fac) == 0) stop(glue("No CPI factor for year {year} in CPI_table."), call. = FALSE)
+  value * fac[1]
+}
+
+# return numeric 2025$ and a readable equation string
+value_2025 <- function(var, digits = 2) {
+  s   <- get_selected(var)
+  v25 <- to_2025(s$value, s$year)
+  eq  <- if (is.na(s$year)) {
+    glue("{var}: {round(s$value,digits)} (assumed 2025$)")
+  } else {
+    fac <- CPI_table$factor_to_2025[CPI_table$year == s$year][1]
+    glue("{var}: {round(s$value,digits)} × CPI[{s$year}]={round(fac,4)} = {round(v25,digits)} (2025$)")
+  }
+  list(v = v25, eq = eq)
+}
+
+# Sum rows then apply bucket sign for negative vs. positive impacts (sign = +1 or −1 in editable)
+sum_rows <- function(vars, sign = +1, label = NULL) {
+  if (length(vars)==0) return(list(total = 0))
+  vals  <- lapply(vars, value_2025)
+  total <- sign * sum(sapply(vals, `[[`, "v"), na.rm = TRUE)
+  if (!is.null(label)) {
+    cat(label, "components:\n")
+    for (i in seq_along(vars)) cat("  ", ifelse(sign>0,"+ ","- "), vals[[i]]$eq, "\n", sep = "")
+    cat("  = ", round(total,2), " (2025$)\n\n", sep = "")
+  }
+  list(total = total)
+}
+
+# Default to x when values are NA
+or_default <- function(x, default = 0) {
+  if (is.null(x) || length(x) == 0 || is.na(x[1])) default else x
+}
+```
+
+```{r}
+# CALCULATOR INPUTS (Edit components to adjust)
+
+# Detainee Value
+LT_det_rows <- c("income_reduced")  
+ST_det_rows <- c("wtp_freedom", "lost_wages") 
+
+# Society Value
+LT_soc_rows <- c("wrongful_death_wtp_life", "haven_cost_of_crime")   
+ST_soc_rows <- c("crime_prev_measure", "case_outcomes_released")        
+
+# Government Costs
+LT_gov_rows <- c("inc_conv_len")  
+ST_gov_rows <- c("ccj_funding_2018")                                
+
+# Ns
+N_det     <- or_default(value_2025("n_detainees")$v, 1)
+N_society <- or_default(value_2025("n_society")$v, 1)
+
+```
+
+```{r}
+# CALCULATOR
+
+# Sum each bucket (sheet-driven signs inside sum_rows)
+
+# Detainee
+LT_det <- sum_rows(LT_det_rows, label = "Long-term value to detainee")
+ST_det <- sum_rows(ST_det_rows, label = "Short-term value to detainee")
+
+# Society
+LT_soc <- sum_rows(LT_soc_rows, label = "Long-term value to society")
+ST_soc <- sum_rows(ST_soc_rows, label = "Short-term value to society")
+
+# Gov
+LT_gov <- sum_rows(LT_gov_rows, label = "Long-term cost to government")
+ST_gov <- sum_rows(ST_gov_rows, label = "Short-term cost to government")
+
+# Combine ST + LT within each population (per-person amounts; already signed by sheet)
+det_per <- LT_det$total + ST_det$total
+soc_per <- LT_soc$total + ST_soc$total
+
+# Weight by Ns to convert to totals
+det_total <- det_per * N_det
+soc_total <- soc_per * N_det   # society benefits are per detainee right now
+
+# Government total is annual; add LT + ST with no weights
+gov_total <- LT_gov$total + ST_gov$total
+
+# Build numerator/denominator totals (2025$)
+numerator_total   <- soc_total + det_total
+denominator_total <- gov_total
+
+# MVPF
+MVPF_total <- if (denominator_total == 0) NA_real_ else numerator_total / denominator_total
+
+cat(glue("
+Totals (2025$):
+  Detainee total (ST+LT): {round(det_per,2)} × N_det={N_det} → {round(det_total,2)}
+  Society total  (ST+LT): {round(soc_per,2)} × N_det={N_det} → {round(soc_total,2)}
+  Government total (ST+LT): {round(gov_total,2)}
+
+Numerator_total   = {round(numerator_total,2)}
+Denominator_total = {round(denominator_total,2)}
+MVPF_total        = {round(MVPF_total,4)}
+"))
+
+```
+
+```{r}
+# MVPF FUNCTION
+#--- FUNCTION ---#
+calculate_mvpf_df <- function(
+    alt_id = 1,
+    ST_detainee_rows = c("wtp_freedom", "lost_wages"),
+    LT_detainee_rows = c("income_reduced"),
+    ST_society_rows  = c("crime_prev_measure", "case_outcomes_released"),
+    LT_society_rows  = c("wrongful_death_wtp_life", "haven_cost_of_crime"),
+    ST_govt_rows     = c("ccj_funding_2018"),
+    LT_govt_rows     = c("inc_conv_len"),
+    data_sheet       = MVPF_data 
+) {
+  
+  #--- Detainee Value ---#
+  LT_det <- sum_rows(LT_detainee_rows, sign = -1, label = "Long-term value to detainee")
+  ST_det <- sum_rows(ST_detainee_rows, sign = -1, label = "Short-term value to detainee")
+  
+  #--- Society Value ---#
+  LT_soc <- sum_rows(LT_society_rows, sign = +1, label = "Long-term value to society")
+  ST_soc <- sum_rows(ST_society_rows, sign = +1, label = "Short-term value to society")
+  
+  #--- Government Costs ---#
+  LT_gov <- sum_rows(LT_govt_rows, sign = +1, label = "Long-term cost to government")
+  ST_gov <- sum_rows(ST_govt_rows, sign = +1, label = "Short-term cost to government")
+  
+  #--- Totals (per person first) ---#
+  det_per <- LT_det$total + ST_det$total
+  soc_per <- LT_soc$total + ST_soc$total
+  gov_total <- LT_gov$total + ST_gov$total
+  
+  N_det     <- or_default(value_2025("n_detainees")$v, 1)
+  N_society <- or_default(value_2025("n_society")$v, 1)
+  
+  det_total <- det_per * N_det
+  soc_total <- soc_per * N_society
+  
+  numerator_total   <- soc_total + det_total
+  denominator_total <- gov_total
+  
+  numerator_per     <- numerator_total   / N_det
+  denominator_per   <- denominator_total / N_det
+  
+  mvpf_value <- numerator_total / denominator_total
+  
+  #--- Return tidy dataframe ---#
+  tibble(
+    alternative   = alt_id,
+    det_values_st = ST_det$total,
+    det_values_lt = LT_det$total,
+    soc_values_st = ST_soc$total,
+    soc_values_lt = LT_soc$total,
+    govt_costs_st = ST_gov$total,
+    govt_costs_lt = LT_gov$total,
+    mvpf_value    = mvpf_value
+  )
+}
+
+
+# Convert to results with multiple alternatives ---#
+
+results <- bind_rows(
+  calculate_mvpf_df(alt_id = 1), 
+  calculate_mvpf_df(alt_id = 2, ST_detainee_rows = c("lost_wages")), # only lost_wages
+  calculate_mvpf_df(alt_id = 3, LT_society_rows = c("wrongful_death_wtp_life")), # only this society row
+  calculate_mvpf_df(alt_id = 4, LT_govt_rows = c("inc_conv_len", "other_cost")) # add another govt cost
+)
+
+print(results)
+
+
+```
+
+```{r}
+
+print(calculate_mvpf_df(alt_id = 2, ST_detainee_rows = c("lost_wages")))
+print(calculate_mvpf_df(alt_id = 3, LT_society_rows = c("wrongful_death_wtp_life")))
+print(calculate_mvpf_df(alt_id = 4, LT_govt_rows = c("inc_conv_len", "other_cost")))
+```
+
+
+```{r}
+# Convert to table for visualization purposes
+
+MVPF_table <- results %>%
+  pivot_longer(
+    cols = c(det_values_st, det_values_lt,
+             soc_values_st, soc_values_lt,
+             govt_costs_lt, govt_costs_st,
+            ),
+    names_to = "components",
+    values_to = "value"
+  ) %>%
+  mutate(
+    levels = case_when(
+      grepl("det_", components) ~ "Detainee",
+      grepl("soc_", components) ~ "Society",
+      grepl("govt_", components) ~ "Government",
+      TRUE ~ "Other"
+    )
+  )
+
+```
+
+```{r}
+#Create treemap with subgroups
+library(ggplot2)
+library(treemapify)
+
+ggplot(MVPF_table,
+       aes(area = value, fill = levels,
+           label = round(value, 2), subgroup = levels)) +
+  geom_treemap() +
+  geom_treemap_subgroup_border(colour = "white", size = 4) +
+  geom_treemap_subgroup_text(place = "centre", grow = TRUE,
+                             alpha = 0.25, colour = "black",
+                             fontface = "italic") +
+  geom_treemap_text(colour = "white",
+                    place = "centre",
+                    size = 12, grow = TRUE) +
+  scale_fill_brewer(palette = "Blues") +
+  labs(title = "Sub Grouped Tree Plot for MVPF components")
+
+
+
+```
+
+   
+```{r}
+#Create diverging barchart
+
+# Add a capped value column for plotting
+MVPF_table_plot <- MVPF_table %>%
+  mutate(
+    plot_value = ifelse(abs(value) > 18500, sign(value) * 18500, value),
+    label_value = round(value, 0)  # keep actual value for labels
+  )
+
+  
+ggplot(MVPF_table_plot, aes(x = reorder(components, plot_value), y = plot_value, fill = levels)) +
+  geom_bar(stat = "identity", show.legend = TRUE) +
+  geom_text(aes(label = label_value,
+                hjust = ifelse(plot_value < 0, 1.1, -0.1)), 
+            size = 3) +
+  xlab("MVPF Components") +
+  ylab("Value (2025$)") +
+  coord_flip() +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  labs(fill = "Group",
+       title = "MVPF Component Breakdown (capped at 18,500)")
+
+```
