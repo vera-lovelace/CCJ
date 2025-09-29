@@ -9,12 +9,12 @@ install.packages("tidyr")
 
 library(ggplot2)
 library(tidyr)
-library(treemapify)
-
 library(readr)
 library(dplyr)
 library(stringr)
 library(glue)
+
+
 ```
 
 ```{r}
@@ -91,8 +91,8 @@ LT_det_rows <- c("income_reduced")
 ST_det_rows <- c("wtp_freedom", "lost_wages") 
 
 # Society Value
-LT_soc_rows <- c("wrongful_death_wtp_life", "haven_cost_of_crime")   
-ST_soc_rows <- c("crime_prev_measure", "case_outcomes_released")        
+LT_soc_rows <- c("wrongful_death_wtp_life")   
+ST_soc_rows <- c("crime_prev_measure")        
 
 # Government Costs
 LT_gov_rows <- c("inc_conv_len")  
@@ -105,7 +105,7 @@ N_society <- or_default(value_2025("n_society")$v, 1)
 ```
 
 ```{r}
-# CALCULATOR
+# CALCULATOR. -  NEEDS CORRECTION FROM INPUTS, WEIGHTS
 
 # Sum each bucket (sheet-driven signs inside sum_rows)
 
@@ -150,6 +150,9 @@ Denominator_total = {round(denominator_total,2)}
 MVPF_total        = {round(MVPF_total,4)}
 "))
 
+
+#FALSE RESULTS: MISSING INPUT WEIGHTS
+
 ```
 
 ```{r}
@@ -159,8 +162,8 @@ calculate_mvpf_df <- function(
     alt_id = 1,
     ST_detainee_rows = c("wtp_freedom", "lost_wages"),
     LT_detainee_rows = c("income_reduced"),
-    ST_society_rows  = c("crime_prev_measure", "case_outcomes_released"),
-    LT_society_rows  = c("wrongful_death_wtp_life", "haven_cost_of_crime"),
+    ST_society_rows  = c("crime_prev_measure"),
+    LT_society_rows  = c("wrongful_death_wtp_life"),
     ST_govt_rows     = c("ccj_funding_2018"),
     LT_govt_rows     = c("inc_conv_len"),
     data_sheet       = MVPF_data 
@@ -171,31 +174,45 @@ calculate_mvpf_df <- function(
   ST_det <- sum_rows(ST_detainee_rows, sign = -1, label = "Short-term value to detainee")
   
   #--- Society Value ---#
-  LT_soc <- sum_rows(LT_society_rows, sign = +1, label = "Long-term value to society")
+  LT_soc <- sum_rows(LT_society_rows, sign = -1, label = "Long-term value to society")
   ST_soc <- sum_rows(ST_society_rows, sign = +1, label = "Short-term value to society")
   
   #--- Government Costs ---#
   LT_gov <- sum_rows(LT_govt_rows, sign = +1, label = "Long-term cost to government")
   ST_gov <- sum_rows(ST_govt_rows, sign = +1, label = "Short-term cost to government")
   
-  #--- Totals (per person first) ---#
-  det_per <- LT_det$total + ST_det$total
-  soc_per <- LT_soc$total + ST_soc$total
-  gov_total <- LT_gov$total + ST_gov$total
-  
+  #--- Inputs ---#
   N_det     <- or_default(value_2025("n_detainees")$v, 1)
   N_society <- or_default(value_2025("n_society")$v, 1)
+  N_jail <- or_default(value_2025("n_jail_flow")$v, 1)
+  lost_wages <- or_default(value_2025("lost_wages")$v, 1)*24
+  mc_jail_days<- or_default(value_2025("mc_jail_days")$v, 1)*los_days
   
-  det_total <- det_per * N_det
-  soc_total <- soc_per * N_society
+    # Debug prints
+  cat("\n--- Alternative:", alt_id, "---\n")
+  cat("LT_det:", LT_det$total, "\n")
+  cat("ST_det:", ST_det$total, "\n")
+  cat("LT_soc:", LT_soc$total, "\n")
+  cat("ST_soc:", ST_soc$total, "\n")
+  cat("LT_gov:", LT_gov$total, "\n")
+  cat("ST_gov:", ST_gov$total, "\n")
+  cat("N_det:", N_det, "N_society:", N_society, "N_jail:", N_jail, "\n")
+
   
+  #--- Totals (per person first) ---#
+  det_per <- (LT_det$total + ST_det$total)* N_det
+  soc_per <- (LT_soc$total + ST_soc$total)* N_society
+  gov_total <- LT_gov$total + (ST_gov$total/N_jail)
+  
+  cat("det_per:", det_per, "soc_per:", soc_per, "gov_total:", gov_total, "\n")
+  
+  #--- MVPF Calculation ---#
+
   numerator_total   <- soc_total + det_total
   denominator_total <- gov_total
-  
-  numerator_per     <- numerator_total   / N_det
-  denominator_per   <- denominator_total / N_det
-  
   mvpf_value <- numerator_total / denominator_total
+  
+ cat("numerator:", numerator_total , "denom:", denominator_total, "mvpf:", mvpf_value, "\n")
   
   #--- Return tidy dataframe ---#
   tibble(
@@ -214,11 +231,45 @@ calculate_mvpf_df <- function(
 # Convert to results with multiple alternatives ---#
 
 results <- bind_rows(
-  calculate_mvpf_df(alt_id = 1), 
-  calculate_mvpf_df(alt_id = 2, ST_detainee_rows = c("lost_wages")), # only lost_wages
-  calculate_mvpf_df(alt_id = 3, LT_society_rows = c("wrongful_death_wtp_life")), # only this society row
-  calculate_mvpf_df(alt_id = 4, LT_govt_rows = c("inc_conv_len")) # add another govt cost
+  calculate_mvpf_df(
+    alt_id = 1,     
+    ST_detainee_rows = c("wtp_freedom", "lost_wages"),
+    LT_detainee_rows = c("income_reduced"),
+    ST_society_rows  = c("crime_prev_measure"),
+    LT_society_rows  = c("wrongful_death_wtp_life"),
+    ST_govt_rows     = c("ccj_funding_2018"),
+    LT_govt_rows     = c("inc_conv_len")
+    ),
+  calculate_mvpf_df(
+    alt_id = 2,     
+    ST_detainee_rows = c("wtp_rhv"),      # changed to relative harm val.
+    LT_detainee_rows = c("income_reduced"),
+    ST_society_rows  = c("crime_prev_measure"),
+    LT_society_rows  = c("wrongful_death_wtp_life"),
+    ST_govt_rows     = c("ccj_funding_2018"),
+    LT_govt_rows     = c("inc_conv_len"),
+    ),
+  calculate_mvpf_df(
+    alt_id = 3,     
+    ST_detainee_rows = c("wtp_freedom", "lost_wages"),
+    LT_detainee_rows = c("income_reduced"),
+    ST_society_rows  = c("crime_prev_measure"),
+    LT_society_rows  = c("wrongful_death_wtp_life"),
+    ST_govt_rows     = c("mc_jail_day", "postrel_health_spike"), # add another govt cost
+    LT_govt_rows     = c("inc_conv_len"),
+    ),
+  calculate_mvpf_df(
+    alt_id = 4,     
+    ST_detainee_rows = c("wtp_freedom", "lost_wages"),
+    LT_detainee_rows = c("income_reduced"),
+    ST_society_rows  = c("crime_prev_measure"),
+    LT_society_rows  = c("wrongful_death_wtp_life", "haven_cost_of_crime"),  # added HAVEN.
+    ST_govt_rows     = c("ccj_funding_2018"),
+    LT_govt_rows     = c("inc_conv_len"),
+    ) 
 )
+
+write_csv(results, "CCJ_MVPF_alt.csv")
 
 print(results)
 
@@ -248,31 +299,11 @@ MVPF_table <- results %>%
     )
   )
 
-```
+write_csv(MVPF_table, "CCJ_MVPF.csv")
 
-```{r}
-#Create treemap with subgroups
-library(ggplot2)
-library(treemapify)
-
-ggplot(MVPF_table,
-       aes(area = value, fill = levels,
-           label = round(value, 2), subgroup = levels)) +
-  geom_treemap() +
-  geom_treemap_subgroup_border(colour = "white", size = 4) +
-  geom_treemap_subgroup_text(place = "centre", grow = TRUE,
-                             alpha = 0.25, colour = "black",
-                             fontface = "italic") +
-  geom_treemap_text(colour = "white",
-                    place = "centre",
-                    size = 12, grow = TRUE) +
-  scale_fill_brewer(palette = "Blues") +
-  labs(title = "Sub Grouped Tree Plot for MVPF components")
-
-
+print(MVPF_table)
 
 ```
-
    
 ```{r}
 #Create diverging barchart
@@ -300,8 +331,10 @@ ggplot(MVPF_table_plot, aes(x = reorder(components, plot_value), y = plot_value,
 
 ```
 
+
 ```{r}
-# convert data to html-based structure to use in python plotly dash 
+#Create waterfall
+
 
 
 ```
