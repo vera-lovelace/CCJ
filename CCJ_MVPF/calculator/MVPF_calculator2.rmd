@@ -214,18 +214,7 @@ calculate_mvpf_df <- function(
   
  cat("numerator:", numerator_total , "denom:", denominator_total, "mvpf:", mvpf_value, "\n")
   
-  #--- Return tidy dataframe ---#
-  tibble(
-    alternative   = alt_id,
-    det_values_st = ST_det$total,
-    det_values_lt = LT_det$total,
-    soc_values_st = ST_soc$total,
-    soc_values_lt = LT_soc$total,
-    govt_costs_st = ST_gov$total,
-    govt_costs_lt = LT_gov$total,
-    mvpf_value    = mvpf_value
-  )
-}
+
 
 
 # Convert to results with multiple alternatives ---#
@@ -268,6 +257,19 @@ results <- bind_rows(
     LT_govt_rows     = c("inc_conv_len"),
     ) 
 )
+
+  #--- Return tidy dataframe ---#
+  tibble(
+    alternative   = alt_id,
+    det_values_st = ST_det$total,
+    det_values_lt = LT_det$total,
+    soc_values_st = ST_soc$total,
+    soc_values_lt = LT_soc$total,
+    govt_costs_st = ST_gov$total,
+    govt_costs_lt = LT_gov$total,
+    mvpf_value    = mvpf_value
+  )
+}
 
 write_csv(results, "CCJ_MVPF_alt.csv")
 
