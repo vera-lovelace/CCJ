@@ -8,7 +8,7 @@ import dash_daq as daq
 # Load the CSV data
 
 try:
-    mvpf_data = pd.read_csv('Data/CCJ_MVPF.csv')  # Update path if needed
+    mvpf_data = pd.read_csv('CCJ_MVPF.csv')  # Update path if needed
 except FileNotFoundError:
     raise FileNotFoundError("CSV file not found. Please ensure 'Data/CCJ_MVPF.csv' exists.")
 
@@ -109,9 +109,7 @@ def update_output(switch1, switch2, switch3, scenario, year):
 
 # Run app
 if __name__ == '__main__':
-    app.run_server(debug=True)
-
-
+    app.run(debug=True)
 
     # MVPF calculation: load R script calculator if any switch is on
     #if switch1 or switch2 or switch3:

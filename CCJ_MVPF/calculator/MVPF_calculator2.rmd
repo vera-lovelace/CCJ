@@ -215,7 +215,10 @@ calculate_mvpf_df <- function(
  cat("numerator:", numerator_total , "denom:", denominator_total, "mvpf:", mvpf_value, "\n")
   
 
+```
 
+
+```{r}
 
 # Convert to results with multiple alternatives ---#
 
