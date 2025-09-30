@@ -1,14 +1,20 @@
+#!pip install pandas
+
 import pandas as pd
 import plotly.express as px
 from dash import Dash, dcc, html, Input, Output
 import dash_daq as daq
 
 # Load the CSV data
-mvpf_data = pd.read_csv('Data/CCJ_MVPF.csv')  # Update path if needed
+
+try:
+    mvpf_data = pd.read_csv('Data/CCJ_MVPF.csv')  # Update path if needed
+except FileNotFoundError:
+    raise FileNotFoundError("CSV file not found. Please ensure 'Data/CCJ_MVPF.csv' exists.")
 
 # Define mappings for MVPF alternatives (same logic as R inputs)
 alt_definitions = {
-    1: {
+    1: {\
         "ST_detainee_rows": ["wtp_freedom", "lost_wages"],
         "LT_detainee_rows": ["income_reduced"],
         "ST_society_rows": ["crime_prev_measure"],
@@ -52,30 +58,24 @@ app.layout = html.Div([
         dcc.Dropdown(
             id='alternative',
             options=[{'label': f'Alternative {i}', 'value': i} for i in alt_definitions],
-            value=1
+            value=1  # Default value
         )
     ], style={'fontSize': 24, 'marginBottom': '20px'}),
     html.Div(id='alt-variables', style={'whiteSpace': 'pre-wrap', 'fontFamily': 'monospace', 'fontSize': 16}),
     html.Div(id='bar-plot'),
     html.Div(id='mvpf-output', style={'fontSize': 24, 'marginTop': '20px', 'color': 'darkgreen'})
-    html.Br(),
-    html.Br(),
-    html.Div(id='bar-plot'),
-    html.Div(id='MVPF'),
 ])
 
 #selector between alternatives,
 #then print out the content of the selected rows
 
 # callbacks (update as needed)
-import subprocess
 
 @app.callback(
-    Output('alt-variables', 'children'),
-    Output('bar-plot', 'children'),
-    Output('mvpf-output', 'children'),
-    Input('alternative', 'value')
-    Input('input-year', 'value'),
+    [Output('alt-variables', 'children'),
+     Output('bar-plot', 'children'),
+     Output('mvpf-output', 'children')],
+    [Input('alternative', 'value')]
 )
 def update_output(switch1, switch2, switch3, scenario, year):
     # Get variable definitions
@@ -93,11 +93,15 @@ def update_output(switch1, switch2, switch3, scenario, year):
     ])
 
     # create a bar plot from mvpf_data
-    fig = px.bar(mvpf_data, x=mvpf_data.columns[0], y=mvpf_data.columns[1])
-    bar_plot = dcc.Graph(figure=fig)
+    if not filtered_df.empty:
+        fig = px.bar(filtered_df, x='name', y='value', title="Filtered Values for Selected Alternative")
+        bar_plot = dcc.Graph(figure=fig)
+    else:
+        bar_plot = html.Div("No data available for the selected alternative.", style={'color': 'red'})
+
 
     # Calculate MVPF (simulated): just sum values (replace with real formula if needed)
-    mvpf_value = filtered_df['value'].sum()
+    mvpf_value = filtered_df['value'].sum() if not filtered_df.empty else 0
     mvpf_text = f"Simulated MVPF value: {mvpf_value:.2f}"
 
     return var_display, bar_plot, mvpf_text
