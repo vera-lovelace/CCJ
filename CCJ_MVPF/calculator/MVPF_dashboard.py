@@ -55,44 +55,41 @@ app.layout = html.Div([
     html.H1('MVPF Calculator',
             style={'textAlign': 'center', 'color': '#503D36', 'font-size': 40}),
 
-    # Dropdown Selector (Full Width at the Very Top)
+    # 1. Alternative Selection (Dropdown)
     html.Div([
         html.Label("Select MVPF Alternative:"),
         dcc.Dropdown(
             id='alternative',
-            options=[ {'label': f'Alternative {i}', 'value': i}
+            options=[
+                {'label': f'Alternative {i}', 'value': i}
                 for i in sorted(MVPF_table['alternative'].unique())
-            ],  # Your options list
+            ],  # Your options list generation goes here
             value=1
         )
     ], style={'fontSize': 24, 'marginBottom': '20px'}),
 
-    # --- START TOP ROW: Side-by-Side (Waterall & Final Value) ---
-    html.Div(style={'display': 'flex', 'flexDirection': 'row', 'gap': '20px', 'marginBottom': '20px'}, children=[
+    # 2. Final MVPF Value (mvpf-output)
+    html.Div(id='mvpf-output',
+             style={'fontSize': 24,
+                    'color': 'darkblue',
+                    'marginTop': '10px',
+                    'marginBottom': '20px'
+                    }),
 
-        # COLUMN 1: Waterfall Chart (Takes about 75-80% of the width)
-        html.Div(id='bar-plot', style={'flex': '3'}),  # flex: 3 means it takes 3 parts of 4 total
+    # 3. Waterfall Plot (bar-plot)
+    html.Div(id='bar-plot', style={'marginBottom': '30px'}),
 
-        # COLUMN 2: Final MVPF Value (Takes about 20-25% of the width)
-        html.Div(id='mvpf-output',
-                 style={'flex': '1',  # flex: 1 means it takes 1 part of 4 total
-                        'fontSize': 24,
-                        'fontWeight': 'bold',
-                        'color': 'darkgreen',
-                        'textAlign': 'center',
-                        'paddingTop': '50px',  # Vertically center the text a bit
-
-                        }),
-    ]),
-    # --- END TOP ROW ---
-
-    # Input Variables/Rows (Full Width at the Bottom)
+    # 4. Input Variables/Rows (alt-variables)
     html.Div(id='alt-variables',
              style={'whiteSpace': 'pre-wrap',
-                    'fontFamily': 'monospace',
-                    'fontSize': 16,
+                    'fontFamily': 'Arial, sans-serif',
+                    'fontSize': 18,
+                    'fontWeight': 'bold',
+                    'color': 'darkblue',
+                    'marginTop': '10px',
+                    'marginBottom': '20px',
                     'borderTop': '1px solid #ccc',
-                    'paddingTop': '15px'
+                    'paddingTop': '15px',
                     })
 ])
 
@@ -102,14 +99,12 @@ app.layout = html.Div([
 
 
 @app.callback(
-    [
-     Output('bar-plot', 'children'),
-     Output('mvpf-output', 'children'),
-     Output('alt-variables', 'children'),
-     ],
-    [Input('alternative', 'value'),
-     ]
+    [Output('mvpf-output', 'children'),   # 1. Final Value (First Output)
+     Output('bar-plot', 'children'),      # 2. Plot
+     Output('alt-variables', 'children')], # 3. Input Variables (Last Output)
+    [Input('alternative', 'value')]
 )
+
 
 
 def update_output(alt_id):
@@ -140,50 +135,51 @@ def update_output(alt_id):
 
     # The mvpf_value is repeated in all rows, so we grab the first one
     mvpf_val = filtered_df['mvpf_value'].iloc[0]
-    mvpf_output = f"Final MVPF for Alternative {alt_id}: **{mvpf_val:,.2f}**"
+    mvpf_output = f"MVPF: {mvpf_val:,.2f} USD"
 
-    # 3. CREATE WATERFALL CHART
+    # 3. CREATE BAR PLOT (Switched from go.Figure/go.Waterfall)
 
-    # --- Data Preparation for Waterfall ---
-    final_total = filtered_df['value'].sum()
+    if filtered_df.empty:
+        # If no data is available after filtering, return a placeholder
+        bar_plot = html.Div("No data available for the plot.", style={'color': 'orange'})
+    else:
+        # Use Plotly Express Bar for component visualization
+        fig = px.bar(
+            filtered_df,
+            x='levels',  # Group bars by the main category (Detainee, Society, Gov)
+            y='value',  # The amount for each component
+            color='components',  # Use the detailed component name for stacking/coloring
+            text_auto=True,
+            title=f"MVPF Component Breakdown (Alternative {alt_id})",
+            labels={
+                'levels': 'Population/Cost Group',
+                'value': 'Value (2025$)'
+            },
+            # Use a facet to separate positive/negative impacts if desired, or just stack:
+            # text='value' # Optional: Display value on top of bars
+        )
+        # 2. Update traces for text formatting
+        fig.update_traces(
+            texttemplate='%{y:$,.0f}',
+            textposition='outside'
+        )
 
-    # --- Create Plotly Waterfall Figure ---
-    fig = go.Figure(go.Waterfall(
-        # X-axis labels: The specific components (e.g., det_values_lt)
-        x=filtered_df['components'],
-        # All bars represent a change from the previous step (relative)
-        measure=["relative"] * len(filtered_df),
-        # Y-axis values: The dollar amount
-        y=filtered_df['value'],
+        # Adjust layout for better readability
+        fig.update_layout(
+            barmode='stack',
+            xaxis_title="Population/Cost Group",
+            yaxis_title="Value (2025$)",
+            uniformtext_minsize=8,  # Helps ensure text labels fit
+            uniformtext_mode='show'
+        )
 
-        # Define colors for positive/negative change
-        increasing={"marker": {"color": "green"}},
-        decreasing={"marker": {"color": "red"}},
+        # Draw a horizontal line at y=0
 
-        connector={"line": {"color": "rgb(63, 63, 63)"}},
-    ))
 
-    # Add the final cumulative bar (TOTAL)
-    fig.add_trace(go.Waterfall(
-        x=['TOTAL (Cumulative)'],
-        measure=['total'],
-        y=[final_total],
-        name='TOTAL (Cumulative)',
-        connector={"line": {"color": "rgb(63, 63, 63)"}}
-    ))
-
-    fig.update_layout(
-        title=f"MVPF Component Breakdown (Alternative {alt_id})",
-        showlegend=False,
-        margin=dict(l=20, r=20, t=50, b=20),
-        xaxis_tickangle=-45,
-        yaxis_title="Value (2025$)"
-    )
-
-    bar_plot = dcc.Graph(figure=fig)
+        bar_plot = dcc.Graph(figure=fig)
 
     # Return the three required outputs
-    return var_display, bar_plot, mvpf_output
+    return mvpf_output, bar_plot, var_display
 
 
 "Simulated MVPF value: {mvpf_value:.2f}"
