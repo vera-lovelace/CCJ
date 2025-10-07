@@ -1,11 +1,11 @@
 ```{r}
-install.packages("readr")
-install.packages("dplyr")
-install.packages("stringr")
-install.packages("glue")
-install.packages("ggplot2")
-install.packages("treemapify")
-install.packages("tidyr")
+# install.packages("readr")
+# install.packages("dplyr")
+# install.packages("stringr")
+# install.packages("glue")
+# install.packages("ggplot2")
+# install.packages("treemapify")
+# install.packages("tidyr")
 
 library(ggplot2)
 library(tidyr)
@@ -13,7 +13,6 @@ library(readr)
 library(dplyr)
 library(stringr)
 library(glue)
-
 
 ```
 
