@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-# simple_per70_summary.py
+# simple_per60_summary.py
 #
 # Minimal, readable pipeline:
 #   1) load_clean_with_em_flag -> booking-level table with is_EM + day counts
 #   2) add_cuts                -> labeled quartiles for LOS & age
-#   3) summarize_per70_and_write -> per-70-day summaries to Excel (incl/excl EM)
+#   3) summarize_per60_and_write -> per-60-day summaries to Excel (incl/excl EM)
 
 import argparse
 from pathlib import Path
@@ -149,21 +149,21 @@ def add_cuts(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# ---------- 3) summarize per-70 and write ----------
+# ---------- 3) summarize per-60 and write ----------
 
-def _add_per70_rates(df: pd.DataFrame) -> pd.DataFrame:
+def _add_per60_rates(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     los = pd.to_numeric(df["length_of_stay"], errors="coerce")
     los[los <= 0] = np.nan
-    def _rate(col): return (pd.to_numeric(df[col], errors="coerce") / los) * 70.0
-    df["rate70_bed_moves"]      = _rate("days_with_bed_change")
-    df["rate70_incidents"]      = _rate("days_with_incident")
-    df["rate70_infractions"]    = _rate("days_with_infraction")
-    df["rate70_medical_visits"] = _rate("days_with_medical_visit")
+    def _rate(col): return (pd.to_numeric(df[col], errors="coerce") / los) * 60.0
+    df["rate60_bed_moves"]      = _rate("days_with_bed_change")
+    df["rate60_incidents"]      = _rate("days_with_incident")
+    df["rate60_infractions"]    = _rate("days_with_infraction")
+    df["rate60_medical_visits"] = _rate("days_with_medical_visit")
     return df
 
 def _summarize(df: pd.DataFrame, by_col: str, breakout_name: str) -> pd.DataFrame:
-    rate_cols = ["rate70_bed_moves", "rate70_incidents", "rate70_infractions", "rate70_medical_visits"]
+    rate_cols = ["rate60_bed_moves", "rate60_incidents", "rate60_infractions", "rate60_medical_visits"]
     grp = (
         df.groupby(by_col, dropna=False)[rate_cols]
           .mean(numeric_only=True)
@@ -177,7 +177,7 @@ def _summarize(df: pd.DataFrame, by_col: str, breakout_name: str) -> pd.DataFram
     return out
 
 def _build_summary(df: pd.DataFrame) -> pd.DataFrame:
-    df = _add_per70_rates(df)
+    df = _add_per60_rates(df)
     for col in ["gender", "most_severe_crime_time"]:
         if col not in df.columns:
             df[col] = np.nan
@@ -191,19 +191,19 @@ def _build_summary(df: pd.DataFrame) -> pd.DataFrame:
         "breakout": ["overall"],
         "category": ["All bookings"],
         "n_bookings": [df["booking_id"].nunique()],
-        "rate70_bed_moves": [df["rate70_bed_moves"].mean(numeric_only=True)],
-        "rate70_incidents": [df["rate70_incidents"].mean(numeric_only=True)],
-        "rate70_infractions": [df["rate70_infractions"].mean(numeric_only=True)],
-        "rate70_medical_visits": [df["rate70_medical_visits"].mean(numeric_only=True)],
+        "rate60_bed_moves": [df["rate60_bed_moves"].mean(numeric_only=True)],
+        "rate60_incidents": [df["rate60_incidents"].mean(numeric_only=True)],
+        "rate60_infractions": [df["rate60_infractions"].mean(numeric_only=True)],
+        "rate60_medical_visits": [df["rate60_medical_visits"].mean(numeric_only=True)],
     })
     summary = pd.concat(parts + [overall], ignore_index=True)
     cols = ["breakout", "category", "n_bookings",
-            "rate70_bed_moves", "rate70_incidents", "rate70_infractions", "rate70_medical_visits"]
+            "rate60_bed_moves", "rate60_incidents", "rate60_infractions", "rate60_medical_visits"]
     return summary[cols]
 
-def summarize_per70_and_write(df: pd.DataFrame, xlsx_path: str) -> None:
+def summarize_per60_and_write(df: pd.DataFrame, xlsx_path: str) -> None:
     """
-    Splits by is_EM, creates per-70 summaries for each, writes to one Excel with two sheets.
+    Splits by is_EM, creates per-60 summaries for each, writes to one Excel with two sheets.
     """
     df = add_cuts(df)
 
@@ -225,12 +225,12 @@ def summarize_per70_and_write(df: pd.DataFrame, xlsx_path: str) -> None:
 # ---------- CLI ----------
 
 def main():
-    ap = argparse.ArgumentParser(description="Per-70-day summaries (incl/excl EM) with simple, readable steps.")
+    ap = argparse.ArgumentParser(description="Per-60-day summaries (incl/excl EM) with simple, readable steps.")
     ap.add_argument("--data-dir", default=".", help="Directory containing bookings.csv, events_log.csv, bed_move_event.csv")
     ap.add_argument("--bookings", help="Override path to bookings.csv")
     ap.add_argument("--events", help="Override path to events_log.csv")
     ap.add_argument("--bed-moves", help="Override path to bed_move_event.csv")
-    ap.add_argument("--xlsx", default="per70_summary.xlsx", help="Output Excel path")
+    ap.add_argument("--xlsx", default="per60_summary.xlsx", help="Output Excel path")
     ap.add_argument("--em-pattern", default="electronic monitoring", help="Substring in bed_move_event.cell to flag EM")
     args = ap.parse_args()
 
@@ -252,7 +252,7 @@ def main():
     )
 
     # 3) summarize + write (2) handles cuts internally
-    summarize_per70_and_write(df, xlsx_path=args.xlsx)
+    summarize_per60_and_write(df, xlsx_path=args.xlsx)
 
 
 if __name__ == "__main__":
