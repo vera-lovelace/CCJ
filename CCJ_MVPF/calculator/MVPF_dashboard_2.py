@@ -51,22 +51,27 @@ alt_definitions = {
 
 app = Dash(__name__)
 
+# Style settings for active/inactive buttons (for visual feedback)
+BUTTON_STYLE = {'marginRight': '10px', 'padding': '10px 15px', 'borderRadius': '8px', 'border': '1px solid #ccc', 'cursor': 'pointer'}
+ACTIVE_STYLE = {**BUTTON_STYLE, 'backgroundColor': '#007bff', 'color': 'white', 'fontWeight': 'bold', 'border': '1px solid #007bff'}
+INACTIVE_STYLE = {**BUTTON_STYLE, 'backgroundColor': '#f0f0f0', 'color': '#333'}
+
+
 app.layout = html.Div([
     html.H1('MVPF Calculator',
             style={'textAlign': 'center', 'color': '#503D36', 'font-size': 40}),
 
     # 1. Alternative Selection (Dropdown)
     html.Div([
-        html.Label("Select MVPF Alternative:"),
-        dcc.Dropdown(
-            id='alternative',
-            options=[
-                {'label': f'Alternative {i}', 'value': i}
-                for i in sorted(MVPF_table['alternative'].unique())
-            ],  # Your options list generation goes here
-            value=1
-        )
+        html.Label("Select MVPF Alternative:", style={'marginRight': '20px', 'fontSize': 20}),
+        html.Button('Alternative 1', id='btn-alt-1', n_clicks=0, style={'marginRight': '10px'}),
+        html.Button('Alternative 2', id='btn-alt-2', n_clicks=0, style={'marginRight': '10px'}),
+        html.Button('Alternative 3', id='btn-alt-3', n_clicks=0, style={'marginRight': '10px'}),
+        html.Button('Alternative 4', id='btn-alt-4', n_clicks=0, style={'marginRight': '10px'}),
     ], style={'fontSize': 24, 'marginBottom': '20px'}),
+
+    # Hides the selected value, used to feed the main callback
+    dcc.Store(id='alternative-store', data=1), # Initialize with Alternative 1
 
     # 2. Final MVPF Value (mvpf-output)
     html.Div(id='mvpf-output',
@@ -76,10 +81,7 @@ app.layout = html.Div([
                     'marginBottom': '20px'
                     }),
 
-    # 3. Waterfall Plot (bar-plot)
-    html.Div(id='bar-plot', style={'marginBottom': '30px'}),
-
-    # 4. Input Variables/Rows (alt-variables)
+    # 3. Input Variables/Rows (alt-variables)
     html.Div(id='alt-variables',
              style={'whiteSpace': 'pre-wrap',
                     'fontFamily': 'Arial, sans-serif',
@@ -97,32 +99,76 @@ app.layout = html.Div([
 #then print out the content of the selected rows
 
 
+# Callback to update button styles for visual feedback
+@app.callback(
+    [Output('btn-alt-1', 'style'),
+     Output('btn-alt-2', 'style'),
+     Output('btn-alt-3', 'style'),
+     Output('btn-alt-4', 'style')],
+    [Input('alternative-store', 'data')]
+)
+def update_button_styles(alt_id):
+    styles = [INACTIVE_STYLE] * 4
+    if alt_id is not None and 1 <= alt_id <= 4:
+        styles[alt_id - 1] = ACTIVE_STYLE
+    return styles
 
 @app.callback(
-    [Output('mvpf-output', 'children'),   # 1. Final Value (First Output)
-     Output('bar-plot', 'children'),      # 2. Plot
-     Output('alt-variables', 'children')], # 3. Input Variables (Last Output)
-    [Input('alternative', 'value')]
+    [Output('mvpf-output', 'children'),
+     Output('bar-plot', 'children'),
+     Output('alt-variables', 'children'),
+     Output('alternative-store', 'data')], # Update the store with the newly selected ID
+    [Input('btn-alt-1', 'n_clicks'),
+     Input('btn-alt-2', 'n_clicks'),
+     Input('btn-alt-3', 'n_clicks'),
+     Input('btn-alt-4', 'n_clicks')]
 )
 
+def update_output(alt_id) :
+    ctx = callback_context
 
+    # --- 1. Determine the selected alternative ID (alt_id) ---
+    # Check if any input was triggered by a user click
+    if not ctx.triggered or ctx.triggered[0]['value'] == 0:
+        # Initial load or no actual button click yet (use default from store: 1)
+        alt_id = 1
+    else:
+        # Determine which button triggered the callback
+        button_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
-def update_output(alt_id):
+        if button_id == 'btn-alt-1':
+            alt_id = 1
+        elif button_id == 'btn-alt-2':
+            alt_id = 2
+        elif button_id == 'btn-alt-3':
+            alt_id = 3
+        elif button_id == 'btn-alt-4':
+            alt_id = 4
+        else:
+            # Should not happen, but fallback to 1
+            alt_id = 1
+
+    # --- 2. Filter data based on selected alt_id ---
+
     # 1. Filter the pre-calculated MVPF table by the selected Alternative ID
     # Use the 'alternative' column for filtering
     filtered_df = MVPF_table[MVPF_table['alternative'] == alt_id]
 
     if filtered_df.empty:
         return (
-            f"Alternative {alt_id} definitions:",
-            html.Div("No data found for this alternative in the MVPF_table.", style={'color': 'red'}),
-            "Final MVPF: N/A"
+            "Final MVPF: N/A",
+            html.Div(f"No data found for Alternative {alt_id}.", style={'color': 'red'}),
+            "Alternative Definitions: N/A",
+            alt_id  # Return the ID to the store even if data is missing
         )
 
     # 2. Extract Variables and MVPF Value
     # Get the row definitions for display (assuming alt_definitions is loaded)
-    alt_vars = alt_definitions.get(alt_id, {})
+    # The mvpf_value is repeated in all rows, so we grab the first one
+    mvpf_val = filtered_df['mvpf_value'].iloc[0]
+    mvpf_output = f"MVPF (Alternative {alt_id}): ${mvpf_val:,.2f}"
 
+    alt_vars = alt_definitions.get(alt_id, {})
     var_display = "\n".join([
         f"--- Alternative {alt_id} Component Rows ---",
         f"ST_detainee_rows: {alt_vars.get('ST_detainee_rows', ['N/A'])}",
@@ -133,11 +179,10 @@ def update_output(alt_id):
         f"LT_govt_rows:     {alt_vars.get('LT_govt_rows', ['N/A'])}"
     ])
 
-    # The mvpf_value is repeated in all rows, so we grab the first one
-    mvpf_val = filtered_df['mvpf_value'].iloc[0]
-    mvpf_output = f"MVPF: {mvpf_val:,.2f} USD"
 
     # 3. CREATE BAR PLOT (Switched from go.Figure/go.Waterfall)
+
+    html.Div(id='bar-plot', style={'marginBottom': '30px'}),
 
     if filtered_df.empty:
         # If no data is available after filtering, return a placeholder
@@ -164,22 +209,24 @@ def update_output(alt_id):
             textposition='outside'
         )
 
-        # Adjust layout for better readability
+        # Adjust layout
         fig.update_layout(
             barmode='stack',
             xaxis_title="Population/Cost Group",
-            yaxis_title="Value (2025$)",
-            uniformtext_minsize=8,  # Helps ensure text labels fit
+            yaxis_title="Value (USD)",
+            legend_title="Component",
+            plot_bgcolor='white',
+            paper_bgcolor='#F9FAFB',
+            uniformtext_minsize=8,
             uniformtext_mode='show'
         )
-
         # Draw a horizontal line at y=0
 
 
         bar_plot = dcc.Graph(figure=fig)
 
     # Return the three required outputs
-    return mvpf_output, bar_plot, var_display
+    return mvpf_output, bar_plot, var_display, alt_id
 
 
 "Simulated MVPF value: {mvpf_value:.2f}"
