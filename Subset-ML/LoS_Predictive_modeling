@@ -1,0 +1,611 @@
+# Building a predictive model for CCJ jail facility, predicting length of stay
+
+#Main steps
+# merge tables
+# handle mutli-row booking_ids
+# combine all tables
+# feature engineering
+# Initial model testing
+# Analysis 
+# Validation
+
+import pandas as pd
+import numpy as np
+from pathlib import Path
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+import matplotlib.pyplot as plt
+import seaborn as sns
+import warnings
+warnings.filterwarnings('ignore')
+
+class CCJLengthOfStayPredictor:
+    """
+    Predictive model for CCJ jail facility length of stay
+    Handles multiple datasets with proper aggregation and one-hot encoding
+    """
+    
+    def __init__(self, base_dir):
+        self.base_dir = Path(base_dir)
+        self.merged_data = None
+        self.X_train = None
+        self.X_test = None
+        self.y_train = None
+        self.y_test = None
+        self.scaler = StandardScaler()
+        self.models = {}
+        self.best_model = None
+        self.feature_importance = None
+        
+    def load_and_process_bookings(self):
+        """Load bookings table (one row per booking_id)"""
+        print("Loading bookings.csv...")
+        bookings = pd.read_csv(self.base_dir /"bookings.csv")
+        
+        if 'booking_id' in bookings.columns:
+            bookings = bookings.set_index('booking_id')
+        
+        print(f"  ✓ Bookings shape: {bookings.shape}")
+        print(f"  ✓ Unique booking_ids: {len(bookings)}")
+        
+        # Verify length_of_stay exists
+        if 'length_of_stay' in bookings.columns:
+            print(f"  ✓ Target variable 'length_of_stay' found")
+            print(f"    Mean LOS: {bookings['length_of_stay'].mean():.2f} days")
+        else:
+            print(f"  ⚠ Warning: 'length_of_stay' not found in bookings")
+        
+        return bookings
+    
+    def process_charges(self):
+        """
+        Process charges with one-hot encoding for crime_type and crime_class
+        Multiple rows per booking_id
+        """
+        print("\nLoading charges.csv...")
+        charges = pd.read_csv(self.base_dir /"charges.csv")
+        
+        print(f"  Original shape: {charges.shape}")
+        print(f"  Unique booking_ids: {charges['booking_id'].nunique()}")
+        print(f"  Avg charges per booking: {len(charges) / charges['booking_id'].nunique():.2f}")
+        
+        # One-hot encode crime_type (F or M)
+        crime_type_dummies = pd.get_dummies(charges['crime_type'], prefix='crime_type')
+        
+        # One-hot encode crime_class (1,2,3,4,A,M,X)
+        crime_class_dummies = pd.get_dummies(charges['crime_class'], prefix='crime_class')
+        
+        # Combine with booking_id
+        charges_encoded = pd.concat([
+            charges[['booking_id']], 
+            crime_type_dummies, 
+            crime_class_dummies
+        ], axis=1)
+        
+        # Aggregate by booking_id (sum to count occurrences of each category)
+        charges_agg = charges_encoded.groupby('booking_id').sum()
+        
+        # Add total charge count
+        charges_agg['total_charges_count'] = charges.groupby('booking_id').size()
+        
+        print(f"  ✓ Aggregated to {len(charges_agg)} unique bookings")
+        print(f"  ✓ Created features: {list(charges_agg.columns)}")
+        
+        return charges_agg
+    
+    def process_incidents(self):
+        """
+        Process incidents - binary flag for any incident
+        Multiple rows per booking_id
+        """
+        print("\nLoading incidents.csv...")
+        try:
+            incidents = pd.read_csv(self.base_dir /"incident_details.csv")
+            
+            print(f"  Original shape: {incidents.shape}")
+            print(f"  Unique booking_ids: {incidents['booking_id'].nunique()}")
+            
+            # Create binary flag: 1 if any incident, 0 otherwise
+            incidents_flag = incidents.groupby('booking_id').size().reset_index()
+            incidents_flag.columns = ['booking_id', 'incident_count']
+            incidents_flag['has_incident'] = 1
+            incidents_flag = incidents_flag.set_index('booking_id')[['has_incident', 'incident_count']]
+            
+            print(f"  ✓ {len(incidents_flag)} bookings have incidents")
+            
+            return incidents_flag
+        except FileNotFoundError:
+            print("  ⚠ incidents.csv not found, skipping...")
+            return pd.DataFrame()
+    
+    def process_infractions(self):
+        """
+        Process infractions - binary flag for any infraction
+        Multiple rows per booking_id
+        """
+        print("\nLoading infractions.csv...")
+        try:
+            infractions = pd.read_csv(self.base_dir /"infraction_details.csv")
+            
+            print(f"  Original shape: {infractions.shape}")
+            print(f"  Unique booking_ids: {infractions['booking_id'].nunique()}")
+            
+            # Create binary flag: 1 if any infraction, 0 otherwise
+            infractions_flag = infractions.groupby('booking_id').size().reset_index()
+            infractions_flag.columns = ['booking_id', 'infraction_count']
+            infractions_flag['has_infraction'] = 1
+            infractions_flag = infractions_flag.set_index('booking_id')[['has_infraction', 'infraction_count']]
+            
+            print(f"  ✓ {len(infractions_flag)} bookings have infractions")
+            
+            return infractions_flag
+        except FileNotFoundError:
+            print("  ⚠ infractions.csv not found, skipping...")
+            return pd.DataFrame()
+    
+    def process_events(self):
+        """
+        Process scan_movement_events - code 1/0 for Clinic, Court, Medical
+        Multiple rows per booking_id
+        """
+        print("\nLoading scan_movement_event.csv...")
+        try:
+            events = pd.read_csv(self.base_dir / "scan_movement_event.csv")
+            
+            print(f"  Original shape: {events.shape}")
+            print(f"  Unique booking_ids: {events['booking_id'].nunique()}")
+            
+            if 'movement_reason' not in events.columns:
+                print("  ⚠ 'movement_reason' column not found")
+                return pd.DataFrame()
+            
+            # Create binary flags for specific movement reasons
+            events['has_clinic'] = events['movement_reason'].str.contains('Clinic', case=False, na=False).astype(int)
+            events['has_court'] = events['movement_reason'].str.contains('Court appearance', case=False, na=False).astype(int)
+            events['has_medical'] = events['movement_reason'].str.contains('Medical', case=False, na=False).astype(int)
+            
+            # Aggregate by booking_id (max to capture if ANY event had these reasons)
+            events_agg = events.groupby('booking_id').agg({
+                'has_clinic': 'max',
+                'has_court': 'max',
+                'has_medical': 'max'
+            })
+            
+            # Add total movement count
+            events_agg['total_movements'] = events.groupby('booking_id').size()
+            
+            print(f"  ✓ Aggregated to {len(events_agg)} unique bookings")
+            print(f"  ✓ Bookings with clinic visits: {events_agg['has_clinic'].sum()}")
+            print(f"  ✓ Bookings with court appearances: {events_agg['has_court'].sum()}")
+            print(f"  ✓ Bookings with medical visits: {events_agg['has_medical'].sum()}")
+            
+            return events_agg
+        except FileNotFoundError:
+            print("  ⚠ scan_movement_event.csv not found, skipping...")
+            return pd.DataFrame()
+        
+    def merge_all_datasets(self):
+        """
+        Merge all processed datasets on booking_id
+        """
+        print("\n" + "="*70)
+        print("MERGING ALL DATASETS")
+        print("="*70)
+        
+        # Load base table (bookings)
+        merged = self.load_and_process_bookings()
+        initial_count = len(merged)
+        
+        # Process and merge each dataset
+        datasets_to_merge = [
+            ('charges', self.process_charges()),
+            ('incidents', self.process_incidents()),
+            ('infractions', self.process_infractions()),
+            ('events', self.process_events())
+        ]
+        
+        for name, df in datasets_to_merge:
+            if len(df) > 0:
+                before_cols = merged.shape[1]
+                merged = merged.join(df, how='left')
+                new_cols = merged.shape[1] - before_cols
+                print(f"\n+ Merged {name}: added {new_cols} columns")
+        
+        # Fill NaN values for binary flags (no incident/infraction/event means 0)
+        binary_cols = ['has_incident', 'has_infraction', 'has_clinic', 'has_court', 'has_medical']
+        for col in binary_cols:
+            if col in merged.columns:
+                merged[col] = merged[col].fillna(0).astype(int)
+        
+        # Fill NaN values for count columns
+        count_cols = [col for col in merged.columns if 'count' in col.lower() or col.startswith('crime_')]
+        for col in count_cols:
+            if col in merged.columns:
+                merged[col] = merged[col].fillna(0)
+        
+        print(f"\n{'='*70}")
+        print(f"FINAL MERGED TABLE")
+        print(f"{'='*70}")
+        print(f"Total rows (unique bookings): {len(merged)}")
+        print(f"Total columns: {merged.shape[1]}")
+        print(f"Rows retained from bookings: {len(merged)} / {initial_count} ({len(merged)/initial_count*100:.1f}%)")
+        
+        self.merged_data = merged
+        
+        # Save merged table
+        merged.to_csv('merged_all.csv')
+        print(f"\n✓ Saved complete merged table to 'merged_all.csv'")
+        
+        return merged
+    
+    def display_table_info(self):
+        """
+        Display header and basic info about the merged table
+        """
+        print("\n" + "="*70)
+        print("MERGED TABLE HEADER")
+        print("="*70)
+        
+        print(f"\nColumn Names ({len(self.merged_data.columns)} total):")
+        print("-" * 70)
+        for i, col in enumerate(self.merged_data.columns, 1):
+            dtype = self.merged_data[col].dtype
+            non_null = self.merged_data[col].notna().sum()
+            null_pct = (1 - non_null/len(self.merged_data)) * 100
+            print(f"{i:3d}. {col:40s} | {str(dtype):10s} | {null_pct:5.1f}% missing")
+        
+        print(f"\n{'='*70}")
+        print("SAMPLE DATA (First 5 rows)")
+        print("="*70)
+        print(self.merged_data.head())
+        
+        return self.merged_data.columns.tolist()
+    
+    def generate_correlation_matrix(self, save_plot=True):
+        """
+        Generate correlation matrix for all variables
+        """
+        print("\n" + "="*70)
+        print("CORRELATION MATRIX")
+        print("="*70)
+        
+        # Select only numeric columns
+        numeric_cols = self.merged_data.select_dtypes(include=[np.number]).columns
+        
+        if 'length_of_stay' not in numeric_cols:
+            print("⚠ Warning: 'length_of_stay' not found in numeric columns")
+            return None
+        
+        # Calculate correlation matrix
+        corr_matrix = self.merged_data[numeric_cols].corr()
+        
+        # Display correlations with length_of_stay
+        los_corr = corr_matrix['length_of_stay'].sort_values(ascending=False)
+        print("\nCorrelations with Length of Stay:")
+        print("-" * 70)
+        for feature, corr_value in los_corr.items():
+            if feature != 'length_of_stay':
+                print(f"{feature:45s}: {corr_value:7.4f}")
+        
+        # Full correlation matrix
+        print(f"\n\nFull Correlation Matrix:")
+        print("="*70)
+        print(corr_matrix.round(3))
+        
+        # Visualize correlation matrix
+        if save_plot:
+            plt.figure(figsize=(16, 14))
+            
+            # Mask for upper triangle
+            mask = np.triu(np.ones_like(corr_matrix, dtype=bool))
+            
+            # Create heatmap with smaller font size
+            sns.heatmap(corr_matrix, 
+                       mask=mask,
+                       annot=True, 
+                       fmt='.2f',
+                       annot_kws={'fontsize': 6},  # Reduced from default ~10-11 to 6
+                       cmap='coolwarm', 
+                       center=0,
+                       square=True,
+                       linewidths=0.5,
+                       cbar_kws={"shrink": 0.8})
+            
+            # Reduce tick label font sizes as well
+            plt.xticks(fontsize=7, rotation=90)
+            plt.yticks(fontsize=7)
+            
+            plt.title('Correlation Matrix - All Variables', fontsize=16, pad=20)
+            plt.tight_layout()
+            plt.savefig('correlation_matrix.png', dpi=300, bbox_inches='tight')
+            print("\n✓ Correlation matrix plot saved as 'correlation_matrix.png'")
+            
+            # Create focused plot on length_of_stay correlations
+            plt.figure(figsize=(10, 8))
+            los_corr_plot = los_corr.drop('length_of_stay').sort_values()
+            colors = ['red' if x < 0 else 'green' for x in los_corr_plot]
+            los_corr_plot.plot(kind='barh', color=colors, alpha=0.7)
+            plt.xlabel('Correlation with Length of Stay')
+            plt.title('Feature Correlations with Length of Stay', fontsize=14, pad=20)
+            plt.axvline(x=0, color='black', linestyle='-', linewidth=0.5)
+            plt.tight_layout()
+            plt.savefig('los_correlations.png', dpi=300, bbox_inches='tight')
+            print("✓ LOS correlation plot saved as 'los_correlations.png'")
+        
+        return corr_matrix
+    
+    def prepare_for_modeling(self, target_column='length_of_stay', drop_columns=None, filter_primary_only=True):
+        """
+        Prepare data for machine learning models with feature engineering
+        """
+        print("\n" + "="*70)
+        print("PREPARING DATA FOR MODELING")
+        print("="*70)
+        
+        df = self.merged_data.copy()
+        
+        # Filter to primary group only
+        if filter_primary_only and 'group_type' in df.columns:
+            initial_rows = len(df)
+            df = df[df['group_type'] != 'secondary group']
+            removed = initial_rows - len(df)
+            print(f"Filtered out {removed} 'secondary group' rows")
+            print(f"Remaining rows: {len(df)}")
+        
+        # Feature Engineering
+        print("\nApplying feature engineering...")
+        
+        # 1. Encode group_type: 'primary group' to 1
+        if 'group_type' in df.columns:
+            df['group_type'] = (df['group_type'] == 'primary group').astype(int)
+            print("  ✓ Encoded group_type: 'primary group' = 1")
+        
+        # 2. Encode gender: male = 1, female = 0
+        if 'gender' in df.columns:
+            df['gender'] = df['gender'].str.lower().map({
+                'male': 1,
+                'female': 0,
+                'm': 1,
+                'f': 0
+            })
+            print(f"  ✓ Encoded gender: male = 1, female = 0")
+            print(f"    Missing gender values: {df['gender'].isna().sum()}")
+        
+        # 3. Encode race with specific mapping
+        if 'race' in df.columns:
+            race_mapping = {
+                'Asian': 1,
+                'Black': 2,
+                'Hispanic Black': 3,
+                'Hispanic White': 4,
+                'Latino': 5,
+                'Unknown': 0,
+                'White': 6
+            }
+            
+            # Handle missing values first
+            df['race'] = df['race'].fillna('Unknown')
+            
+            # Apply mapping (case-insensitive)
+            df['race'] = df['race'].apply(
+                lambda x: race_mapping.get(str(x).strip(), 0) if pd.notna(x) else 0
+            )
+            
+            print(f"  ✓ Encoded race with mapping:")
+            for key, val in race_mapping.items():
+                print(f"    {key:20s} = {val}")
+            
+            # Show distribution
+            race_counts = df['race'].value_counts().sort_index()
+            print(f"\n  Race distribution after encoding:")
+            for race_code, count in race_counts.items():
+                race_label = {v: k for k, v in race_mapping.items()}.get(race_code, 'Other')
+                print(f"    {race_code} ({race_label:20s}): {count:5d} ({count/len(df)*100:5.1f}%)")
+        
+        # 4. Encode status: 'Not released' to 1
+        if 'status' in df.columns:
+            df['status'] = (df['status'] == 'Not Released').astype(int)
+            print("  ✓ Encoded status: 'Not Released' = 1")
+        
+        # Drop specified date and identifier columns
+        date_cols_to_drop = [
+            'booking_date_time',
+            'release_date_time', 
+            'intermediate_release_date',
+            'booking_date',
+            'release_date',
+            'group_type',
+            'release_date_or_last_date_of_record',
+            'all_crime_types',
+            'most_severe_crime_type'
+        ]
+        
+        cols_dropped = []
+        for col in date_cols_to_drop:
+            if col in df.columns:
+                df = df.drop(columns=[col])
+                cols_dropped.append(col)
+        
+        if cols_dropped:
+            print(f"\n  ✓ Dropped date/identifier columns: {cols_dropped}")
+        
+        # Save filtered and engineered dataset
+        df.to_csv('merged_primary.csv')
+        print(f"\n✓ Saved primary group subset with feature engineering to 'merged_primary.csv'")
+        
+        # Remove rows with missing target
+        if target_column not in df.columns:
+            print(f"⚠ Error: Target column '{target_column}' not found")
+            return None, None
+        
+        initial_rows = len(df)
+        df = df.dropna(subset=[target_column])
+        print(f"\nRemoved {initial_rows - len(df)} rows with missing target variable")
+        
+        # Drop additional columns if specified
+        if drop_columns:
+            cols_to_drop = [col for col in drop_columns if col in df.columns]
+            df = df.drop(columns=cols_to_drop)
+            print(f"Dropped additional columns: {cols_to_drop}")
+        
+        # Separate features and target
+        y = df[target_column]
+        X = df.drop(columns=[target_column])
+        
+        # Handle any remaining missing values
+        X = X.fillna(X.median())
+        
+        print(f"\nFinal feature matrix: {X.shape}")
+        print(f"Target variable: {y.shape}")
+        print(f"\nTarget statistics:")
+        print(y.describe())
+        
+        return X, y  
+    
+    def train_models(self, X, y, test_size=0.2, random_state=42):
+        """
+        Train multiple ML models and compare performance
+        """
+        print("\n" + "="*70)
+        print("TRAINING MODELS")
+        print("="*70)
+        
+        # Split data
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
+            X, y, test_size=test_size, random_state=random_state
+        )
+        
+        print(f"Training set: {self.X_train.shape}")
+        print(f"Test set: {self.X_test.shape}")
+        
+        # Scale features
+        self.X_train_scaled = pd.DataFrame(
+            self.scaler.fit_transform(self.X_train),
+            columns=self.X_train.columns,
+            index=self.X_train.index
+        )
+        self.X_test_scaled = pd.DataFrame(
+            self.scaler.transform(self.X_test),
+            columns=self.X_test.columns,
+            index=self.X_test.index
+        )
+        
+        # Define models
+        self.models = {
+            'Linear Regression': LinearRegression(),
+            'Ridge Regression': Ridge(alpha=1.0),
+            'Random Forest': RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1),
+            'Gradient Boosting': GradientBoostingRegressor(n_estimators=100, random_state=42)
+        }
+        
+        results = {}
+        
+        for name, model in self.models.items():
+            print(f"\nTraining {name}...")
+            model.fit(self.X_train_scaled, self.y_train)
+            
+            # Predictions
+            y_pred_train = model.predict(self.X_train_scaled)
+            y_pred_test = model.predict(self.X_test_scaled)
+            
+            # Metrics
+            results[name] = {
+                'Train R²': r2_score(self.y_train, y_pred_train),
+                'Test R²': r2_score(self.y_test, y_pred_test),
+                'Train MAE': mean_absolute_error(self.y_train, y_pred_train),
+                'Test MAE': mean_absolute_error(self.y_test, y_pred_test),
+                'Train RMSE': np.sqrt(mean_squared_error(self.y_train, y_pred_train)),
+                'Test RMSE': np.sqrt(mean_squared_error(self.y_test, y_pred_test))
+            }
+            
+            print(f"  Test R²: {results[name]['Test R²']:.4f} | Test MAE: {results[name]['Test MAE']:.2f} days")
+        
+        # Display results
+        results_df = pd.DataFrame(results).T
+        print("\n" + "="*70)
+        print("MODEL COMPARISON")
+        print("="*70)
+        print(results_df.round(4))
+        
+        # Select best model
+        best_model_name = results_df['Test R²'].idxmax()
+        self.best_model = self.models[best_model_name]
+        print(f"\n🏆 Best Model: {best_model_name} (Test R² = {results_df.loc[best_model_name, 'Test R²']:.4f})")
+        
+        return results_df
+    
+    def analyze_feature_importance(self, top_n=20):
+        """
+        Analyze feature importance from best model
+        """
+        print("\n" + "="*70)
+        print("FEATURE IMPORTANCE ANALYSIS")
+        print("="*70)
+        
+        if hasattr(self.best_model, 'feature_importances_'):
+            importances = self.best_model.feature_importances_
+        elif hasattr(self.best_model, 'coef_'):
+            importances = np.abs(self.best_model.coef_)
+        else:
+            print("⚠ Best model doesn't support feature importance")
+            return None
+        
+        self.feature_importance = pd.DataFrame({
+            'feature': self.X_train.columns,
+            'importance': importances
+        }).sort_values('importance', ascending=False)
+        
+        print(f"\nTop {top_n} Most Important Features:")
+        print("-" * 70)
+        for idx, row in self.feature_importance.head(top_n).iterrows():
+            print(f"{row['feature']:45s}: {row['importance']:.6f}")
+        
+        # Visualize
+        plt.figure(figsize=(10, 8))
+        top_features = self.feature_importance.head(top_n)
+        plt.barh(range(len(top_features)), top_features['importance'])
+        plt.yticks(range(len(top_features)), top_features['feature'])
+        plt.xlabel('Importance')
+        plt.title(f'Top {top_n} Feature Importances')
+        plt.gca().invert_yaxis()
+        plt.tight_layout()
+        plt.savefig('feature_importance.png', dpi=300, bbox_inches='tight')
+        print("\n✓ Feature importance plot saved as 'feature_importance.png'")
+        
+        return self.feature_importance
+
+
+    
+   
+# Example usage
+if __name__ == "__main__":
+    print("CCJ Length of Stay Prediction Model")
+    print("="*70)
+    
+    BASE_DIR = Path("/Users/td/PycharmProjects/CCJ-1/Data/02_Processed")
+    
+    # Initialize predictor
+    predictor = CCJLengthOfStayPredictor(BASE_DIR)
+    
+    # Step 1: Merge all datasets
+    merged_df = predictor.merge_all_datasets()
+    
+    # Step 2: Display table info and header
+    columns = predictor.display_table_info()
+    
+    # Step 3: Generate correlation matrix
+    corr_matrix = predictor.generate_correlation_matrix()
+    
+    # Step 4: Prepare data for modeling
+    X, y = predictor.prepare_for_modeling(target_column='length_of_stay')
+    
+    # Step 5: Train models
+    if X is not None and y is not None:
+        results = predictor.train_models(X, y)
+        
+        # Step 6: Analyze feature importance
+        importance = predictor.analyze_feature_importance()
+
