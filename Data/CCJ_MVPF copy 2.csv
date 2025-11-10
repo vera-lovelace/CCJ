@@ -1,0 +1,17 @@
+alternative,mvpf_value,components,value,levels
+1,81.219,det_values_st,-111.22,Detainee
+1,81.219,det_values_lt,-4588.37,Detainee
+1,81.219,soc_values_st,95835.42,Society
+1,81.219,soc_values_lt,973000,Society
+2,-66,det_values_st,-99.44,Detainee
+2,-66,det_values_lt,-4588.37,Detainee
+2,-66,soc_values_st,95835.42,Society
+2,-66,soc_values_lt,1848000.00,Society
+3,139.46,det_values_st,-111.22,Detainee
+3,139.46,det_values_lt,-4588.37,Detainee
+3,139.46,soc_values_st,95835.42,Society
+3,139.46,soc_values_lt,973000.00,Society
+4,22402.297512059100,det_values_st,-111.22,Detainee
+4,22402.297512059100,det_values_lt,-4588.37,Detainee
+4,22402.297512059100,soc_values_st,95835.42,Society
+4,22402.297512059100,soc_values_lt,1848000.00,Society
