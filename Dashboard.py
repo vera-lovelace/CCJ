@@ -1,10 +1,17 @@
+"""
+MVPF Dashboard Application
+Main dashboard layout and callbacks
+"""
+
+#import global components
 import dash
 from dash import dcc, html, Input, Output, State
 import plotly.graph_objs as go
 import pandas as pd
 
-# Import your MVPF calculation module
-# from mvpf_calculator import MVPFCalculator
+# Import local modules
+from mvpf_calculator import MVPFCalculator
+#from graphs import create_main_components_chart, create_subcomponents_chart
 
 # Initialize the Dash app
 app = dash.Dash(__name__, suppress_callback_exceptions=True)

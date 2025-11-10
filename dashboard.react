@@ -1,0 +1,94 @@
+
+import React, { useState, useEffect, useRef } from 'react';
+import * as Plotly from 'plotly';
+
+const MVPFDashboard = () = > {
+    const[baselineType, setBaselineType] = useState('historical');
+    const[detaineeParam1, setDetaineeParam1] = useState('medium');
+    const[detaineeParam2, setDetaineeParam2] = useState('standard');
+    const[societyParam1, setSocietyParam1] = useState('moderate');
+    const[societyParam2, setSocietyParam2] = useState('average');
+    const[result, setResult] = useState({
+        mvpf: '2.00',
+        detaineeValues: 50000,
+        societyValues: 30000,
+        govtCost: 40000,
+        detaineeSub1: 30000,
+        detaineeSub2: 20000,
+        societySub1: 15000,
+        societySub2: 10000,
+        societySub3: 5000,
+        govtSub1: 20000,
+        govtSub2: 12000,
+        govtSub3: 8000
+    });
+const[loading, setLoading] = useState(false);
+
+const barChartRef = useRef(null);
+const breakdownChartRef = useRef(null);
+
+// MVPF
+Calculation - calls
+Python
+backend
+that
+returns
+CSV
+const
+calculateMVPF = async () = > {
+try {
+const response = await fetch('/api/calculate_mvpf', {
+method: 'POST',
+headers: {
+    'Content-Type': 'application/json',
+},
+body: JSON.stringify({
+    baseline_type: baselineType,
+    detainee_param1: detaineeParam1,
+    detainee_param2: detaineeParam2,
+    society_param1: societyParam1,
+    society_param2: societyParam2
+})
+});
+
+if (!response.ok) {
+throw new Error('Calculation failed');
+}
+
+// Parse CSV response
+const csvText = await response.text();
+const lines = csvText.trim().split('\n');
+const headers = lines[0].split(',');
+const values = lines[1].split(',');
+
+// Create data object from CSV
+const data = {};
+headers.forEach((header, index) = > {
+data[header.trim()] = parseFloat(values[index]);
+});
+
+return {
+    mvpf: data.mvpf.toFixed(2),
+    detaineeValues: Math.round(data.detainee_values),
+    societyValues: Math.round(data.society_values),
+    govtCost: Math.round(data.govt_cost),
+    detaineeSub1: Math.round(data.detainee_sub1),
+    detaineeSub2: Math.round(data.detainee_sub2),
+    societySub1: Math.round(data.society_sub1),
+    societySub2: Math.round(data.society_sub2),
+    societySub3: Math.round(data.society_sub3),
+    govtSub1: Math.round(data.govt_sub1),
+    govtSub2: Math.round(data.govt_sub2),
+    govtSub3: Math.round(data.govt_sub3)
+};
+} catch(error)
+{
+console.error('Error calculating MVPF:', error);
+// Fallback
+to
+local
+calculation if API
+fails
+return result;
+}
+};
