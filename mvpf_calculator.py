@@ -12,10 +12,10 @@ class MVPFCalculator:
                  values_csv: str = 'CCJ_quantified_values.csv',
                  mapping_csv: str = 'mvpf_mappingtable.csv'):
         """
-        Initialize calculator with baseline type and data files.
+        Initialize calculator with baseline scenario and data files.
 
         Args:
-            baseline_type (str): 'baseline' or 'optimal'
+            baseline_type (str): 'baseline'
             values_csv (str): Path to values configuration CSV
             mapping_csv (str): Path to MVPF mapping table CSV
         """
@@ -23,8 +23,8 @@ class MVPFCalculator:
 
         # Load configuration data
         try:
-            self.values_df = pd.read_csv(values_csv)
-            self.mapping_df = pd.read_csv(mapping_csv)
+            self.values_df = pd.read_csv(Data/subcomponent_values.csv)
+            self.mapping_df = pd.read_csv(Data/MVPF_component_mapping_csv)
         except FileNotFoundError as e:
             raise FileNotFoundError(f"Required CSV file not found: {e}")
 
@@ -47,7 +47,7 @@ class MVPFCalculator:
         baseline_mult = 1.0 if baseline_type == 'historical' else 1.0
 
         LoS = {'basic': 60, 'standard': 70, 'enhanced': 203}[detainee_param1]
-        crime_weight = {'minimal': 0.3, 'moderate': 0.7, 'significant': 0.9}[detainee_param2]
+        crime_weight= {'minimal': 0.5, 'moderate': 0.7, 'significant': 0.9}[detainee_param2]
         n_det = {'below': 2500, 'average': 3000, 'above': 5000}[society_param1]
         n_population={'below': 5000000, 'average': 5171000, 'above': 5200000}[society_param2]
 
@@ -91,21 +91,21 @@ class MVPFCalculator:
         )
 
         # Calculate MVPF
-        mvpf = (detainee_values + society_values) / govt_cost if govt_cost > 0 else 0
+        mvpf = (detainee_values + society_values) / govt_cost if govt_cost > 0 else 1
 
         return {
             'mvpf': mvpf,
             'detainee_values': detainee_values,
             'society_values': society_values,
             'govt_cost': govt_cost,
-            'detainee_sub1': detainee_sub1,
-            'detainee_sub2': detainee_sub2,
-            'society_sub1': society_sub1,
-            'society_sub2': society_sub2,
-            'society_sub3': society_sub3,
-            'govt_sub1': govt_sub1,
-            'govt_sub2': govt_sub2,
-            'govt_sub3': govt_sub3
+            'detainee_sub1': detainee_wtp,
+            'detainee_sub2': detainee_rhv,
+            'society_sub1': society_court,
+            'society_sub2': society_crimeprev,
+            'society_sub3': society_community,
+            'govt_sub1': govt_health,
+            'govt_sub2': govt_operations,
+            'govt_sub3': govt_refractions
         }
 
     def get_mvpf_interpretation(self, mvpf):
