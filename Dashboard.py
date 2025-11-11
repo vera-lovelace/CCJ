@@ -11,7 +11,7 @@ import pandas as pd
 
 # Import local modules
 from mvpf_calculator import MVPFCalculator
-#from graphs import create_main_components_chart, create_subcomponents_chart
+from graphs import create_main_components_chart, create_subcomponents_chart
 
 # Initialize the Dash app
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
@@ -392,53 +392,6 @@ def update_baseline(hist_clicks, opt_clicks, current_baseline):
         return 'optimal', 'baseline-button baseline-button-inactive', 'baseline-button baseline-button-active'
 
 
-# Mock calculation function (replace with your actual module)
-def calculate_mvpf(baseline_type, detainee_param1, detainee_param2, society_param1, society_param2):
-    """
-    Replace this with your actual MVPF calculation module
-    Example: from mvpf_calculator import MVPFCalculator
-             calculator = MVPFCalculator(baseline_type)
-             return calculator.calculate_mvpf({...})
-    """
-    # Mock calculations
-    multiplier1 = {'low': 0.8, 'medium': 1.0, 'high': 1.2}[detainee_param1]
-    multiplier2 = {'basic': 1.0, 'standard': 1.0, 'enhanced': 1.0}[detainee_param2]
-    multiplier3 = {'minimal': 1.0, 'moderate': 1.0, 'significant': 1.0}[society_param1]
-    multiplier4 = {'below': 60.0, 'average': 70.0, 'above': 200.0}[society_param2]
-
-    baseline_mult = 1.0 if baseline_type == 'historical' else 1.0
-
-    detainee_sub1 = 11 * multiplier1 * multiplier2
-    detainee_sub2 = -295275 * multiplier1 * multiplier2
-    detainee_values = detainee_sub1 + detainee_sub2
-
-    society_sub1 = 13 * multiplier3
-    society_sub2 = 0 * multiplier3
-    society_sub3 = -294728 * multiplier3
-    society_values = society_sub1 + society_sub2 + society_sub3
-
-    govt_sub1 = 50 * baseline_mult * multiplier4
-    govt_sub2 = 13200 * baseline_mult
-    govt_sub3 = 8000 * baseline_mult * multiplier1
-    govt_cost = govt_sub1 + govt_sub2 + govt_sub3
-
-    mvpf = (detainee_values + society_values) / govt_cost if govt_cost > 0 else 0
-
-    return {
-        'mvpf': mvpf,
-        'detainee_values': detainee_values,
-        'society_values': society_values,
-        'govt_cost': govt_cost,
-        'detainee_sub1': detainee_sub1,
-        'detainee_sub2': detainee_sub2,
-        'society_sub1': society_sub1,
-        'society_sub2': society_sub2,
-        'society_sub3': society_sub3,
-        'govt_sub1': govt_sub1,
-        'govt_sub2': govt_sub2,
-        'govt_sub3': govt_sub3
-    }
-
 
 # Main callback for updating all components
 @app.callback(
@@ -452,10 +405,14 @@ def calculate_mvpf(baseline_type, detainee_param1, detainee_param2, society_para
      Input('society-param2', 'value')]
 )
 def update_dashboard(baseline_type, detainee_param1, detainee_param2, society_param1, society_param2):
-    # Calculate MVPF
-    result = calculate_mvpf(baseline_type, detainee_param1, detainee_param2, society_param1, society_param2)
-
+    # Calculate MVPF using calculator module
+    calculator = MVPFCalculator(baseline_type)
+    result = calculator.calculate_mvpf(
+        detainee_param1, detainee_param2,
+        society_param1, society_param2
+    )
     mvpf = result['mvpf']
+    label, text_color, bg_color = calculator.get_mvpf_interpretation(mvpf)
 
     # Determine badge color and label
     if mvpf >= 2.5:
@@ -518,78 +475,14 @@ def update_dashboard(baseline_type, detainee_param1, detainee_param2, society_pa
         ])
     ])
 
-    # Main Components Chart
-    main_fig = go.Figure(data=[
-        go.Bar(
-            x=['Detainee Values', 'Society Values', 'Government Cost'],
-            y=[result['detainee_values'], result['society_values'], result['govt_cost']],
-            marker_color=['#3b82f6', '#10b981', '#ef4444'],
-            text=[f"${int(result['detainee_values']):,}",
-                  f"${int(result['society_values']):,}",
-                  f"${int(result['govt_cost']):,}"],
-            textposition='outside'
-        )
-    ])
-
-    main_fig.update_layout(
-        title='MVPF Main Components',
-        xaxis_title='',
-        yaxis_title='Value ($)',
-        paper_bgcolor='#f8fafc',
-        plot_bgcolor='#ffffff',
-        font=dict(family='system-ui', size=12),
-        margin=dict(t=50, b=80, l=80, r=40),
-        showlegend=False
-    )
-
-    # Subcomponents Chart - grouped by component
-    sub_fig = go.Figure(data=[
-        go.Bar(
-            name='Subcomp 1',
-            x=['Detainee Values', 'Society Values', 'Govt Cost'],
-            y=[result['detainee_sub1'], result['society_sub1'], result['govt_sub1']],
-            marker_color='#93c5fd',
-            text=[f"${int(result['detainee_sub1']):,}",
-                  f"${int(result['society_sub1']):,}",
-                  f"${int(result['govt_sub1']):,}"],
-            textposition='outside'
-        ),
-        go.Bar(
-            name='Subcomp 2',
-            x=['Detainee Values', 'Society Values', 'Govt Cost'],
-            y=[result['detainee_sub2'], result['society_sub2'], result['govt_sub2']],
-            marker_color='#3b82f6',
-            text=[f"${int(result['detainee_sub2']):,}",
-                  f"${int(result['society_sub2']):,}",
-                  f"${int(result['govt_sub2']):,}"],
-            textposition='outside'
-        ),
-        go.Bar(
-            name='Subcomp 3',
-            x=['Detainee Values', 'Society Values', 'Govt Cost'],
-            y=[0, result['society_sub3'], result['govt_sub3']],
-            marker_color='#1e40af',
-            text=['',
-                  f"${int(result['society_sub3']):,}",
-                  f"${int(result['govt_sub3']):,}"],
-            textposition='outside'
-        )
-    ])
-
-    sub_fig.update_layout(
-        title='Component Breakdown',
-        xaxis_title='Main Components',
-        yaxis_title='Value ($)',
-        barmode='group',
-        paper_bgcolor='#f8fafc',
-        plot_bgcolor='#ffffff',
-        font=dict(family='system-ui', size=12),
-        margin=dict(t=50, b=80, l=80, r=40)
-    )
-
+    # Create graphs using graphs module
+    main_fig = create_main_components_chart(result)
+    sub_fig = create_subcomponents_chart(result)
 
     return kpi_card, main_fig, sub_fig
 
+# Server for deployment
+#server = app.server
 
 if __name__ == '__main__':
     app.run(debug=True, port=8050)
