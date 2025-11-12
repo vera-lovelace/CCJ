@@ -91,26 +91,6 @@ def format_currency(value):
     return f"${int(value):,}"
 
 
-def calculate_pv_conversion(value)-> pd.DataFrame:
-    """
-    Returns components converted to 2025$ using CPI_table with:
-    :param value:
-        value (float): Numeric value
-        cpi (float): CPI table
-    :return:
-        value (float): Numeric value
-    """
-
-
-
-    out = bookings.merge(day_counts, on="booking_id", how="left")
-    for c in ["days_with_bed_change", "days_with_incident", "days_with_infraction", "days_with_medical_visit"]:
-        out[c] = out[c].fillna(0)
-
-    return out
-
-
-
 def format_ratio(value, decimals=2):
     """
     Format value as ratio string.
