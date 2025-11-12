@@ -391,8 +391,6 @@ def update_baseline(hist_clicks, opt_clicks, current_baseline):
     else:
         return 'optimal', 'baseline-button baseline-button-inactive', 'baseline-button baseline-button-active'
 
-
-
 # Main callback for updating all components
 @app.callback(
     [Output('kpi-card', 'children'),
