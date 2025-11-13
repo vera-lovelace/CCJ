@@ -105,4 +105,4 @@ def format_ratio(value, decimals=2):
     return f"{value:.{decimals}f}"
 
 
-```
+
