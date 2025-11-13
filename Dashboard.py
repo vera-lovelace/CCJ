@@ -12,6 +12,7 @@ import pandas as pd
 # Import local modules
 from mvpf_calculator import MVPFCalculator
 from graphs import create_main_components_chart, create_subcomponents_chart
+from helpers import  export_results_to_csv
 
 # Initialize the Dash app
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
@@ -329,7 +330,7 @@ app.layout = html.Div(className='main-container', children=[
 
                     html.Div(className='control-group', children=[
                         html.Div(className='label-with-info', children=[
-                            html.Label('Detainee - Willingness to Pay for Freedom',
+                            html.Label('Detainees - Rate of felonies charged',
                                        className='control-label', style={'marginBottom': '0'}),
                             html.Span('i', className='info-icon',
                                       **{'data-tooltip': 'Placeholder explainer text - WTP Freedom'})
@@ -337,9 +338,9 @@ app.layout = html.Div(className='main-container', children=[
                         dcc.Dropdown(
                             id='detainee-param1',
                             options=[
-                                {'label': 'Low ', 'value': 'low'},
-                                {'label': 'Medium ', 'value': 'medium'},
-                                {'label': 'High ', 'value': 'high'}
+                                {'label': 'Minimal(50%)', 'value': 'below'},
+                                {'label': 'Average (70%)', 'value': 'moderate'},
+                                {'label': 'Significant (90%)', 'value': 'significant'}
                             ],
                             value='medium',
                             clearable=False
@@ -348,7 +349,7 @@ app.layout = html.Div(className='main-container', children=[
 
                     html.Div(className='control-group', children=[
                         html.Div(className='label-with-info', children=[
-                            html.Label('Detainee - Relative Harm Valuation',
+                            html.Label('Detainee population size',
                                        className='control-label', style={'marginBottom': '0'}),
                             html.Span('i', className='info-icon',
                                       **{'data-tooltip': 'Placeholder explainer text - Relative Harm Valuation'})
@@ -356,9 +357,9 @@ app.layout = html.Div(className='main-container', children=[
                         dcc.Dropdown(
                             id='detainee-param2',
                             options=[
-                                {'label': 'Basic', 'value': 'basic'},
-                                {'label': 'Standard', 'value': 'standard'},
-                                {'label': 'Enhanced', 'value': 'enhanced'}
+                                {'label': 'Minimal', 'value': 'below'},
+                                {'label': 'Moderate', 'value': 'average'},
+                                {'label': 'Large', 'value': 'above'}
                             ],
                             value='standard',
                             clearable=False
@@ -367,7 +368,7 @@ app.layout = html.Div(className='main-container', children=[
 
                     html.Div(className='control-group', children=[
                         html.Div(className='label-with-info', children=[
-                            html.Label('Community Impact',
+                            html.Label('Community size',
                                        className='control-label', style={'marginBottom': '0'}),
                             html.Span('i', className='info-icon',
                                       **{'data-tooltip': 'Placeholder explainer text - Community Impact'})
@@ -375,9 +376,9 @@ app.layout = html.Div(className='main-container', children=[
                         dcc.Dropdown(
                             id='society-param1',
                             options=[
-                                {'label': 'Minimal', 'value': 'minimal'},
-                                {'label': 'Moderate', 'value': 'moderate'},
-                                {'label': 'Significant', 'value': 'significant'}
+                                {'label': 'Minimal', 'value': 'below'},
+                                {'label': 'Moderate', 'value': 'average'},
+                                {'label': 'Large', 'value': 'above'}
                             ],
                             value='moderate',
                             clearable=False
