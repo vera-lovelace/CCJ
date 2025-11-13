@@ -303,298 +303,709 @@ app.layout = html.Div(className='main-container', children=[
     ]),
 
     # Main grid
-    html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 3fr', 'gap': '24px', 'alignItems': 'start'}, children=[
-        # Left Sidebar
-        html.Div(style={'position': 'sticky', 'top': '24px', 'zIndex': '1000'}, children=[
-            # Information Tile
-            html.Div(className='info-tile', children=[
-                html.H3('About MVPF'),
-                html.P('The MVPF measures the ratio of beneficiaries\' willingness to pay to the net cost to the government.'),
-                html.P([html.Strong('Components:')]),
-                html.Ul([
-                    html.Li('• Detainee Values: 2 subcomponents'),
-                    html.Li('• Society Values: 3 subcomponents'),
-                    html.Li('• Government Cost: 3 subcomponents')
-                ]),
-                html.P([html.Strong('Formula:'), html.Br(), 'MVPF = (Detainee + Society) / Government Cost'])
-            ]),
-
-            # Selection Options
-            html.Div(className='sidebar control-section', children=[
-                html.H3('Analysis Parameters'),
-
-                html.Div(className='control-group', children=[
-                    html.Div(className='label-with-info', children=[
-                        html.Label('Detainee - Willingness to Pay for Freedom', className='control-label', style={'marginBottom': '0'}),
-                        html.Span('i', className='info-icon', **{'data-tooltip': 'Placeholder explainer text - WTP Freedom'})
-                    ]),
-                    dcc.Dropdown(
-                        id='detainee-param1',
-                        options=[
-                            {'label': 'Low ', 'value': 'low'},
-                            {'label': 'Medium ', 'value': 'medium'},
-                            {'label': 'High ', 'value': 'high'}
-                        ],
-                        value='medium',
-                        clearable=False
-                    )
-                ]),
-
-                html.Div(className='control-group', children=[
-                    html.Div(className='label-with-info', children=[
-                        html.Label('Detainee - Relative Harm Valuation', className='control-label', style={'marginBottom': '0'}),
-                        html.Span('i', className='info-icon', **{'data-tooltip': 'Placeholder explainer text - Relative Harm Valuation'})
-                    ]),
-                    dcc.Dropdown(
-                        id='detainee-param2',
-                        options=[
-                            {'label': 'Basic', 'value': 'basic'},
-                            {'label': 'Standard', 'value': 'standard'},
-                            {'label': 'Enhanced', 'value': 'enhanced'}
-                        ],
-                        value='standard',
-                        clearable=False
-                    )
-                ]),
-
-                html.Div(className='control-group', children=[
-                    html.Div(className='label-with-info', children=[
-                        html.Label('Community Impact', className='control-label', style={'marginBottom': '0'}),
-                        html.Span('i', className='info-icon', **{'data-tooltip': 'Placeholder explainer text - Community Impact'})
-                    ]),
-                    dcc.Dropdown(
-                        id='society-param1',
-                        options=[
-                            {'label': 'Minimal', 'value': 'minimal'},
-                            {'label': 'Moderate', 'value': 'moderate'},
-                            {'label': 'Significant', 'value': 'significant'}
-                        ],
-                        value='moderate',
-                        clearable=False
-                    )
-                ]),
-
-                html.Div(className='control-group', children=[
-                    html.Div(className='label-with-info', children=[
-                        html.Label('Length of Stay', className='control-label', style={'marginBottom': '0'}),
-                        html.Span('i', className='info-icon', **{'data-tooltip': 'Placeholder explainer text - Length of Stay'})
-                    ]),
-                    dcc.Dropdown(
-                        id='society-param2',
-                        options=[
-                            {'label': 'Below Average', 'value': 'below'},
-                            {'label': 'Average', 'value': 'average'},
-                            {'label': 'Above Average', 'value': 'above'}
-                        ],
-                        value='average',
-                        clearable=False
-                    )
-                ])
-            ])
-        ]),
-
-        # Main Content
-        html.Div(children=[
-            # Baseline Switch
-            html.Div(className='baseline-switch', children=[
-                html.Span('Comparison', className='baseline-label'),
-                html.Div(className='button-group', children=[
-                    html.Button(
-                        'Baseline',
-                        id='btn-historical',
-                        n_clicks=0,
-                        className='baseline-button baseline-button-active'
+    html.Div(
+        style={'display': 'grid', 'gridTemplateColumns': '1fr 3fr', 'gap': '24px', 'alignItems': 'start'},
+        children=[
+            # Left Sidebar
+            html.Div(style={'position': 'sticky', 'top': '24px', 'zIndex': '1000'}, children=[
+                # Information Tile
+                html.Div(className='info-tile', children=[
+                    html.H3('About MVPF'),
+                    html.P(
+                        'The MVPF measures the ratio of beneficiaries\' willingness to pay to the net cost to the government.'
                     ),
-                    html.Button(
-                        'Experience-informed Calculation',
-                        id='btn-optimal',
-                        n_clicks=0,
-                        className='baseline-button baseline-button-inactive'
-                    )
-                ])
-            ]),
+                    html.P([html.Strong('Components:')]),
+                    html.Ul([
+                        html.Li('Detainee Values: 2 subcomponents'),
+                        html.Li('Society Values: 3 subcomponents'),
+                        html.Li('Government Cost: 3 subcomponents')
+                    ]),
+                    html.P([html.Strong('Formula:'), html.Br(), 'MVPF = (Detainee + Society) / Government Cost'])
+                ]),
 
-            # Hidden div to store baseline state
-            dcc.Store(id='baseline-type', data='historical'),
+                # Selection Options
+                html.Div(className='sidebar control-section', children=[
+                    html.H3('Analysis Parameters'),
 
-            # MVPF KPI Card
-            html.Div(id='kpi-card'),
-
-            # Main Components Chart
-            html.Div(className='chart-container', children=[
-                dcc.Graph(id='main-components-chart')
-            ]),
-
-            # Subcomponents Chart
-            html.Div(className='chart-container', children=[
-                dcc.Graph(id='subcomponents-chart')
-            ]),
-
-            # MVPF Explainer Section
-            html.Div(className='chart-container', style={'background': '#f8fafc'}, children=[
-                html.H3('Understanding MVPF', style={
-                    'fontSize': '20px',
-                    'fontWeight': '600',
-                    'color': '#1e293b',
-                    'marginBottom': '16px',
-                    'marginTop': '0'
-                }),
-                html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '24px'}, children=[
-                    html.Div(children=[
-                        html.H4('What is MVPF?', style={
-                            'fontSize': '16px',
-                            'fontWeight': '600',
-                            'color': '#374151',
-                            'marginTop': '0',
-                            'marginBottom': '12px'
-                        }),
-                        html.P(
-                            'The Marginal Value of Public Funds (MVPF) is a metric that measures the '
-                            'social welfare benefit of a policy per dollar of government spending. '
-                            'It represents how much value beneficiaries receive relative to what the policy costs.',
-                            style={'color': '#4b5563', 'fontSize': '14px', 'lineHeight': '1.6', 'margin': '0'}
+                    html.Div(className='control-group', children=[
+                        html.Div(className='label-with-info', children=[
+                            html.Label('Detainee - Willingness to Pay for Freedom',
+                                       className='control-label', style={'marginBottom': '0'}),
+                            html.Span('i', className='info-icon',
+                                      **{'data-tooltip': 'Placeholder explainer text - WTP Freedom'})
+                        ]),
+                        dcc.Dropdown(
+                            id='detainee-param1',
+                            options=[
+                                {'label': 'Low ', 'value': 'low'},
+                                {'label': 'Medium ', 'value': 'medium'},
+                                {'label': 'High ', 'value': 'high'}
+                            ],
+                            value='medium',
+                            clearable=False
                         )
                     ]),
-                    html.Div(children=[
-                        html.H4('How to Interpret', style={
-                            'fontSize': '16px',
-                            'fontWeight': '600',
-                            'color': '#374151',
-                            'marginTop': '0',
-                            'marginBottom': '12px'
-                        }),
-                        html.Ul(style={'margin': '0', 'paddingLeft': '20px', 'color': '#4b5563', 'fontSize': '14px', 'lineHeight': '1.8'}, children=[
-                            html.Li([html.Strong('MVPF > 1:'), ' Program delivers more value than it costs']),
-                            html.Li([html.Strong('MVPF = 1:'), ' Program value equals its cost']),
-                            html.Li([html.Strong('MVPF < 1:'), ' Program costs more than the value it provides']),
-                            html.Li([html.Strong('MVPF ≥ 2.5:'), ' Excellent - high social return on investment'])
-                        ])
-                    ])
-                ]),
-                html.Div(style={'marginTop': '24px', 'paddingTop': '24px', 'borderTop': '1px solid #e5e7eb'}, children=[
-                    html.H4('Components Breakdown', style={
-                        'fontSize': '16px',
-                        'fontWeight': '600',
-                        'color': '#374151',
-                        'marginTop': '0',
-                        'marginBottom': '16px'
-                    }),
-                    html.Div(style={'display': 'flex', 'flexDirection': 'column', 'gap': '16px'}, children=[
-                        # Detainee Values
-                        html.Div(style={'background': 'white', 'padding': '20px', 'borderRadius': '8px', 'borderLeft': '4px solid #2563eb'}, children=[
-                            html.H5('Detainee Values', style={'fontSize': '15px', 'fontWeight': '600', 'color': '#2563eb', 'margin': '0 0 12px 0'}),
-                            html.P('Measures the value detainees place on freedom and reduced harm from the intervention.',
-                                   style={'fontSize': '14px', 'color': '#374151', 'margin': '0 0 8px 0', 'lineHeight': '1.6'}),
-                            html.P('Add your detailed explanation here. This can include multiple paragraphs, formulas, methodology details, and any other information you need to convey about how detainee values are calculated and what they represent in the MVPF framework.',
-                                   style={'fontSize': '13px', 'color': '#6b7280', 'margin': '0', 'lineHeight': '1.6'})
+
+                    html.Div(className='control-group', children=[
+                        html.Div(className='label-with-info', children=[
+                            html.Label('Detainee - Relative Harm Valuation',
+                                       className='control-label', style={'marginBottom': '0'}),
+                            html.Span('i', className='info-icon',
+                                      **{'data-tooltip': 'Placeholder explainer text - Relative Harm Valuation'})
                         ]),
-                        # Society Values
-                        html.Div(style={'background': 'white', 'padding': '20px', 'borderRadius': '8px', 'borderLeft': '4px solid #16a34a'}, children=[
-                            html.H5('Society Values', style={'fontSize': '15px', 'fontWeight': '600', 'color': '#16a34a', 'margin': '0 0 12px 0'}),
-                            html.P('Captures broader community benefits including reduced crime costs and social stability.',
-                                   style={'fontSize': '14px', 'color': '#374151', 'margin': '0 0 8px 0', 'lineHeight': '1.6'}),
-                            html.P('Add your detailed explanation here. This can include multiple paragraphs, formulas, methodology details, and any other information you need to convey about how society values are calculated and what they represent in the MVPF framework.',
-                                   style={'fontSize': '13px', 'color': '#6b7280', 'margin': '0', 'lineHeight': '1.6'})
+                        dcc.Dropdown(
+                            id='detainee-param2',
+                            options=[
+                                {'label': 'Basic', 'value': 'basic'},
+                                {'label': 'Standard', 'value': 'standard'},
+                                {'label': 'Enhanced', 'value': 'enhanced'}
+                            ],
+                            value='standard',
+                            clearable=False
+                        )
+                    ]),
+
+                    html.Div(className='control-group', children=[
+                        html.Div(className='label-with-info', children=[
+                            html.Label('Community Impact',
+                                       className='control-label', style={'marginBottom': '0'}),
+                            html.Span('i', className='info-icon',
+                                      **{'data-tooltip': 'Placeholder explainer text - Community Impact'})
                         ]),
-                        # Government Cost
-                        html.Div(style={'background': 'white', 'padding': '20px', 'borderRadius': '8px', 'borderLeft': '4px solid #dc2626'}, children=[
-                            html.H5('Government Cost', style={'fontSize': '15px', 'fontWeight': '600', 'color': '#dc2626', 'margin': '0 0 12px 0'}),
-                            html.P('Total expenditure including program operations, administrative overhead, and resource allocation.',
-                                   style={'fontSize': '14px', 'color': '#374151', 'margin': '0 0 8px 0', 'lineHeight': '1.6'}),
-                            html.P('Add your detailed explanation here. This can include multiple paragraphs, formulas, methodology details, and any other information you need to convey about how government costs are calculated and what they represent in the MVPF framework.',
-                                   style={'fontSize': '13px', 'color': '#6b7280', 'margin': '0', 'lineHeight': '1.6'})
-                        ])
+                        dcc.Dropdown(
+                            id='society-param1',
+                            options=[
+                                {'label': 'Minimal', 'value': 'minimal'},
+                                {'label': 'Moderate', 'value': 'moderate'},
+                                {'label': 'Significant', 'value': 'significant'}
+                            ],
+                            value='moderate',
+                            clearable=False
+                        )
+                    ]),
+
+                    html.Div(className='control-group', children=[
+                        html.Div(className='label-with-info', children=[
+                            html.Label('Length of Stay',
+                                       className='control-label', style={'marginBottom': '0'}),
+                            html.Span('i', className='info-icon',
+                                      **{'data-tooltip': 'Placeholder explainer text - Length of Stay'})
+                        ]),
+                        dcc.Dropdown(
+                            id='society-param2',
+                            options=[
+                                {'label': 'Below Average', 'value': 'below'},
+                                {'label': 'Average', 'value': 'average'},
+                                {'label': 'Above Average', 'value': 'above'}
+                            ],
+                            value='average',
+                            clearable=False
+                        )
                     ])
                 ])
+            ]),
+
+            # Main Content
+            html.Div(children=[
+                # Baseline Switch
+                html.Div(className='baseline-switch', children=[
+                    html.Span('Comparison', className='baseline-label'),
+                    html.Div(className='button-group', children=[
+                        html.Button(
+                            'Baseline',
+                            id='btn-historical',
+                            n_clicks=0,
+                            className='baseline-button baseline-button-active'
+                        ),
+                        html.Button(
+                            'Experience-informed Calculation',
+                            id='btn-optimal',
+                            n_clicks=0,
+                            className='baseline-button baseline-button-inactive'
+                        )
+                    ])
+                ]),
+
+                # Hidden div to store baseline state
+                dcc.Store(id='baseline-type', data='historical'),
+
+                # MVPF KPI Card
+                html.Div(id='kpi-card'),
+
+                # Main Components Chart
+                html.Div(className='chart-container', children=[
+                    dcc.Graph(id='main-components-chart')
+                ]),
+
+                # Subcomponents Chart
+                html.Div(className='chart-container', children=[
+                    dcc.Graph(id='subcomponents-chart')
+                ]),
+
+                # MVPF Explainer Section
+                html.Div(className='chart-container', style={'background': '#f8fafc'}, children=[
+                    html.H3('Understanding MVPF', style={
+                        'fontSize': '20px',
+                        'fontWeight': '600',
+                        'color': '#1e293b',
+                        'marginBottom': '16px',
+                        'marginTop': '0'
+                    }),
+                    html.Div(
+                        style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '24px'},
+                        children=[
+                            # Left column
+                            html.Div(children=[
+                                html.H4(
+                                    'What is MVPF?',
+                                    style={
+                                        'fontSize': '16px',
+                                        'fontWeight': '600',
+                                        'color': '#374151',
+                                        'marginTop': '0',
+                                        'marginBottom': '12px'
+                                    }
+                                ),
+                                html.P(
+                                    'The Marginal Value of Public Funds (MVPF) is a metric that measures the '
+                                    'social welfare benefit of a policy per dollar of government spending. '
+                                    'It represents how much value beneficiaries receive relative to what the policy costs.',
+                                    style={
+                                        'color': '#4b5563',
+                                        'fontSize': '14px',
+                                        'lineHeight': '1.6',
+                                        'margin': '0'
+                                    }
+                                ),
+                                html.Div(children=[
+                                    html.H4(
+                                        "Applying MVPF to detention",
+                                        style={
+                                            'fontSize': '16px',
+                                            'fontWeight': '600',
+                                            'color': '#374151',
+                                            'marginTop': '1',
+                                            'marginBottom': '12px'
+                                        }
+                                    ),
+                                    html.P(
+                                        'Most MVPF work looks at policies where the person subject to the policy is also the main '
+                                        'beneficiary, such as cash transfers. Detention is different. Jail is imposed on detainees '
+                                        'but is justified as benefiting the general public. That is why this tool tracks both '
+                                        'Detainee effects and broader Society effects when calculating the MVPF of detention.',
+                                        style={
+                                            'color': '#4b5563',
+                                            'fontSize': '14px',
+                                            'lineHeight': '1.6',
+                                            'margin': '0'
+                                        }
+                                    ),
+                                    html.P(
+                                        'Most studies on detention focus on marginal changes, like one extra day in jail or one '
+                                        'additional person detained. This tool instead looks at the overall or infra-marginal picture '
+                                        'for a facility, using Cook County Jail as the baseline case. It uses the full annual costs of '
+                                        'operating the jail and the full set of impacts on people who are detained to summarize those '
+                                        'tradeoffs in an MVPF-style framework.',
+                                        style={
+                                            'color': '#4b5563',
+                                            'fontSize': '14px',
+                                            'lineHeight': '1.6',
+                                            'marginTop': '1',
+                                            'marginBottom': '12px'
+                                        }
+                                    )
+                                ])
+                            ]),
+                            # Right column
+                            html.Div(children=[
+                                html.H4('How to Interpret', style={
+                                    'fontSize': '16px',
+                                    'fontWeight': '600',
+                                    'color': '#374151',
+                                    'marginTop': '0',
+                                    'marginBottom': '12px'
+                                }),
+                                html.Ul(
+                                    style={
+                                        'margin': '0',
+                                        'paddingLeft': '20px',
+                                        'color': '#4b5563',
+                                        'fontSize': '14px',
+                                        'lineHeight': '1.8'
+                                    },
+                                    children=[
+                                        html.Li(
+                                            [html.Strong('MVPF ≥ 2.5:'), ' Very high social return on investment']
+                                        ),
+                                        html.Li(
+                                            [html.Strong('MVPF > 1:'), ' Program delivers more value than it costs']
+                                        ),
+                                        html.Li(
+                                            [html.Strong('MVPF = 1:'), ' Program value equals its cost']
+                                        ),
+                                        html.Li(
+                                            [html.Strong('MVPF < 1:'), ' Program costs more than the value it provides']
+                                        ),
+                                        html.Li(
+                                            [html.Strong('MVPF < 0:'), ' Indicates program delivers net harm']
+                                        )
+                                    ]
+                                )
+                            ])
+                        ]
+                    ),
+
+                    # Components breakdown
+                    html.Div(style={'marginTop': '24px', 'paddingTop': '24px', 'borderTop': '1px solid #e5e7eb'},
+                             children=[
+                                 html.H4('Components Breakdown', style={
+                                     'fontSize': '16px',
+                                     'fontWeight': '600',
+                                     'color': '#374151',
+                                     'marginTop': '0',
+                                     'marginBottom': '16px'
+                                 }),
+                                 html.Div(
+                                     style={'display': 'flex', 'flexDirection': 'column', 'gap': '16px'},
+                                     children=[
+                                         # Detainee Values
+                                         html.Div(
+                                             style={
+                                                 'background': 'white',
+                                                 'padding': '20px',
+                                                 'borderRadius': '8px',
+                                                 'borderLeft': '4px solid #2563eb'
+                                             },
+                                             children=[
+                                                 html.H5('Detainee Values', style={
+                                                     'fontSize': '15px',
+                                                     'fontWeight': '600',
+                                                     'color': '#2563eb',
+                                                     'margin': '0 0 12px 0'
+                                                 }),
+
+                                                 html.P(
+                                                     'Detainee Values capture the total harm detention imposes on people who are jailed. '
+                                                     'We measure this using a willingness-to-pay lens, estimating how much a person would trade '
+                                                     'to avoid being detained. This reflects short-term harms, disruptions to work and family life, '
+                                                     'and long-term effects on health, income, and stability.',
+                                                     style={
+                                                         'fontSize': '14px',
+                                                         'color': '#374151',
+                                                         'margin': '0 0 12px 0',
+                                                         'lineHeight': '1.6'
+                                                     }
+                                                 ),
+
+                                                 # Subcomponents header
+                                                 html.Div(className='label-with-info', children=[
+                                                     html.Span('Subcomponents', style={
+                                                         'fontWeight': '500',
+                                                         'fontSize': '14px'
+                                                                }
+                                                            )
+                                                        ]
+                                                    ),
+
+                                                 # Collapsible list
+                                                 html.Div(children=[
+                                                     # 1. Willingness to Pay for Freedom
+                                                     html.Div([
+                                                         html.Button(
+                                                             'Willingness to Pay for Freedom',
+                                                             id='detainee-wtp-btn',
+                                                             n_clicks=0,
+                                                             className='collapse-toggle'
+                                                         ),
+                                                         html.Div(
+                                                             id='detainee-wtp',
+                                                             style={'display': 'none'},
+                                                             children=[
+                                                                 html.P(
+                                                                     'Represents the monetary value detainees place on avoiding incarceration. '
+                                                                     'Derived from economic and wellbeing tradeoffs and interpreted as a willingness-to-pay measure.',
+                                                                     style={
+                                                                         'fontSize': '13px',
+                                                                         'color': '#6b7280',
+                                                                         'margin': '6px 0'
+                                                                     }
+                                                                 )
+                                                             ]
+                                                         )
+                                                     ]),
+
+                                                     # 2. Harm During Detention
+                                                     html.Div([
+                                                         html.Button(
+                                                             'Incarceration-Related Harm',
+                                                             id='detainee-harm-btn',
+                                                             n_clicks=0,
+                                                             className='collapse-toggle'
+                                                         ),
+                                                         html.Div(
+                                                             id='detainee-harm',
+                                                             style={'display': 'none'},
+                                                             children=[
+                                                                 html.P(
+                                                                     'Captures immediate harms of detention, including loss of autonomy, exposure to stressful '
+                                                                     'conditions, disrupted routines, and consequences for mental and physical health.',
+                                                                     style={
+                                                                         'fontSize': '13px',
+                                                                         'color': '#6b7280',
+                                                                         'margin': '6px 0'
+                                                                     }
+                                                                 )
+                                                             ]
+                                                         )
+                                                     ]),
+
+                                                     # 3. Post-Release Effects
+                                                     html.Div([
+                                                         html.Button(
+                                                             'Post-Release Effects',
+                                                             id='detainee-post-btn',
+                                                             n_clicks=0,
+                                                             className='collapse-toggle'
+                                                         ),
+                                                         html.Div(
+                                                             id='detainee-post',
+                                                             style={'display': 'none'},
+                                                             children=[
+                                                                 html.P(
+                                                                     'Reflects effects of detention that persist after release, including changes to employment, '
+                                                                     'income, housing stability, and longer-run wellbeing.',
+                                                                     style={
+                                                                         'fontSize': '13px',
+                                                                         'color': '#6b7280',
+                                                                         'margin': '6px 0'
+                                                                     }
+                                                                 )
+                                                             ]
+                                                         )
+                                                     ])
+                                                 ])
+                                             ]
+                                         ),
+
+                                         # Society Values
+                                         html.Div(
+                                             style={
+                                                 'background': 'white',
+                                                 'padding': '20px',
+                                                 'borderRadius': '8px',
+                                                 'borderLeft': '4px solid #16a34a'
+                                             },
+                                             children=[
+                                                 html.H5('Society Values', style={
+                                                     'fontSize': '15px',
+                                                     'fontWeight': '600',
+                                                     'color': '#16a34a',
+                                                     'margin': '0 0 12px 0'
+                                                 }),
+
+                                                 html.P(
+                                                     'Society Values measure how detention affects public safety, victimization risk, and community wellbeing. '
+                                                     'These values summarize spillovers felt by people outside the jail and convert those effects into a '
+                                                     'common dollar scale for comparison.',
+                                                     style={
+                                                         'fontSize': '14px',
+                                                         'color': '#374151',
+                                                         'margin': '0 0 12px 0',
+                                                         'lineHeight': '1.6'
+                                                     }
+                                                 ),
+
+                                                 html.Div(className='label-with-info', children=[
+                                                     html.Span('Subcomponents', style={
+                                                         'fontWeight': '500',
+                                                         'fontSize': '14px'
+                                                     }
+                                                    )
+                                                 ]
+                                                 ),
+                                                 html.Div(children=[
+                                                     # 1. Crime Prevention or Displacement
+                                                     html.Div([
+                                                         html.Button(
+                                                             'Crime Prevention / Displacement',
+                                                             id='society-crime-btn',
+                                                             n_clicks=0,
+                                                             className='collapse-toggle'
+                                                         ),
+                                                         html.Div(
+                                                             id='society-crime',
+                                                             style={'display': 'none'},
+                                                             children=[
+                                                                 html.P(
+                                                                     'Measures whether detention reduces or shifts crime, and monetizes the resulting changes '
+                                                                     'in safety and risk.',
+                                                                     style={
+                                                                         'fontSize': '13px',
+                                                                         'color': '#6b7280'
+                                                                     }
+                                                                 )
+                                                             ]
+                                                         )
+                                                     ]),
+
+                                                     # 2. Victimization Cost
+                                                     html.Div([
+                                                         html.Button(
+                                                             'Victimization Costs',
+                                                             id='society-victim-btn',
+                                                             n_clicks=0,
+                                                             className='collapse-toggle'
+                                                         ),
+                                                         html.Div(
+                                                             id='society-victim',
+                                                             style={'display': 'none'},
+                                                             children=[
+                                                                 html.P(
+                                                                     'Represents monetized harm to potential victims or avoided victimization resulting from '
+                                                                     'detention decisions.',
+                                                                     style={
+                                                                         'fontSize': '13px',
+                                                                         'color': '#6b7280'
+                                                                     }
+                                                                 )
+                                                             ]
+                                                         )
+                                                     ]),
+
+                                                     # 3. Community Spillovers
+                                                     html.Div([
+                                                         html.Button(
+                                                             'Community and Economic Spillovers',
+                                                             id='society-spill-btn',
+                                                             n_clicks=0,
+                                                             className='collapse-toggle'
+                                                         ),
+                                                         html.Div(
+                                                             id='society-spill',
+                                                             style={'display': 'none'},
+                                                             children=[
+                                                                 html.P(
+                                                                     'Captures broader economic and social ripple effects within households, neighborhoods, '
+                                                                     'and local economies.',
+                                                                     style={
+                                                                         'fontSize': '13px',
+                                                                         'color': '#6b7280'
+                                                                     }
+                                                                 )
+                                                             ]
+                                                         )
+                                                     ])
+                                                 ])
+                                             ]
+                                         ),
+
+                                         # Government Cost
+                                         html.Div(
+                                             style={
+                                                 'background': 'white',
+                                                 'padding': '20px',
+                                                 'borderRadius': '8px',
+                                                 'borderLeft': '4px solid #dc2626'
+                                             },
+                                             children=[
+                                                 html.H5('Government Cost', style={
+                                                     'fontSize': '15px',
+                                                     'fontWeight': '600',
+                                                     'color': '#dc2626',
+                                                     'margin': '0 0 12px 0'
+                                                 }),
+
+                                                 html.P(
+                                                     'Government Cost reflects all public spending required to run the detention system. This includes daily '
+                                                     'operations, staffing, healthcare, facilities, court processing, and administrative overhead. It represents '
+                                                     'the fiscal cost taxpayers bear to support the current level of detention.',
+                                                     style={
+                                                         'fontSize': '14px',
+                                                         'color': '#374151',
+                                                         'margin': '0 0 12px 0',
+                                                         'lineHeight': '1.6'
+                                                     }
+                                                 ),
+
+                                                 html.Div(className='label-with-info', children=[
+                                                     html.Span('Subcomponents', style={
+                                                         'fontWeight': '500',
+                                                         'fontSize': '14px'
+                                                     }
+                                                     )
+                                                 ]
+                                                ),
+
+                                                 html.Div(children=[
+                                                     # Operational Cost
+                                                     html.Div([
+                                                         html.Button(
+                                                             'Operational Costs',
+                                                             id='gov-op-btn',
+                                                             n_clicks=0,
+                                                             className='collapse-toggle'
+                                                         ),
+                                                         html.Div(
+                                                             id='gov-op',
+                                                             style={'display': 'none'},
+                                                             children=[
+                                                                 html.P(
+                                                                     'Includes daily costs of running the jail: staffing, housing, food, medical care, and supplies.',
+                                                                     style={
+                                                                         'fontSize': '13px',
+                                                                         'color': '#6b7280'
+                                                                     }
+                                                                 )
+                                                             ]
+                                                         )
+                                                     ]),
+
+                                                     # Court/Admin
+                                                     html.Div([
+                                                         html.Button(
+                                                             'Court and Administrative Costs',
+                                                             id='gov-admin-btn',
+                                                             n_clicks=0,
+                                                             className='collapse-toggle'
+                                                         ),
+                                                         html.Div(
+                                                             id='gov-admin',
+                                                             style={'display': 'none'},
+                                                             children=[
+                                                                 html.P(
+                                                                     'Covers court processing, hearings, paperwork, supervision, and other administrative overhead.',
+                                                                     style={
+                                                                         'fontSize': '13px',
+                                                                         'color': '#6b7280'
+                                                                     }
+                                                                 )
+                                                             ]
+                                                         )
+                                                     ]),
+
+                                                     # Long-term fiscal
+                                                     html.Div([
+                                                         html.Button(
+                                                             'Long-Term Fiscal Effects',
+                                                             id='gov-long-btn',
+                                                             n_clicks=0,
+                                                             className='collapse-toggle'
+                                                         ),
+                                                         html.Div(
+                                                             id='gov-long',
+                                                             style={'display': 'none'},
+                                                             children=[
+                                                                 html.P(
+                                                                     'Reflects downstream public spending or savings associated with post-release outcomes, '
+                                                                     'service needs, or recidivism.',
+                                                                     style={
+                                                                         'fontSize': '13px',
+                                                                         'color': '#6b7280'
+                                                                     }
+                                                                 )
+                                                             ]
+                                                         )
+                                                     ])
+                                                 ])
+                                             ]
+                                         )
+                                     ]
+                                 )
+                             ])
+                ])
             ])
-        ])
-    ])
+        ]
+    )
 ])
 
+# Collapse toggles for Components Breakdown
+def _toggle_style(n_clicks, style):
+    if not n_clicks:
+        return style or {'display': 'none'}
+    if not style or style.get('display') == 'none':
+        return {'display': 'block'}
+    return {'display': 'none'}
 
-# Baseline button switching callback
+
 @app.callback(
-    [Output('baseline-type', 'data'),
-     Output('btn-historical', 'className'),
-     Output('btn-optimal', 'className')],
-    [Input('btn-historical', 'n_clicks'),
-     Input('btn-optimal', 'n_clicks')],
-    [State('baseline-type', 'data')]
+    Output('detainee-wtp', 'style'),
+    Input('detainee-wtp-btn', 'n_clicks'),
+    State('detainee-wtp', 'style')
 )
-def update_baseline(hist_clicks, opt_clicks, current_baseline):
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        return 'historical', 'baseline-button baseline-button-active', 'baseline-button baseline-button-inactive'
-
-    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-
-    if button_id == 'btn-historical':
-        return 'historical', 'baseline-button baseline-button-active', 'baseline-button baseline-button-inactive'
-    else:
-        return 'optimal', 'baseline-button baseline-button-inactive', 'baseline-button baseline-button-active'
+def toggle_detainee_wtp(n_clicks, style):
+    return _toggle_style(n_clicks, style)
 
 
-# Main dashboard update callback
 @app.callback(
-    [Output('kpi-card', 'children'),
-     Output('main-components-chart', 'figure'),
-     Output('subcomponents-chart', 'figure')],
-    [Input('baseline-type', 'data'),
-     Input('detainee-param1', 'value'),
-     Input('detainee-param2', 'value'),
-     Input('society-param1', 'value'),
-     Input('society-param2', 'value')]
+    Output('detainee-harm', 'style'),
+    Input('detainee-harm-btn', 'n_clicks'),
+    State('detainee-harm', 'style')
 )
-def update_dashboard(baseline_type, detainee_param1, detainee_param2, society_param1, society_param2):
-    # Calculate MVPF
-    calculator = MVPFCalculator(baseline_type)
-    result = calculator.calculate_mvpf(detainee_param1, detainee_param2, society_param1, society_param2)
-    
-    mvpf = result['mvpf']
-    label, text_color, bg_color = calculator.get_mvpf_interpretation(mvpf)
+def toggle_detainee_harm(n_clicks, style):
+    return _toggle_style(n_clicks, style)
 
-    # KPI Card
-    kpi_card = html.Div(className='kpi-card', children=[
-        html.Div(className='kpi-header', children=[
-            html.H2('MVPF Score', className='kpi-title'),
-            html.Span(label, className='kpi-badge', style={'backgroundColor': bg_color, 'color': text_color})
-        ]),
-        html.Div([
-            html.Span(f"{mvpf:.2f}", className='kpi-value'),
-            html.Span('ratio', className='kpi-ratio')
-        ]),
-        html.Div(className='kpi-components', children=[
-            html.Div(className='kpi-component', children=[
-                html.H4('Detainee Values'),
-                html.P(f"${int(result['detainee_values']):,}", style={'color': '#2563eb'}),
-                html.Span('2 subcomponents')
-            ]),
-            html.Div(className='kpi-component', children=[
-                html.H4('Society Values'),
-                html.P(f"${int(result['society_values']):,}", style={'color': '#16a34a'}),
-                html.Span('3 subcomponents')
-            ]),
-            html.Div(className='kpi-component', children=[
-                html.H4('Government Cost'),
-                html.P(f"${int(result['govt_cost']):,}", style={'color': '#dc2626'}),
-                html.Span('3 subcomponents')
-            ])
-        ]),
-        html.Div(className='kpi-interpretation', children=[
-            html.P([
-                html.Strong('Calculation: '),
-                f"MVPF = (${int(result['detainee_values']):,} + ${int(result['society_values']):,}) / ${int(result['govt_cost']):,} = {mvpf:.2f}"
-            ]),
-            html.P('This indicates the program delivers more value than its cost.' if mvpf > 1 else 'Consider reviewing program efficiency.', style={'marginTop': '8px'})
-        ])
-    ])
 
-    # Create graphs
-    main_fig = create_main_components_chart(result)
-    sub_fig = create_subcomponents_chart(result)
+@app.callback(
+    Output('detainee-post', 'style'),
+    Input('detainee-post-btn', 'n_clicks'),
+    State('detainee-post', 'style')
+)
+def toggle_detainee_post(n_clicks, style):
+    return _toggle_style(n_clicks, style)
 
-    return kpi_card, main_fig, sub_fig
 
+@app.callback(
+    Output('society-crime', 'style'),
+    Input('society-crime-btn', 'n_clicks'),
+    State('society-crime', 'style')
+)
+def toggle_society_crime(n_clicks, style):
+    return _toggle_style(n_clicks, style)
+
+
+@app.callback(
+    Output('society-victim', 'style'),
+    Input('society-victim-btn', 'n_clicks'),
+    State('society-victim', 'style')
+)
+def toggle_society_victim(n_clicks, style):
+    return _toggle_style(n_clicks, style)
+
+
+@app.callback(
+    Output('society-spill', 'style'),
+    Input('society-spill-btn', 'n_clicks'),
+    State('society-spill', 'style')
+)
+def toggle_society_spill(n_clicks, style):
+    return _toggle_style(n_clicks, style)
+
+
+@app.callback(
+    Output('gov-op', 'style'),
+    Input('gov-op-btn', 'n_clicks'),
+    State('gov-op', 'style')
+)
+def toggle_gov_op(n_clicks, style):
+    return _toggle_style(n_clicks, style)
+
+
+@app.callback(
+    Output('gov-admin', 'style'),
+    Input('gov-admin-btn', 'n_clicks'),
+    State('gov-admin', 'style')
+)
+def toggle_gov_admin(n_clicks, style):
+    return _toggle_style(n_clicks, style)
+
+
+@app.callback(
+    Output('gov-long', 'style'),
+    Input('gov-long-btn', 'n_clicks'),
+    State('gov-long', 'style')
+)
+def toggle_gov_long(n_clicks, style):
+    return _toggle_style(n_clicks, style)
 
 if __name__ == '__main__':
     app.run(debug=True, port=8050)
