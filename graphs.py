@@ -6,7 +6,6 @@ Contains all Plotly graph/chart creation functions for MVPF dashboard
 import plotly.graph_objs as go
 import pandas as pd
 
-
 def create_main_components_chart(result):
     """
     Create bar chart showing main MVPF components.
@@ -42,7 +41,6 @@ def create_main_components_chart(result):
         showlegend=False
     )
     return fig
-
 
 def create_subcomponents_chart(result):
     """
