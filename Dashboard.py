@@ -10,9 +10,9 @@ import plotly.graph_objs as go
 import pandas as pd
 
 # Import local modules
-from mvpf_calculator import MVPFCalculator
-from graphs import create_main_components_chart, create_subcomponents_chart
-from helpers import  export_results_to_csv
+import mvpf_calculator
+import graphs
+import helpers
 
 # Initialize the Dash app
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
@@ -1007,6 +1007,242 @@ def toggle_gov_admin(n_clicks, style):
 )
 def toggle_gov_long(n_clicks, style):
     return _toggle_style(n_clicks, style)
+
+# Callback for baseline button switching
+@app.callback(
+    [Output('baseline-type', 'data'),
+     Output('btn-historical', 'className'),
+     Output('btn-optimal', 'className')],
+    [Input('btn-historical', 'n_clicks'),
+     Input('btn-optimal', 'n_clicks')],
+    [State('baseline-type', 'data')]
+)
+def update_baseline(hist_clicks, opt_clicks, current_baseline):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return 'historical', 'baseline-button baseline-button-active', 'baseline-button baseline-button-inactive'
+
+    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    if button_id == 'btn-historical':
+        return 'historical', 'baseline-button baseline-button-active', 'baseline-button baseline-button-inactive'
+    else:
+        return 'optimal', 'baseline-button baseline-button-inactive', 'baseline-button baseline-button-active'
+
+
+
+def calculate_mvpf(baseline_type, detainee_param1, detainee_param2, society_param1, society_param2):
+    """
+    Replace this with your actual MVPF calculation module
+    Example: from mvpf_calculator import MVPFCalculator
+             calculator = MVPFCalculator(baseline_type)
+             return calculator.calculate_mvpf({...})
+    """
+    # Mock calculations
+    multiplier1 = {'below': 0.8, 'moderate': 1.0, 'significant': 1.2}[detainee_param1]
+    multiplier2 = {'below': 0.9, 'average': 1.0, 'above': 1.1}[detainee_param2]
+    multiplier3 = {'below': 0.9, 'average': 1.0, 'above': 1.1}[society_param1]
+    multiplier4 = {'below': 60.0, 'average': 70.0, 'above': 200.0}[society_param2]
+
+    baseline_mult = 1.0 if baseline_type == 'historical' else 1.0
+
+    detainee_sub1 = 11 * multiplier1 * multiplier2
+    detainee_sub2 = -295275 * multiplier1 * multiplier2
+    detainee_values = detainee_sub1 + detainee_sub2
+
+    society_sub1 = 13 * multiplier3
+    society_sub2 = 0 * multiplier3
+    society_sub3 = -294728 * multiplier3
+    society_values = society_sub1 + society_sub2 + society_sub3
+
+    govt_sub1 = 50 * baseline_mult * multiplier4
+    govt_sub2 = 13200 * baseline_mult
+    govt_sub3 = 8000 * baseline_mult * multiplier1
+    govt_cost = govt_sub1 + govt_sub2 + govt_sub3
+
+    mvpf = (detainee_values + society_values) / govt_cost if govt_cost > 0 else 0
+
+    return {
+        'mvpf': mvpf,
+        'detainee_values': detainee_values,
+        'society_values': society_values,
+        'govt_cost': govt_cost,
+        'detainee_sub1': detainee_sub1,
+        'detainee_sub2': detainee_sub2,
+        'society_sub1': society_sub1,
+        'society_sub2': society_sub2,
+        'society_sub3': society_sub3,
+        'govt_sub1': govt_sub1,
+        'govt_sub2': govt_sub2,
+        'govt_sub3': govt_sub3
+    }
+
+
+# Main callback for updating all components
+@app.callback(
+    [Output('kpi-card', 'children'),
+     Output('main-components-chart', 'figure'),
+     Output('subcomponents-chart', 'figure')],
+    [Input('baseline-type', 'data'),
+     Input('detainee-param1', 'value'),
+     Input('detainee-param2', 'value'),
+     Input('society-param1', 'value'),
+     Input('society-param2', 'value')]
+)
+
+
+
+def update_dashboard(baseline_type, detainee_param1, detainee_param2, society_param1, society_param2):
+    # Calculate MVPF
+    result = calculate_mvpf(baseline_type, detainee_param1, detainee_param2, society_param1, society_param2)
+
+    mvpf = result['mvpf']
+
+    # Determine badge color and label
+    if mvpf >= 2.5:
+        badge_color = '#dcfce7'
+        badge_text_color = '#16a34a'
+        label = 'Excellent'
+    elif mvpf >= 1.5:
+        badge_color = '#dbeafe'
+        badge_text_color = '#2563eb'
+        label = 'Good'
+    elif mvpf >= 1.0:
+        badge_color = '#fef3c7'
+        badge_text_color = '#ca8a04'
+        label = 'Fair'
+    else:
+        badge_color = '#fee2e2'
+        badge_text_color = '#dc2626'
+        label = 'Poor'
+
+    # KPI Card
+    # KPI Card
+    kpi_card = html.Div(className='kpi-card', children=[
+        html.Div(className='kpi-header', children=[
+            html.H2('MVPF Score', className='kpi-title')
+        ]),
+
+        html.Div([
+            html.Span(f"{mvpf:.2f}", className='kpi-value'),
+            html.Span('ratio', className='kpi-ratio')
+        ]),
+
+
+        html.Div(className='kpi-interpretation', children=[
+            html.Span(label, className='kpi-badge', style={
+                'backgroundColor': badge_color,
+                'color': badge_text_color,
+                'display': 'inline-block',
+                'marginBottom': '24px'
+            }),
+
+            html.P(
+                'This indicates the program delivers more value than its cost.' if mvpf > 1
+                else 'Consider reviewing program efficiency.',
+                style={'marginTop': '8px'}
+            )
+        ]),
+
+        html.P([
+            html.Strong('Calculation: '),
+            f"MVPF = (${int(result['detainee_values']):,} + ${int(result['society_values']):,}) / ${int(result['govt_cost']):,} = {mvpf:.2f}"
+        ]),
+
+        html.Div(className='kpi-components', children=[
+
+
+            html.Div(className='kpi-component', children=[
+                html.H4('Detainee Values'),
+                html.P(f"${int(result['detainee_values']):,}", style={'color': '#2563eb'}),
+                html.Span('2 subcomponents')
+            ]),
+            html.Div(className='kpi-component', children=[
+                html.H4('Society Values'),
+                html.P(f"${int(result['society_values']):,}", style={'color': '#16a34a'}),
+                html.Span('3 subcomponents')
+            ]),
+            html.Div(className='kpi-component', children=[
+                html.H4('Government Cost'),
+                html.P(f"${int(result['govt_cost']):,}", style={'color': '#dc2626'}),
+                html.Span('3 subcomponents')
+            ])
+        ]),
+
+    ])
+
+    # Main Components Chart
+    main_fig = go.Figure(data=[
+        go.Bar(
+            x=['Detainee Values', 'Society Values', 'Government Cost'],
+            y=[result['detainee_values'], result['society_values'], result['govt_cost']],
+            marker_color=['#3b82f6', '#10b981', '#ef4444'],
+            text=[f"${int(result['detainee_values']):,}",
+                  f"${int(result['society_values']):,}",
+                  f"${int(result['govt_cost']):,}"],
+            textposition='outside'
+        )
+    ])
+
+    main_fig.update_layout(
+        title='MVPF Main Components',
+        xaxis_title='',
+        yaxis_title='Value ($)',
+        paper_bgcolor='#f8fafc',
+        plot_bgcolor='#ffffff',
+        font=dict(family='system-ui', size=12),
+        margin=dict(t=50, b=80, l=80, r=40),
+        showlegend=False
+    )
+
+
+    # Subcomponents Chart - grouped by component
+    sub_fig = go.Figure(data=[
+        go.Bar(
+            name='Subcomp 1',
+            x=['Detainee Values', 'Society Values', 'Govt Cost'],
+            y=[result['detainee_sub1'], result['society_sub1'], result['govt_sub1']],
+            marker_color='#93c5fd',
+            text=[f"${int(result['detainee_sub1']):,}",
+                  f"${int(result['society_sub1']):,}",
+                  f"${int(result['govt_sub1']):,}"],
+            textposition='outside'
+        ),
+        go.Bar(
+            name='Subcomp 2',
+            x=['Detainee Values', 'Society Values', 'Govt Cost'],
+            y=[result['detainee_sub2'], result['society_sub2'], result['govt_sub2']],
+            marker_color='#3b82f6',
+            text=[f"${int(result['detainee_sub2']):,}",
+                  f"${int(result['society_sub2']):,}",
+                  f"${int(result['govt_sub2']):,}"],
+            textposition='outside'
+        ),
+        go.Bar(
+            name='Subcomp 3',
+            x=['Detainee Values', 'Society Values', 'Govt Cost'],
+            y=[0, result['society_sub3'], result['govt_sub3']],
+            marker_color='#1e40af',
+            text=['',
+                  f"${int(result['society_sub3']):,}",
+                  f"${int(result['govt_sub3']):,}"],
+            textposition='outside'
+        )
+    ])
+
+    sub_fig.update_layout(
+        title='Component Breakdown',
+        xaxis_title='Main Components',
+        yaxis_title='Value ($)',
+        barmode='group',
+        paper_bgcolor='#f8fafc',
+        plot_bgcolor='#ffffff',
+        font=dict(family='system-ui', size=12),
+        margin=dict(t=50, b=80, l=80, r=40)
+    )
+
+    return kpi_card, main_fig, sub_fig
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=8050)
