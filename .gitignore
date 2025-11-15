@@ -1,6 +1,6 @@
 .Rproj.user
-.Rhistory
-.RData
+_obsolete/R /.Rhistory
+_obsolete/R /.RData
 .Ruserdata
 .DS_Store
 .ipynb_checkpoints

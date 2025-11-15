@@ -927,7 +927,6 @@ def _toggle_style(n_clicks, style):
         return {'display': 'block'}
     return {'display': 'none'}
 
-
 @app.callback(
     Output('detainee-wtp', 'style'),
     Input('detainee-wtp-btn', 'n_clicks'),
@@ -935,7 +934,6 @@ def _toggle_style(n_clicks, style):
 )
 def toggle_detainee_wtp(n_clicks, style):
     return _toggle_style(n_clicks, style)
-
 
 @app.callback(
     Output('detainee-harm', 'style'),
@@ -945,7 +943,6 @@ def toggle_detainee_wtp(n_clicks, style):
 def toggle_detainee_harm(n_clicks, style):
     return _toggle_style(n_clicks, style)
 
-
 @app.callback(
     Output('detainee-post', 'style'),
     Input('detainee-post-btn', 'n_clicks'),
@@ -953,7 +950,6 @@ def toggle_detainee_harm(n_clicks, style):
 )
 def toggle_detainee_post(n_clicks, style):
     return _toggle_style(n_clicks, style)
-
 
 @app.callback(
     Output('society-crime', 'style'),
@@ -963,7 +959,6 @@ def toggle_detainee_post(n_clicks, style):
 def toggle_society_crime(n_clicks, style):
     return _toggle_style(n_clicks, style)
 
-
 @app.callback(
     Output('society-victim', 'style'),
     Input('society-victim-btn', 'n_clicks'),
@@ -971,7 +966,6 @@ def toggle_society_crime(n_clicks, style):
 )
 def toggle_society_victim(n_clicks, style):
     return _toggle_style(n_clicks, style)
-
 
 @app.callback(
     Output('society-spill', 'style'),
@@ -981,7 +975,6 @@ def toggle_society_victim(n_clicks, style):
 def toggle_society_spill(n_clicks, style):
     return _toggle_style(n_clicks, style)
 
-
 @app.callback(
     Output('gov-op', 'style'),
     Input('gov-op-btn', 'n_clicks'),
@@ -989,7 +982,6 @@ def toggle_society_spill(n_clicks, style):
 )
 def toggle_gov_op(n_clicks, style):
     return _toggle_style(n_clicks, style)
-
 
 @app.callback(
     Output('gov-admin', 'style'),
@@ -999,7 +991,6 @@ def toggle_gov_op(n_clicks, style):
 def toggle_gov_admin(n_clicks, style):
     return _toggle_style(n_clicks, style)
 
-
 @app.callback(
     Output('gov-long', 'style'),
     Input('gov-long-btn', 'n_clicks'),
@@ -1008,7 +999,10 @@ def toggle_gov_admin(n_clicks, style):
 def toggle_gov_long(n_clicks, style):
     return _toggle_style(n_clicks, style)
 
-# Callback for baseline button switching
+"""
+Dashboard Callbacks
+"""
+
 @app.callback(
     [Output('baseline-type', 'data'),
      Output('btn-historical', 'className'),
@@ -1028,7 +1022,6 @@ def update_baseline(hist_clicks, opt_clicks, current_baseline):
         return 'historical', 'baseline-button baseline-button-active', 'baseline-button baseline-button-inactive'
     else:
         return 'optimal', 'baseline-button baseline-button-inactive', 'baseline-button baseline-button-active'
-
 
 
 def calculate_mvpf(baseline_type, detainee_param1, detainee_param2, society_param1, society_param2):
@@ -1089,8 +1082,6 @@ def calculate_mvpf(baseline_type, detainee_param1, detainee_param2, society_para
      Input('society-param1', 'value'),
      Input('society-param2', 'value')]
 )
-
-
 
 def update_dashboard(baseline_type, detainee_param1, detainee_param2, society_param1, society_param2):
     # Calculate MVPF

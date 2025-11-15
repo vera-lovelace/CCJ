@@ -1,0 +1,27 @@
+{
+  "header": {
+    "title": "MVPF Analysis Dashboard",
+    "subtitle": "Marginal Value of Public Funds Calculation"
+  },
+  "info_tile": {
+    "heading": "About MVPF",
+    "description": "The MVPF measures the ratio...",
+    "formula": "MVPF = (Detainee + Society) / Government Cost"
+  },
+  "tooltips": {
+    "detainee_param1": "Placeholder explainer text - WTP Freedom",
+    "society_param1": "Placeholder explainer text - Community Impact"
+  },
+  "components": {
+    "detainee_values": {
+      "title": "Detainee Values",
+      "description": "Detainee Values capture the total harm...",
+      "subcomponents": {
+        "wtp_freedom": {
+          "name": "Willingness to Pay for Freedom",
+          "explanation": "Represents the monetary value..."
+        }
+      }
+    }
+  }
+}
