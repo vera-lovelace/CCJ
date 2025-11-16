@@ -1,6 +1,3 @@
-# CCJ
-Data and code to support the Cook County Jail project for the "Building Data Products for Public Impact" course (INFO 290, Fall 2025, UC Berkeley).
-
 # CCJ Detention Facility Analysis Platform
 
 A comprehensive data analysis and visualization platform for understanding detention facility dynamics, predicting length of stay, and evaluating the Marginal Value of Public Funds (MVPF) for detention policies.
@@ -132,6 +129,8 @@ Key considerations:
 - 70-day prediction window vs. full stay duration
 - Time-based cross-validation strategies
 - Feature availability at prediction time
+
+Data and code to support the Cook County Jail project for the "Building Data Products for Public Impact" course (INFO 290, Fall 2025, UC Berkeley).
 
 ## 📄 License
 
