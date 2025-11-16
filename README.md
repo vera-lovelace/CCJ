@@ -9,46 +9,19 @@ This project provides tools for analyzing detention facility data with three mai
 1. **MVPF Calculator** - Economic framework for evaluating detention policy costs and benefits
 2. **Interactive Dashboards** - Plotly Dash visualizations for exploring data and model results
 
-## ✨ Features
+## 📝 Research Background
 
-### MVPF Calculator
-- Calculate Marginal Value of Public Funds for detention policies
-- Multi-component analysis (Detainee Values, Society Values, Government Costs)
-- Scenario-based modeling with adjustable parameters
-- CPI adjustment for inflation-adjusted calculations
-- Flexible component selection and weighting
+This project implements research-based approaches for detention facility analysis:
 
-### Interactive Dashboards
-- Real-time MVPF calculations with parameter adjustments
-- Visual breakdowns of cost-benefit components
-- Comparative scenario analysis
-- Export capabilities for results and visualizations
+- **MVPF Framework**: Economic evaluation methodology for public policy
 
-## 🚀 Getting Started
+Key considerations:
+- 70-day prediction window vs. full stay duration
+- Time-based cross-validation strategies
+- Feature availability at prediction time
 
-### Running the Dashboard
+Data and code to support the Cook County Jail project for the "Building Data Products for Public Impact" course (INFO 290, Fall 2025, UC Berkeley).
 
-```bash
-python dashboard.py
-```
-
-Then open your browser to `http://localhost:8050`
-
-## 📁 Project Structure
-
-```
-CCJ/
-├── mvpf_package/
-│   ├── __init__.py
-│   ├── mvpf_calculation.py    # Core MVPF calculator
-│   ├── content_loader.py      # Content management
-│   ├── helpers.py             # Utility functions
-│   └── graphs.py              # Visualization helpers
-├── Data/
-│   └── [CSV files]
-├── dashboard.py               # Plotly Dash application
-└── README.md
-```
 
 ## 🔬 Methodology
 
@@ -108,29 +81,41 @@ Adjustable scenario parameters:
 - `length_of_stay_mult`: LoS duration multiplier (0.8 - 1.5)
 
 
+## 🚀 Getting Started
+
+### Running the Dashboard
+
+```bash
+python dashboard.py
+```
+
+Then open your browser to `http://localhost:8050`
+
+## 📁 Project Structure
+
+```
+CCJ/
+├── mvpf_package/
+│   ├── __init__.py
+│   ├── mvpf_calculation.py    # Core MVPF calculator
+│   ├── content_loader.py      # Content management
+│   ├── helpers.py             # Utility functions
+│   └── graphs.py              # Visualization helpers
+├── Data/
+│   └── [CSV files]
+├── dashboard.py               # Plotly Dash application
+└── README.md
+```
 
 ## 🤝 Contributing
 
 Contributions are welcome! Areas for enhancement:
 
-- Additional ML algorithms (XGBoost Survival, Deep Learning)
-- Enhanced temporal validation methods
+- Enhanced temporal validation of various detention facilities across the US
 - Additional MVPF components
 - Dashboard improvements
 - Documentation and examples
 
-## 📝 Research Background
-
-This project implements research-based approaches for detention facility analysis:
-
-- **MVPF Framework**: Economic evaluation methodology for public policy
-
-Key considerations:
-- 70-day prediction window vs. full stay duration
-- Time-based cross-validation strategies
-- Feature availability at prediction time
-
-Data and code to support the Cook County Jail project for the "Building Data Products for Public Impact" course (INFO 290, Fall 2025, UC Berkeley).
 
 ## 📄 License
 
