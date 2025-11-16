@@ -126,14 +126,10 @@ Contributions are welcome! Areas for enhancement:
 
 This project implements research-based approaches for detention facility analysis:
 
-- **Temporal Data Handling**: Based on best practices for time-to-event prediction
-- **Survival Analysis**: Cox Proportional Hazards and Random Survival Forest methods
 - **MVPF Framework**: Economic evaluation methodology for public policy
-- **Bias Mitigation**: Addresses survivorship bias and multicollinearity
 
 Key considerations:
 - 70-day prediction window vs. full stay duration
-- Fixed prediction windows vs. rolling predictions
 - Time-based cross-validation strategies
 - Feature availability at prediction time
 
