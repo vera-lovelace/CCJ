@@ -5,14 +5,14 @@ import os
 class ContentManager:
     """Load and manage external content files."""
 
-    def __init__(self, content_dir='content'):
+    def __init__(self, content_dir='CCJ/Content'):
         self.content_dir = content_dir
         self.content = {}
         self.load_all()
 
     def load_all(self):
         """Load all content files."""
-        files = ['text_content.json', 'tooltips.json', 'explanations.json']
+        files = ['content.json']
         for file in files:
             path = os.path.join(self.content_dir, file)
             if os.path.exists(path):

@@ -3,23 +3,195 @@
     "title": "MVPF Analysis Dashboard",
     "subtitle": "Marginal Value of Public Funds Calculation"
   },
+
   "info_tile": {
     "heading": "About MVPF",
-    "description": "The MVPF measures the ratio...",
+    "description": "The MVPF measures the ratio of beneficiaries' willingness to pay to the net cost to the government.",
+    "formula_label": "Formula:",
     "formula": "MVPF = (Detainee + Society) / Government Cost"
   },
-  "tooltips": {
-    "detainee_param1": "Placeholder explainer text - WTP Freedom",
-    "society_param1": "Placeholder explainer text - Community Impact"
+
+  "controls": {
+    "section_title": "Analysis Parameters",
+    "detainee_param1": {
+      "label": "Detainees - Rate of felonies charged",
+      "tooltip": "Placeholder explainer text - WTP Freedom",
+      "options": {
+        "below": "Minimal(50%)",
+        "moderate": "Average (70%)",
+        "significant": "Significant (90%)"
+      }
+    },
+    "detainee_param2": {
+      "label": "Detainee population size",
+      "tooltip": "Placeholder explainer text - Relative Harm Valuation",
+      "options": {
+        "below": "Minimal",
+        "average": "Moderate",
+        "above": "Large"
+      }
+    },
+    "society_param1": {
+      "label": "Population size",
+      "tooltip": "Placeholder explainer text - Community Impact",
+      "options": {
+        "below": "Minimal",
+        "average": "Moderate",
+        "above": "Large"
+      }
+    },
+    "society_param2": {
+      "label": "Length of Stay",
+      "tooltip": "Placeholder explainer text - Length of Stay",
+      "options": {
+        "below": "Below Average",
+        "average": "Average",
+        "above": "Above Average"
+      }
+    }
   },
-  "components": {
+
+  "baseline_switch": {
+    "label": "Comparison",
+    "button_baseline": "Baseline",
+    "button_optimal": "Experience-informed Calculation (TBD)"
+  },
+
+  "kpi_card": {
+    "title": "MVPF Score",
+    "ratio_label": "ratio",
+    "badges": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "fair": "Fair",
+      "poor": "Poor"
+    },
+    "components": {
+      "detainee": {
+        "title": "Detainee Values",
+        "subcomponent_count": "2 subcomponents"
+      },
+      "society": {
+        "title": "Society Values",
+        "subcomponent_count": "3 subcomponents"
+      },
+      "government": {
+        "title": "Government Cost",
+        "subcomponent_count": "3 subcomponents"
+      }
+    },
+    "calculation_label": "Calculation: ",
+    "interpretation_positive": "This indicates the program delivers more value than its cost.",
+    "interpretation_negative": "Consider reviewing program efficiency."
+  },
+
+  "charts": {
+    "main_components": {
+      "title": "MVPF Main Components",
+      "x_axis_label": "",
+      "y_axis_label": "Value ($)"
+    },
+    "subcomponents": {
+      "title": "Component Breakdown",
+      "x_axis_label": "Main Components",
+      "y_axis_label": "Value ($)"
+    }
+  },
+
+  "mvpf_explainer": {
+    "section_title": "Understanding MVPF",
+    "what_is_mvpf": {
+      "heading": "What is MVPF?",
+      "description": "The Marginal Value of Public Funds (MVPF) is a metric that measures the social welfare benefit of a policy per dollar of government spending. It represents how much value beneficiaries receive relative to what the policy costs."
+    },
+    "applying_to_detention": {
+      "heading": "Applying MVPF to detention",
+      "paragraph1": "Most MVPF work looks at policies where the person subject to the policy is also the main beneficiary, such as cash transfers. Detention is different. Jail is imposed on detainees but is justified as benefiting the general public. That is why this tool tracks both Detainee effects and broader Society effects when calculating the MVPF of detention.",
+      "paragraph2": "Most studies on detention focus on marginal changes, like one extra day in jail or one additional person detained. This tool instead looks at the overall or infra-marginal picture for a facility, using Cook County Jail as the baseline case. It uses the full annual costs of operating the jail and the full set of impacts on people who are detained to summarize those tradeoffs in an MVPF-style framework."
+    },
+    "interpretation": {
+      "heading": "How to Interpret",
+      "levels": {
+        "very_high": {
+          "threshold": "MVPF ≥ 2.5:",
+          "description": "Very high social return on investment"
+        },
+        "positive": {
+          "threshold": "MVPF > 1:",
+          "description": "Program delivers more value than it costs"
+        },
+        "neutral": {
+          "threshold": "MVPF = 1:",
+          "description": "Program value equals its cost"
+        },
+        "negative": {
+          "threshold": "MVPF < 1:",
+          "description": "Program costs more than the value it provides"
+        },
+        "harmful": {
+          "threshold": "MVPF < 0:",
+          "description": "Indicates program delivers net harm"
+        }
+      }
+    }
+  },
+
+  "components_breakdown": {
+    "section_title": "Components Breakdown",
     "detainee_values": {
       "title": "Detainee Values",
-      "description": "Detainee Values capture the total harm...",
+      "description": "Detainee Values capture the total harm detention imposes on people who are jailed. We measure this using a willingness-to-pay lens, estimating how much a person would trade to avoid being detained. This reflects short-term harms, disruptions to work and family life, and long-term effects on health, income, and stability.",
+      "subcomponents_label": "Subcomponents",
       "subcomponents": {
         "wtp_freedom": {
-          "name": "Willingness to Pay for Freedom",
-          "explanation": "Represents the monetary value..."
+          "button_text": "Willingness to Pay for Freedom",
+          "explanation": "Represents the monetary value detainees place on avoiding incarceration. Derived from economic and wellbeing tradeoffs and interpreted as a willingness-to-pay measure."
+        },
+        "harm_during": {
+          "button_text": "Incarceration-Related Harm",
+          "explanation": "Captures immediate harms of detention, including loss of autonomy, exposure to stressful conditions, disrupted routines, and consequences for mental and physical health."
+        },
+        "post_release": {
+          "button_text": "Post-Release Effects",
+          "explanation": "Reflects effects of detention that persist after release, including changes to employment, income, housing stability, and longer-run wellbeing."
+        }
+      }
+    },
+    "society_values": {
+      "title": "Society Values",
+      "description": "Society Values measure how detention affects public safety, victimization risk, and community wellbeing. These values summarize spillovers felt by people outside the jail and convert those effects into a common dollar scale for comparison.",
+      "subcomponents_label": "Subcomponents",
+      "subcomponents": {
+        "crime_prevention": {
+          "button_text": "Crime Prevention / Displacement",
+          "explanation": "Measures whether detention reduces or shifts crime, and monetizes the resulting changes in safety and risk."
+        },
+        "victimization": {
+          "button_text": "Victimization Costs",
+          "explanation": "Represents monetized harm to potential victims or avoided victimization resulting from detention decisions."
+        },
+        "community_spillovers": {
+          "button_text": "Community and Economic Spillovers",
+          "explanation": "Captures broader economic and social ripple effects within households, neighborhoods, and local economies."
+        }
+      }
+    },
+    "government_cost": {
+      "title": "Government Cost",
+      "description": "Government Cost reflects all public spending required to run the detention system. This includes daily operations, staffing, healthcare, facilities, court processing, and administrative overhead. It represents the fiscal cost taxpayers bear to support the current level of detention.",
+      "subcomponents_label": "Subcomponents",
+      "subcomponents": {
+        "operational": {
+          "button_text": "Operational Costs",
+          "explanation": "Includes daily costs of running the jail: staffing, housing, food, medical care, and supplies."
+        },
+        "court_admin": {
+          "button_text": "Court and Administrative Costs",
+          "explanation": "Covers court processing, hearings, paperwork, supervision, and other administrative overhead."
+        },
+        "long_term_fiscal": {
+          "button_text": "Long-Term Fiscal Effects",
+          "explanation": "Reflects downstream public spending or savings associated with post-release outcomes, service needs, or recidivism."
         }
       }
     }

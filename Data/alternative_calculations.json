@@ -1,0 +1,17 @@
+{
+  "baseline": {
+    "detainee_values": ["det_wtp_freedom", "det_harm_during", "det_post_release"],
+    "society_values": ["soc_crime_prevention", "soc_victimization", "soc_spillovers"],
+    "govt_cost": ["gov_operations", "gov_court_admin", "gov_long_term"]
+  },
+  "optimal": {
+    "detainee_values": ["det_wtp_freedom", "det_post_release"],
+    "society_values": ["soc_crime_prevention", "soc_spillovers"],
+    "govt_cost": ["gov_operations", "gov_court_admin"]
+  },
+  "minimal": {
+    "detainee_values": ["det_wtp_freedom"],
+    "society_values": ["soc_crime_prevention"],
+    "govt_cost": ["gov_operations"]
+  }
+}
