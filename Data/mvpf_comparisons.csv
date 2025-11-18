@@ -1,4 +1,7 @@
 Id,mvpf_value,Description
-ssi,1,Supplemental Security Income for Adults
-police_closure,7.2,Police station closures in the UK
-Tax,-1,Specify the tax changes with this MVPF
+ssi_adults,1.0,Supplemental Security Income (SSI) for Adults
+food_stamps_crime,3.9,Food Stamps and Crime
+police_station_closures,7.2,Police Station Closures in the UK
+mandated_mental_health,19.3,Mandated Mental Health Treatment in the Criminal Justice System
+HTC_single_phaseout_begin,-2.71,Hope & Lifetime Learning Tax Credit (HTC)
+AOTC_joint_phaseout_begin,-6.47,American Opportunity Tax Credit (AOTC)
