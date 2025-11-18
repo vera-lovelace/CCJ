@@ -1027,60 +1027,161 @@ def update_dashboard(baseline_type, detainee_param1, detainee_param2, society_pa
         badge_text_color = '#dc2626'
         label = 'Poor'
 
-    # KPI Card
-    # KPI Card
-    kpi_card = html.Div(className='kpi-card', children=[
-        html.Div(className='kpi-header', children=[
-            html.H2('MVPF Score', className='kpi-title')
-        ]),
-
-        html.Div([
-            html.Span(f"{mvpf:.2f}", className='kpi-value'),
-            html.Span('ratio', className='kpi-ratio')
-        ]),
-
-
-        html.Div(className='kpi-interpretation', children=[
-            html.Span(label, className='kpi-badge', style={
-                'backgroundColor': badge_color,
-                'color': badge_text_color,
-                'display': 'inline-block',
-                'marginBottom': '24px'
-            }),
-
-            html.P(
-                'This indicates the program delivers more value than its cost.' if mvpf > 1
-                else 'Consider reviewing program efficiency.',
-                style={'marginTop': '8px'}
-            )
-        ]),
-
-        html.P([
-            html.Strong('Calculation: '),
-            f"MVPF = (${int(result['detainee_values']):,} + ${int(result['society_values']):,}) / ${int(result['govt_cost']):,} = {mvpf:.2f}"
-        ]),
-
-        html.Div(className='kpi-components', children=[
-
-
-            html.Div(className='kpi-component', children=[
-                html.H4('Detainee Values'),
-                html.P(f"${int(result['detainee_values']):,}", style={'color': '#2563eb'}),
-                html.Span('2 subcomponents')
+        # KPI Card
+        kpi_card = html.Div(className='kpi-card', children=[
+            html.Div(className='kpi-header', children=[
+                html.H2('MVPF Score', className='kpi-title')
             ]),
-            html.Div(className='kpi-component', children=[
-                html.H4('Society Values'),
-                html.P(f"${int(result['society_values']):,}", style={'color': '#16a34a'}),
-                html.Span('3 subcomponents')
-            ]),
-            html.Div(className='kpi-component', children=[
-                html.H4('Government Cost'),
-                html.P(f"${int(result['govt_cost']):,}", style={'color': '#dc2626'}),
-                html.Span('3 subcomponents')
-            ])
-        ]),
 
-    ])
+            html.Div([
+                html.Span(f"{mvpf:.2f}", className='kpi-value'),
+                html.Span('ratio', className='kpi-ratio')
+            ]),
+
+            html.Div(className='kpi-interpretation', children=[
+                html.Span(label, className='kpi-badge', style={
+                    'backgroundColor': badge_color,
+                    'color': badge_text_color,
+                    'display': 'inline-block',
+                    'marginBottom': '24px'
+                }),
+
+                html.P(
+                    'This indicates the program delivers more value than its cost.' if mvpf > 1
+                    else 'Consider reviewing program efficiency.',
+                    style={'marginTop': '8px'}
+                ),
+
+                # Two-column layout for interpretation guide and benchmarking
+                html.Div(style={
+                    'display': 'grid',
+                    'gridTemplateColumns': '1fr 1fr',
+                    'gap': '24px',
+                    'marginTop': '20px'
+                }, children=[
+                    # Left column: Interpretation guide
+                    html.Div(children=[
+                        html.H4('How to Interpret', style={
+                            'fontSize': '16px',
+                            'fontWeight': '600',
+                            'color': '#374151',
+                            'marginTop': '0',
+                            'marginBottom': '12px'
+                        }),
+                        html.Ul(
+                            style={
+                                'margin': '0',
+                                'paddingLeft': '20px',
+                                'color': '#4b5563',
+                                'fontSize': '14px',
+                                'lineHeight': '1.8'
+                            },
+                            children=[
+                                html.Li(
+                                    [html.Strong('MVPF ≥ 2.5:'), ' Very high social return on investment']
+                                ),
+                                html.Li(
+                                    [html.Strong('MVPF > 1:'), ' Program delivers more value than it costs']
+                                ),
+                                html.Li(
+                                    [html.Strong('MVPF = 1:'), ' Program value equals its cost']
+                                ),
+                                html.Li(
+                                    [html.Strong('MVPF < 1:'), ' Program costs more than the value it provides']
+                                ),
+                                html.Li(
+                                    [html.Strong('MVPF < 0:'), ' Indicates program delivers net harm']
+                                )
+                            ]
+                        )
+                    ]),
+
+                    # Right column: Comparative benchmarking
+                    html.Div(children=[
+                        html.H4('Comparative Benchmarking', style={
+                            'fontSize': '16px',
+                            'fontWeight': '600',
+                            'color': '#374151',
+                            'marginTop': '0',
+                            'marginBottom': '12px'
+                        }),
+                        html.Div(style={
+                            'backgroundColor': '#f9fafb',
+                            'padding': '12px',
+                            'borderRadius': '6px',
+                            'border': '1px solid #e5e7eb'
+                        }, children=[
+                            html.P('CCJ program relative to federal programs:', style={
+                                'fontSize': '13px',
+                                'color': '#6b7280',
+                                'marginBottom': '12px',
+                                'fontWeight': '500'
+                            }),
+                            html.Ul(
+                                style={
+                                    'margin': '0',
+                                    'paddingLeft': '20px',
+                                    'color': '#374151',
+                                    'fontSize': '14px',
+                                    'lineHeight': '1.8'
+                                },
+                                children=[
+                                    html.Li([
+                                        html.Strong('23×'),
+                                        ' more cost-effective: Supplemental Security Income (SSI)'
+                                    ]),
+                                    html.Li([
+                                        html.Strong('6.1×'),
+                                        ' more cost-effective: Food Stamps (SNAP)'
+
+                                    ]),
+                                    html.Li([
+                                        html.Strong('1.2×'),
+                                        ' more cost-effective: Mandated Mental Health Treatment in the Criminal Justice System'
+                                    ]),
+                                    html.Li([
+                                        html.Strong('3.7×'),
+                                        ' less harmful: American Opportunity Tax Credit (AOTC)'
+                                    ])
+                                ]
+                            ),
+                            html.P('Source: Policy benchmarks based on comparative MVPF analysis', style={
+                                'fontSize': '11px',
+                                'color': '#9ca3af',
+                                'marginTop': '12px',
+                                'marginBottom': '0',
+                                'fontStyle': 'italic'
+                            })
+                        ])
+                    ])
+                ])
+            ]),
+
+            html.P([
+                html.Strong('Calculation: '),
+                f"MVPF = (${int(result['detainee_values']):,} + ${int(result['society_values']):,}) / ${int(result['govt_cost']):,} = {mvpf:.2f}"
+            ]),
+
+            html.Div(className='kpi-components', children=[
+
+                html.Div(className='kpi-component', children=[
+                    html.H4('Detainee Values'),
+                    html.P(f"${int(result['detainee_values']):,}", style={'color': '#2563eb'}),
+                    html.Span('2 subcomponents')
+                ]),
+                html.Div(className='kpi-component', children=[
+                    html.H4('Society Values'),
+                    html.P(f"${int(result['society_values']):,}", style={'color': '#16a34a'}),
+                    html.Span('3 subcomponents')
+                ]),
+                html.Div(className='kpi-component', children=[
+                    html.H4('Government Cost'),
+                    html.P(f"${int(result['govt_cost']):,}", style={'color': '#dc2626'}),
+                    html.Span('3 subcomponents')
+                ])
+            ]),
+
+        ])
 
     # Main Components Chart
     main_fig = go.Figure(data=[

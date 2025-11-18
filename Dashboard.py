@@ -300,8 +300,8 @@ app.index_string = '''
 app.layout = html.Div(className='main-container', children=[
     # Header
     html.Div(className='header', children=[
-        html.H1(content.get('header.title')),
-        html.P(content.get('header.subtitle'))
+        html.H1('MVPF Analysis Dashboard'),
+        html.P('Marginal Value of Public Funds Calculation')
     ]),
 
     # Main grid

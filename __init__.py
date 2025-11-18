@@ -12,39 +12,41 @@ Modules:
     - graphs: Visualization functions for MVPF results
     - dashboard: Interactive Dash dashboard application
 
-Example:
+
     # Direct import:
-    >>> from mvpf_package import MVPFCalculator
+    >>> import MVPFCalculator
     >>> calc = MVPFCalculator(baseline_type='baseline')
     >>> result = calc.calculate_mvpf()
     >>> print(result['mvpf'])
 
     # Content management:
-    >>> from mvpf_package import ContentManager
+    >>> import ContentManager
     >>> content = ContentManager()
     >>> print(content.get('header.title'))
 
     # Namespace import:
-    >>> from mvpf_package import helpers
+    >>> import helpers
     >>> helpers.adjust_value_by_cpi(100, 250, 275)
 
-    # Or:
-    >>> import mvpf_package
-    >>> calc = mvpf_package.MVPFCalculator()
+    # Benchmark creation:
+    >>> from mvpf_benchmarks import create_mvpf_benchmarks
+    >>> benchmarks_component = create_mvpf_benchmarks()
+
+
 """
 
 __version__ = "0.2.0"
-__author__ = "Adrienn J. Sinapis; Lara Pesce Ares"
+__author__ = "Adrienn J. Sinapis"
 
 # Import submodules for namespace access (use relative imports)
 
 
 
 # Main calculator (primary interface)
-from .mvpf_calculator import MVPFCalculator
+from mvpf_calculator import MVPFCalculator
 
 # Helper utilities
-from .helpers import (
+from helpers import (
     convert_dashboard_params,
     ResultsExporter,
     format_currency,
@@ -53,11 +55,11 @@ from .helpers import (
 )
 
 # Scenario management (if needed externally)
-from .scenarios import ScenarioManager
+from scenarios import ScenarioManager
 
 # Content management
-from .content_loader import ContentManager
-import .graphs
+from content_loader import ContentManager
+import graphs
 
 __all__ = [
     # Main class
@@ -73,4 +75,5 @@ __all__ = [
     # Advanced
     'ScenarioManager',
     'ContentManager',
+    'create_mvpf_benchmarks',
 ]
