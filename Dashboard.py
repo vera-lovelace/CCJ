@@ -7,12 +7,13 @@ Main dashboard layout and callbacks
 import dash
 from dash import dcc, html, Input, Output, State
 import plotly.graph_objs as go
-import pandas as pd
 
-# Import local modules
-import mvpf_calculator
-import graphs
-import helpers
+import content_loader
+from content_loader import ContentManager
+from mvpf_calculator import MVPFCalculator, dashboard_params
+
+# Initialize content manager
+content = ContentManager()
 
 # Initialize the Dash app
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
@@ -299,8 +300,8 @@ app.index_string = '''
 app.layout = html.Div(className='main-container', children=[
     # Header
     html.Div(className='header', children=[
-        html.H1('MVPF Analysis Dashboard'),
-        html.P('Marginal Value of Public Funds Calculation')
+        html.H1(content.get('header.title')),
+        html.P(content.get('header.subtitle'))
     ]),
 
     # Main grid
@@ -315,12 +316,6 @@ app.layout = html.Div(className='main-container', children=[
                     html.P(
                         'The MVPF measures the ratio of beneficiaries\' willingness to pay to the net cost to the government.'
                     ),
-                    html.P([html.Strong('Components:')]),
-                    html.Ul([
-                        html.Li('Detainee Values: 2 subcomponents'),
-                        html.Li('Society Values: 3 subcomponents'),
-                        html.Li('Government Cost: 3 subcomponents')
-                    ]),
                     html.P([html.Strong('Formula:'), html.Br(), 'MVPF = (Detainee + Society) / Government Cost'])
                 ]),
 
@@ -339,10 +334,10 @@ app.layout = html.Div(className='main-container', children=[
                             id='detainee-param1',
                             options=[
                                 {'label': 'Minimal(50%)', 'value': 'below'},
-                                {'label': 'Average (70%)', 'value': 'moderate'},
+                                {'label': 'Average (70%)', 'value': 'average'},
                                 {'label': 'Significant (90%)', 'value': 'significant'}
                             ],
-                            value='medium',
+                            value='average',
                             clearable=False
                         )
                     ]),
@@ -357,11 +352,11 @@ app.layout = html.Div(className='main-container', children=[
                         dcc.Dropdown(
                             id='detainee-param2',
                             options=[
-                                {'label': 'Minimal', 'value': 'below'},
-                                {'label': 'Moderate', 'value': 'average'},
-                                {'label': 'Large', 'value': 'above'}
+                                {'label': 'Minimal', 'value': 'minimal'},
+                                {'label': 'Moderate', 'value': 'moderate'},
+                                {'label': 'Large', 'value': 'large'}
                             ],
-                            value='standard',
+                            value='moderate',
                             clearable=False
                         )
                     ]),
@@ -376,9 +371,9 @@ app.layout = html.Div(className='main-container', children=[
                         dcc.Dropdown(
                             id='society-param1',
                             options=[
-                                {'label': 'Minimal', 'value': 'below'},
-                                {'label': 'Moderate', 'value': 'average'},
-                                {'label': 'Large', 'value': 'above'}
+                                {'label': 'Minimal', 'value': 'minimal'},
+                                {'label': 'Moderate', 'value': 'moderate'},
+                                {'label': 'Large', 'value': 'large'}
                             ],
                             value='moderate',
                             clearable=False
@@ -516,42 +511,6 @@ app.layout = html.Div(className='main-container', children=[
                                         }
                                     )
                                 ])
-                            ]),
-                            # Right column
-                            html.Div(children=[
-                                html.H4('How to Interpret', style={
-                                    'fontSize': '16px',
-                                    'fontWeight': '600',
-                                    'color': '#374151',
-                                    'marginTop': '0',
-                                    'marginBottom': '12px'
-                                }),
-                                html.Ul(
-                                    style={
-                                        'margin': '0',
-                                        'paddingLeft': '20px',
-                                        'color': '#4b5563',
-                                        'fontSize': '14px',
-                                        'lineHeight': '1.8'
-                                    },
-                                    children=[
-                                        html.Li(
-                                            [html.Strong('MVPF ≥ 2.5:'), ' Very high social return on investment']
-                                        ),
-                                        html.Li(
-                                            [html.Strong('MVPF > 1:'), ' Program delivers more value than it costs']
-                                        ),
-                                        html.Li(
-                                            [html.Strong('MVPF = 1:'), ' Program value equals its cost']
-                                        ),
-                                        html.Li(
-                                            [html.Strong('MVPF < 1:'), ' Program costs more than the value it provides']
-                                        ),
-                                        html.Li(
-                                            [html.Strong('MVPF < 0:'), ' Indicates program delivers net harm']
-                                        )
-                                    ]
-                                )
                             ])
                         ]
                     ),
@@ -919,7 +878,9 @@ app.layout = html.Div(className='main-container', children=[
     )
 ])
 
-# Collapse toggles for Components Breakdown
+"""
+Toggle Callbacks
+"""
 def _toggle_style(n_clicks, style):
     if not n_clicks:
         return style or {'display': 'none'}
@@ -1026,48 +987,71 @@ def update_baseline(hist_clicks, opt_clicks, current_baseline):
 
 def calculate_mvpf(baseline_type, detainee_param1, detainee_param2, society_param1, society_param2):
     """
-    Replace this with your actual MVPF calculation module
-    Example: from mvpf_calculator import MVPFCalculator
-             calculator = MVPFCalculator(baseline_type)
-             return calculator.calculate_mvpf({...})
+    Calculate MVPF using the modular MVPFCalculator class
+
+    Parameters:
+    -----------
+    baseline_type : str
+        'historical' or other baseline scenario name
+    detainee_param1 : str
+        Crime rate parameter ('below', 'average', 'significant')
+    detainee_param2 : str
+        Detainee population parameter ('below', 'average', 'above')
+    society_param1 : str
+        Community size parameter ('below', 'average', 'above')
+    society_param2 : str
+        Length of stay parameter ('below', 'average', 'above')
+
+    Returns:
+    --------
+    dict : MVPF results with all breakdowns
     """
-    # Mock calculations
-    multiplier1 = {'below': 0.8, 'moderate': 1.0, 'significant': 1.2}[detainee_param1]
-    multiplier2 = {'below': 0.9, 'average': 1.0, 'above': 1.1}[detainee_param2]
-    multiplier3 = {'below': 0.9, 'average': 1.0, 'above': 1.1}[society_param1]
-    multiplier4 = {'below': 60.0, 'average': 70.0, 'above': 200.0}[society_param2]
+    # Initialize calculator
+    calculator = MVPFCalculator(data_dir='Data')
 
-    baseline_mult = 1.0 if baseline_type == 'historical' else 1.0
+    # Map baseline_type to scenario name
+    scenario = 'baseline' if baseline_type == 'historical' else baseline_type
 
-    detainee_sub1 = 11 * multiplier1 * multiplier2
-    detainee_sub2 = -295275 * multiplier1 * multiplier2
-    detainee_values = detainee_sub1 + detainee_sub2
+    # Convert dashboard parameters to calculator format
+    params = dashboard_params(
+        crime_rate=detainee_param1,
+        detainee_pop=detainee_param2,
+        community_size=society_param1,
+        length_of_stay=society_param2
+    )
 
-    society_sub1 = 13 * multiplier3
-    society_sub2 = 0 * multiplier3
-    society_sub3 = -294728 * multiplier3
-    society_values = society_sub1 + society_sub2 + society_sub3
+    # Calculate MVPF
+    result = calculator.calculate(scenario, params)
+    print("Debug - Result structure:")
+    print(f"Detainee breakdown: {result['detainee_breakdown']}")
+    print(f"Society breakdown: {result['society_breakdown']}")
+    print(f"Govt breakdown: {result['govt_breakdown']}")
 
-    govt_sub1 = 50 * baseline_mult * multiplier4
-    govt_sub2 = 13200 * baseline_mult
-    govt_sub3 = 8000 * baseline_mult * multiplier1
-    govt_cost = govt_sub1 + govt_sub2 + govt_sub3
+    # Extract breakdown values for backwards compatibility
+    detainee_breakdown = list(result['detainee_breakdown'].values())
+    society_breakdown = list(result['society_breakdown'].values())
+    govt_breakdown = list(result['govt_breakdown'].values())
 
-    mvpf = (detainee_values + society_values) / govt_cost if govt_cost > 0 else 0
-
+    def safe_get(lst, index, default=0):
+        try:
+            return lst[index]
+        except IndexError:
+            return default
+    # Map breakdowns to expected sub-component names
+    # Adjust these keys based on your actual CSV data
     return {
-        'mvpf': mvpf,
-        'detainee_values': detainee_values,
-        'society_values': society_values,
-        'govt_cost': govt_cost,
-        'detainee_sub1': detainee_sub1,
-        'detainee_sub2': detainee_sub2,
-        'society_sub1': society_sub1,
-        'society_sub2': society_sub2,
-        'society_sub3': society_sub3,
-        'govt_sub1': govt_sub1,
-        'govt_sub2': govt_sub2,
-        'govt_sub3': govt_sub3
+        'mvpf': result['mvpf'],
+        'detainee_values': result['detainee_values'],
+        'society_values': result['society_values'],
+        'govt_cost': result['govt_cost'],
+        'detainee_sub1': list(detainee_breakdown.values())[0] if len(detainee_breakdown) > 0 else 0,
+        'detainee_sub2': list(detainee_breakdown.values())[1] if len(detainee_breakdown) > 1 else 0,
+        'society_sub1': list(society_breakdown.values())[0] if len(society_breakdown) > 0 else 0,
+        'society_sub2': list(society_breakdown.values())[1] if len(society_breakdown) > 1 else 0,
+        'society_sub3': list(society_breakdown.values())[2] if len(society_breakdown) > 2 else 0,
+        'govt_sub1': list(govt_breakdown.values())[0] if len(govt_breakdown) > 0 else 0,
+        'govt_sub2': list(govt_breakdown.values())[1] if len(govt_breakdown) > 1 else 0,
+        'govt_sub3': list(govt_breakdown.values())[2] if len(govt_breakdown) > 2 else 0,
     }
 
 
@@ -1083,11 +1067,19 @@ def calculate_mvpf(baseline_type, detainee_param1, detainee_param2, society_para
      Input('society-param2', 'value')]
 )
 
-def update_dashboard(baseline_type, detainee_param1, detainee_param2, society_param1, society_param2):
+def update_dashboard(scenario, det_p1, det_p2, soc_p1, soc_p2):
     # Calculate MVPF
-    result = calculate_mvpf(baseline_type, detainee_param1, detainee_param2, society_param1, society_param2)
+
+    params = dashboard_params(det_p1, det_p2, soc_p1, soc_p2)
+
+    # Calculate
+    result = calculate_mvpf(scenario, det_p1, det_p2, soc_p1, soc_p2)
 
     mvpf = result['mvpf']
+
+    # Use formatting helpers
+    mvpf_str = format_mvpf(result['mvpf'])
+    rating, color = get_mvpf_rating(result['mvpf'])
 
     # Determine badge color and label
     if mvpf >= 2.5:
@@ -1107,7 +1099,7 @@ def update_dashboard(baseline_type, detainee_param1, detainee_param2, society_pa
         badge_text_color = '#dc2626'
         label = 'Poor'
 
-    # KPI Card
+
     # KPI Card
     kpi_card = html.Div(className='kpi-card', children=[
         html.Div(className='kpi-header', children=[
@@ -1132,7 +1124,46 @@ def update_dashboard(baseline_type, detainee_param1, detainee_param2, society_pa
                 'This indicates the program delivers more value than its cost.' if mvpf > 1
                 else 'Consider reviewing program efficiency.',
                 style={'marginTop': '8px'}
-            )
+            ),
+
+            # Right column: Interpretation guide
+            html.Div(children=[
+                html.H4('How to Interpret', style={
+                    'fontSize': '16px',
+                    'fontWeight': '600',
+                    'color': '#374151',
+                    'marginTop': '0',
+                    'marginBottom': '12px'
+                }),
+                html.Ul(
+                    style={
+                        'margin': '0',
+                        'paddingLeft': '20px',
+                        'color': '#4b5563',
+                        'fontSize': '14px',
+                        'lineHeight': '1.8'
+                    },
+                    children=[
+                        html.Li(
+                            [html.Strong('MVPF ≥ 2.5:'), ' Very high social return on investment']
+                        ),
+                        html.Li(
+                            [html.Strong('MVPF > 1:'), ' Program delivers more value than it costs']
+                        ),
+                        html.Li(
+                            [html.Strong('MVPF = 1:'), ' Program value equals its cost']
+                        ),
+                        html.Li(
+                            [html.Strong('MVPF < 1:'), ' Program costs more than the value it provides']
+                        ),
+                        html.Li(
+                            [html.Strong('MVPF < 0:'), ' Indicates program delivers net harm']
+                        )
+                    ]
+                )
+            ])
+
+
         ]),
 
         html.P([

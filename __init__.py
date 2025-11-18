@@ -1,0 +1,76 @@
+"""
+MVPF Calculator Package
+=======================
+
+A comprehensive toolkit for calculating and visualizing the Marginal Value
+of Public Funds (MVPF) for detention policies.
+
+Modules:
+    - mvpf_calculation: Core MVPF calculator class
+    - helpers: Utility functions for CPI adjustments and data processing
+    - content_loader: Content management for dashboard text
+    - graphs: Visualization functions for MVPF results
+    - dashboard: Interactive Dash dashboard application
+
+Example:
+    # Direct import:
+    >>> from mvpf_package import MVPFCalculator
+    >>> calc = MVPFCalculator(baseline_type='baseline')
+    >>> result = calc.calculate_mvpf()
+    >>> print(result['mvpf'])
+
+    # Content management:
+    >>> from mvpf_package import ContentManager
+    >>> content = ContentManager()
+    >>> print(content.get('header.title'))
+
+    # Namespace import:
+    >>> from mvpf_package import helpers
+    >>> helpers.adjust_value_by_cpi(100, 250, 275)
+
+    # Or:
+    >>> import mvpf_package
+    >>> calc = mvpf_package.MVPFCalculator()
+"""
+
+__version__ = "0.2.0"
+__author__ = "Adrienn J. Sinapis; Lara Pesce Ares"
+
+# Import submodules for namespace access (use relative imports)
+
+
+
+# Main calculator (primary interface)
+from .mvpf_calculator import MVPFCalculator
+
+# Helper utilities
+from .helpers import (
+    convert_dashboard_params,
+    ResultsExporter,
+    format_currency,
+    format_mvpf,
+    get_mvpf_rating
+)
+
+# Scenario management (if needed externally)
+from .scenarios import ScenarioManager
+
+# Content management
+from .content_loader import ContentManager
+import .graphs
+
+__all__ = [
+    # Main class
+    'MVPFCalculator',
+
+    # Helpers
+    'convert_dashboard_params',
+    'ResultsExporter',
+    'format_currency',
+    'format_mvpf',
+    'get_mvpf_rating',
+
+    # Advanced
+    'ScenarioManager',
+    'ContentManager',
+]
