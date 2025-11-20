@@ -3,19 +3,17 @@
     "title": "MVPF Analysis Dashboard",
     "subtitle": "Marginal Value of Public Funds Calculation"
   },
-
   "info_tile": {
     "heading": "About MVPF",
     "description": "The MVPF measures the ratio of beneficiaries' willingness to pay to the net cost to the government.",
     "formula_label": "Formula:",
     "formula": "MVPF = (Detainee + Society) / Government Cost"
   },
-
   "controls": {
     "section_title": "Analysis Parameters",
     "detainee_param1": {
-      "label": "Detainees - Rate of felonies charged",
-      "tooltip": "Placeholder explainer text - WTP Freedom",
+      "label": "Detainees - Rate of felonies vs. misdemeanors",
+      "tooltip": "The proportion of detainees that have been charged with at least one felony",
       "options": {
         "below": "Minimal(50%)",
         "moderate": "Average (70%)",
@@ -24,7 +22,7 @@
     },
     "detainee_param2": {
       "label": "Detainee population size",
-      "tooltip": "Placeholder explainer text - Relative Harm Valuation",
+      "tooltip": "The number of individuals detained for at least one night over the course of the year",
       "options": {
         "below": "Minimal",
         "average": "Moderate",
@@ -33,7 +31,7 @@
     },
     "society_param1": {
       "label": "Population size",
-      "tooltip": "Placeholder explainer text - Community Impact",
+      "tooltip": "The number of individuals who live in the jurisdiction of the detention center",
       "options": {
         "below": "Minimal",
         "average": "Moderate",
@@ -42,7 +40,7 @@
     },
     "society_param2": {
       "label": "Length of Stay",
-      "tooltip": "Placeholder explainer text - Length of Stay",
+      "tooltip": "The average number of days detainees are detained",
       "options": {
         "below": "Below Average",
         "average": "Average",
@@ -50,13 +48,11 @@
       }
     }
   },
-
   "baseline_switch": {
     "label": "Comparison",
     "button_baseline": "Baseline",
     "button_optimal": "Experience-informed Calculation (TBD)"
   },
-
   "kpi_card": {
     "title": "MVPF Score",
     "ratio_label": "ratio",
@@ -84,20 +80,20 @@
     "interpretation_positive": "This indicates the program delivers more value than its cost.",
     "interpretation_negative": "Consider reviewing program efficiency."
   },
-
   "charts": {
     "main_components": {
       "title": "MVPF Main Components",
       "x_axis_label": "",
-      "y_axis_label": "Value ($)"
+      "y_axis_label": "Value ($)",
+      "description": "Bar graph showing the total value for each main MVPF component (Detainees, Society, Government), combining all selected subcomponents. Positive values indicate net benefits and negative values indicate net harms or costs."
     },
     "subcomponents": {
       "title": "Component Breakdown",
       "x_axis_label": "Main Components",
-      "y_axis_label": "Value ($)"
+      "y_axis_label": "Value ($)",
+      "description": "Bar graph showing how each main MVPF component is broken down into its subcomponents, with values indicating the contribution of each subcomponent to the overall Detainee, Society, and Government totals. Positive values indicate benefits and negative values indicate harms or costs."
     }
   },
-
   "mvpf_explainer": {
     "section_title": "Understanding MVPF",
     "what_is_mvpf": {
@@ -140,58 +136,54 @@
     "section_title": "Components Breakdown",
     "detainee_values": {
       "title": "Detainee Values",
-      "description": "Detainee Values capture the total harm detention imposes on people who are jailed. We measure this using a willingness-to-pay lens, estimating how much a person would trade to avoid being detained. This reflects short-term harms, disruptions to work and family life, and long-term effects on health, income, and stability.",
+      "description": "Detainee Values capture the total harm detention imposes on people who are jailed. We measure this using monetary scales that translate days in custody into dollars, reflecting short-term harms, disruptions to work and family life, and long-run effects on income and future custody exposure.",
       "subcomponents_label": "Subcomponents",
       "subcomponents": {
         "wtp_freedom": {
           "button_text": "Willingness to Pay for Freedom",
-          "explanation": "Represents the monetary value detainees place on avoiding incarceration. Derived from economic and wellbeing tradeoffs and interpreted as a willingness-to-pay measure."
+          "explanation": "An alternative detainee valuation based on stated willingness-to-pay (WTP) per day to avoid jail, drawn from surveys of people facing detention. Valued at $11/day in 2018 dollars. This approach reflects detainees' own monetary tradeoffs and can be scaled using any assumed length of stay or detainee population. It typically produces much smaller harm estimates than the baseline Relative Harm Valuation, which makes the overall MVPF less negative and is therefore a more conservative choice. Source: detainee WTP evidence summarized in Stevenson & Mayson (2022)."
         },
         "harm_during": {
-          "button_text": "Incarceration-Related Harm",
-          "explanation": "Captures immediate harms of detention, including loss of autonomy, exposure to stressful conditions, disrupted routines, and consequences for mental and physical health."
-        },
-        "post_release": {
-          "button_text": "Post-Release Effects",
-          "explanation": "Reflects effects of detention that persist after release, including changes to employment, income, housing stability, and longer-run wellbeing."
+          "button_text": "Willingness to Pay derived from Relative Harm Valuation",
+          "explanation": "The baseline detainee component, which measures harm by comparing each day in custody to crime-victimization cost benchmarks such as robbery or aggravated assault. This produces a larger per-day harm value than detainee self-reported WTP (~$4,000/day), and scales with whatever length of stay (non-linearly), population, or charge mix the user chooses. Because it reflects broader social harm rather than ability-to-pay limits, it is used as the default. Source: crime-harm equivalence estimates from Stevenson & Mayson (2022)."
         }
       }
     },
     "society_values": {
       "title": "Society Values",
-      "description": "Society Values measure how detention affects public safety, victimization risk, and community wellbeing. These values summarize spillovers felt by people outside the jail and convert those effects into a common dollar scale for comparison.",
+      "description": "Society Values measure how detention affects people outside the jail. In the baseline model, this includes court appearance effects but assumes no crime-prevention benefit, in line with empirical evidence. All effects are converted into a consistent dollar scale.",
       "subcomponents_label": "Subcomponents",
       "subcomponents": {
         "crime_prevention": {
-          "button_text": "Crime Prevention / Displacement",
-          "explanation": "Measures whether detention reduces or shifts crime, and monetizes the resulting changes in safety and risk."
+          "button_text": "Crime Prevention",
+          "explanation": "Placeholder description pending upcoming update"
         },
-        "victimization": {
-          "button_text": "Victimization Costs",
-          "explanation": "Represents monetized harm to potential victims or avoided victimization resulting from detention decisions."
+        "court_appearance": {
+          "button_text": "Court Appearance Effects",
+          "explanation": "Included as a baseline society component because court appearance is a central justification for pretrial detention. This component places a dollar value on avoiding failures to appear (FTA) by combining administrative costs of warrant issuance and possible rearrest with an assumed FTA probability. Source: Fishbane, Ouss & Shah (2020) and Cook County court data."
         },
         "community_spillovers": {
           "button_text": "Community and Economic Spillovers",
-          "explanation": "Captures broader economic and social ripple effects within households, neighborhoods, and local economies."
+          "explanation": "Placeholder description pending upcoming update"
         }
       }
     },
     "government_cost": {
       "title": "Government Cost",
-      "description": "Government Cost reflects all public spending required to run the detention system. This includes daily operations, staffing, healthcare, facilities, court processing, and administrative overhead. It represents the fiscal cost taxpayers bear to support the current level of detention.",
+      "description": "Government Cost reflects total public spending required to operate Cook County Jail and its medical services. The baseline uses the full FY2018 operating budgets for the Department of Corrections and Cermak Health Services, converted to 2025 dollars. This aggregate cost forms the MVPF denominator.",
       "subcomponents_label": "Subcomponents",
       "subcomponents": {
         "operational": {
           "button_text": "Operational Costs",
-          "explanation": "Includes daily costs of running the jail: staffing, housing, food, medical care, and supplies."
+          "explanation": "The baseline government cost component, representing the full operating budgets for the Cook County Department of Corrections and Cermak Health Services. These expenses include staffing, food, medical care, housing, and other daily operations, and they can be allocated over any assumed detainee count or length of stay. Since these costs reflect actual fiscal outlays, they form the default denominator of the MVPF. Source: Cook County FY2018 Appropriation Budget."
         },
-        "court_admin": {
-          "button_text": "Court and Administrative Costs",
-          "explanation": "Covers court processing, hearings, paperwork, supervision, and other administrative overhead."
+        "crime_effect_increase": {
+          "button_text": "Costs associated with Crime Effect: Increase",
+          "explanation": "Placeholder description pending upcoming update"
         },
-        "long_term_fiscal": {
-          "button_text": "Long-Term Fiscal Effects",
-          "explanation": "Reflects downstream public spending or savings associated with post-release outcomes, service needs, or recidivism."
+        "crime_effect_decrease": {
+          "button_text": "Costs associated with Crime Effect: Decrease",
+          "explanation": "Placeholder description pending upcoming update"
         }
       }
     }
