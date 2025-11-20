@@ -7,6 +7,14 @@ import json
 import os
 from datetime import datetime
 
+from cpi_adjuster import CPIAdjuster
+from helpers import convert_dashboard_params
+from subcomponents import SubcomponentRegistry
+from parameters import ParameterRegistry, ParameterEffectsRegistry
+
+
+param_registry = ParameterRegistry()
+
 
 class MVPFCalculator:
     """Simple MVPF Calculator - does everything you need."""
@@ -15,17 +23,24 @@ class MVPFCalculator:
         """Load data once at startup."""
         # Load CSVs
         self.values = pd.read_csv(os.path.join(data_dir, 'subcomponent_values.csv'))
-        self.cpi = pd.read_csv(os.path.join(data_dir, 'cpi.csv'))
+
+        # Use CPIAdjuster
+        self.cpi = CPIAdjuster(data_dir=data_dir)
 
         # Load scenarios
-        scenario_file = os.path.join(data_dir, 'alternative_calculations.json')
-        with open(scenario_file, 'r') as f:
-            self.scenarios = json.load(f)
+        from scenarios import EnhancedScenarioManager
+        self.scenario_manager = EnhancedScenarioManager(
+            scenarios_path=os.path.join(data_dir, 'alternative_calculations.json')
+        )
 
-        # Build lookup dicts for speed
-        self.cpi_factors = dict(zip(self.cpi['year'], self.cpi['factor_to_2025']))
+        # Extract weight values
+        self.weights = {}
+        weight_rows = self.values[self.values['component'] == 'weight']
+        for _, row in weight_rows.iterrows():
+            self.weights[row['row_var']] = float(row['selected_value'])
 
-        print(f"✓ Loaded {len(self.values)} values, {len(self.scenarios)} scenarios")
+        print(f"✓ Loaded {len(self.values)} values, {len(self.scenario_manager.scenarios)} scenarios")
+        print(f"✓ Loaded weights: n_detainees={self.weights.get('n_detainees', 0):,.0f}, los={self.weights.get('los', 0):.0f} days")
 
     def calculate(self, scenario='baseline', params=None):
         """
@@ -38,10 +53,26 @@ class MVPFCalculator:
         Returns:
             dict with all results
         """
-        # Get which subcomponents to use for this scenario
-        detainee_list = self.scenarios[scenario].get('detainee_values', [])
-        society_list = self.scenarios[scenario].get('society_values', [])
-        govt_list = self.scenarios[scenario].get('govt_cost', [])
+        # Get scenario definition
+        if isinstance(scenario, str):
+            scenario_def = self.scenario_manager.get_scenario(scenario)
+        else:
+            scenario_def = scenario
+
+        # Get subcomponent lists
+        subcomps = scenario_def.get_all_subcomponents()
+        detainee_list = subcomps['detainee_values']
+        society_list = subcomps['society_values']
+        govt_list = subcomps['govt_cost']
+
+        # Get parameters (scenario defaults + overrides)
+        if params is None:
+            params = scenario_def.get_parameters()
+        else:
+            # Merge: start with scenario defaults, apply user overrides
+            scenario_params = scenario_def.get_parameters()
+            scenario_params.update(params)
+            params = scenario_params
 
         # Calculate each component
         det_total, det_breakdown = self._calc_component(detainee_list, params)
@@ -52,14 +83,21 @@ class MVPFCalculator:
         mvpf = (det_total + soc_total) / gov_total if gov_total != 0 else float('inf')
 
         return {
-            'scenario': scenario,
+            'scenario': scenario_def.key,
+            'scenario_name': scenario_def.name,
             'mvpf': mvpf,
             'detainee_values': det_total,
             'society_values': soc_total,
             'govt_cost': gov_total,
             'detainee_breakdown': det_breakdown,
             'society_breakdown': soc_breakdown,
-            'govt_breakdown': gov_breakdown
+            'govt_breakdown': gov_breakdown,
+            'parameters_used': params,  # Include for transparency
+            'subcomponents_used': {
+                'detainee_values': detainee_list,
+                'society_values': society_list,
+                'govt_cost': govt_list
+            }
         }
 
     def _calc_component(self, row_var_list, params):
@@ -93,7 +131,7 @@ class MVPFCalculator:
         # Apply CPI adjustment
         year = row['source_dollar_year']
         if pd.notna(year):
-            value *= self.cpi_factors[int(year)]
+            value = self.cpi.adjust(value, int(year))
 
         # Apply parameter effects
         if params:
@@ -101,20 +139,13 @@ class MVPFCalculator:
 
         return value
 
+    def dashboard_params(**kwargs):
+        """Convert dashboard inputs to parameters."""
+        return param_registry.convert_dashboard_input(**kwargs)
+
     def _get_multiplier(self, row_var, params):
         """Get parameter multiplier for a subcomponent."""
-        # Define which params affect which subcomponents
-        effects = {
-            'det_wtp_freedom': ['crime_rate_mult', 'detainee_pop_mult'],
-            'det_harm_during': ['length_of_stay_mult', 'detainee_pop_mult'],
-            'det_post_release': ['length_of_stay_mult'],
-            'soc_crime_prevention': ['crime_weight_mult', 'community_size_mult'],
-            'soc_victimization': ['crime_weight_mult', 'community_size_mult'],
-            'soc_spillovers': ['community_size_mult', 'length_of_stay_mult'],
-            'gov_operations': ['detainee_pop_mult', 'length_of_stay_mult'],
-            'gov_court_admin': ['detainee_pop_mult'],
-            'gov_long_term': [],
-        }
+        effects = ParameterEffectsRegistry.get_effects_mapping()  # Single source!
 
         multiplier = 1.0
         for param in effects.get(row_var, []):
@@ -125,32 +156,100 @@ class MVPFCalculator:
     def calculate_all_scenarios(self, params=None):
         """Calculate all scenarios."""
         results = []
-        for scenario in self.scenarios.keys():
+        for scenario in self.scenario_manager.list_scenarios():
             results.append(self.calculate(scenario, params))
         return results
 
-    def export_csv(self, results, filename='results.csv'):
-        """Export to CSV."""
+    def export_csv(self, results, filename='results.csv', include_metadata=True):
+        """
+        Export results to CSV with full details.
+
+        Args:
+            results: Single result dict or list of results
+            filename: Output filename
+            include_metadata: Include parameters and subcomponents used
+        """
+        # Handle single result
+        if isinstance(results, dict):
+            results = [results]
+
         rows = []
         for r in results:
             row = {
-                'scenario': r['scenario'],
-                'mvpf': r['mvpf'],
-                'detainee_total': r['detainee_values'],
-                'society_total': r['society_values'],
-                'govt_total': r['govt_cost']
+                'timestamp': datetime.now().isoformat(),
+                'scenario': r.get('scenario', 'unknown'),
+                'scenario_name': r.get('scenario_name', r.get('scenario', 'unknown')),
+                'mvpf': r.get('mvpf', 0),
+                'detainee_total': r.get('detainee_values', 0),
+                'society_total': r.get('society_values', 0),
+                'govt_total': r.get('govt_cost', 0)
             }
+
+            # Add parameters used (if available)
+            if include_metadata and 'parameters_used' in r:
+                for param_key, param_val in r['parameters_used'].items():
+                    row[f'param_{param_key}'] = param_val
+
             # Add breakdowns
-            for name, val in r['detainee_breakdown'].items():
+            for name, val in r.get('detainee_breakdown', {}).items():
                 row[f'det_{name}'] = val
-            for name, val in r['society_breakdown'].items():
+            for name, val in r.get('society_breakdown', {}).items():
                 row[f'soc_{name}'] = val
-            for name, val in r['govt_breakdown'].items():
+            for name, val in r.get('govt_breakdown', {}).items():
                 row[f'gov_{name}'] = val
+
             rows.append(row)
 
-        pd.DataFrame(rows).to_csv(filename, index=False)
+        df = pd.DataFrame(rows)
+        df.to_csv(filename, index=False)
         print(f"✓ Saved to {filename}")
+        return df
+
+    def export_to_string(self, results, include_metadata=True):
+        """
+        Export results to CSV string (for dashboard download).
+
+        Returns:
+            str: CSV formatted string
+        """
+        import io
+
+        # Handle single result
+        if isinstance(results, dict):
+            results = [results]
+
+        rows = []
+        for r in results:
+            row = {
+                'timestamp': datetime.now().isoformat(),
+                'scenario': r.get('scenario', 'unknown'),
+                'scenario_name': r.get('scenario_name', r.get('scenario', 'unknown')),
+                'mvpf': r.get('mvpf', 0),
+                'detainee_total': r.get('detainee_values', 0),
+                'society_total': r.get('society_values', 0),
+                'govt_total': r.get('govt_cost', 0)
+            }
+
+            # Add parameters used (if available)
+            if include_metadata and 'parameters_used' in r:
+                for param_key, param_val in r['parameters_used'].items():
+                    row[f'param_{param_key}'] = param_val
+
+            # Add breakdowns
+            for name, val in r.get('detainee_breakdown', {}).items():
+                row[f'det_{name}'] = val
+            for name, val in r.get('society_breakdown', {}).items():
+                row[f'soc_{name}'] = val
+            for name, val in r.get('govt_breakdown', {}).items():
+                row[f'gov_{name}'] = val
+
+            rows.append(row)
+
+        df = pd.DataFrame(rows)
+
+        # Convert to CSV string
+        csv_string = df.to_csv(index=False)
+        return csv_string
 
 
 # ==================== HELPER FUNCTION ====================
@@ -158,8 +257,13 @@ class MVPFCalculator:
 def dashboard_params(crime_rate, detainee_pop, community_size, length_of_stay):
     """Convert dashboard dropdowns to parameter dict."""
     maps = {
-        'below': 0.8, 'moderate': 1.0, 'average': 1.0,
-        'above': 1.2, 'significant': 1.5
+        'minimal': 0.8,
+        'below': 0.8,
+        'moderate': 1.0,
+        'average': 1.0,
+        'above': 1.2,
+        'large': 1.2,
+        'significant': 1.5
     }
 
     return {
@@ -167,7 +271,7 @@ def dashboard_params(crime_rate, detainee_pop, community_size, length_of_stay):
         'detainee_pop_mult': maps.get(detainee_pop, 1.0),
         'community_size_mult': maps.get(community_size, 1.0),
         'length_of_stay_mult': maps.get(length_of_stay, 1.0),
-        'crime_weight_mult': 1.0
+        'crime_weight_mult': maps.get(crime_rate, 1.0)  # Use crime_rate for crime_weight
     }
 
 

@@ -4,7 +4,10 @@ Handles individual subcomponent data and parameter-based calculations
 """
 
 import pandas as pd
+import numpy as np
 
+from cpi_adjuster import CPIAdjuster
+from parameters import ParameterRegistry, ParameterEffectsRegistry
 
 class SubcomponentRegistry:
     """
@@ -25,8 +28,8 @@ class SubcomponentRegistry:
             values_df (pd.DataFrame): Subcomponent values data
             cpi_adjuster (CPIAdjuster): CPI adjustment utility
         """
-        self.cpi = cpi_adjuster
         self.data = {}
+        self.cpi = cpi_adjuster
 
         # Build registry from dataframe
         self._build_registry(values_df)
@@ -60,7 +63,7 @@ class SubcomponentRegistry:
 
             # Apply CPI adjustment to base value (pre-computation for speed)
             if year:
-                base_value = self.cpi.adjust(base_value, year)
+                base_value = self.cpi.adjust_to_year(base_value, year, 2025)
 
             # Store in registry
             self.data[row_var] = {
@@ -86,15 +89,11 @@ class SubcomponentRegistry:
                 'detainee_pop_mult'  # More detainees → scales total WTP
             ],
 
-            'det_harm_during': [
+            'det_rel_harm': [
                 'length_of_stay_mult',  # Longer stays → more harm during detention
                 'detainee_pop_mult'  # More detainees → scales total harm
             ],
 
-            'det_post_release': [
-                'length_of_stay_mult',  # Longer stays → worse post-release outcomes
-                'recidivism_mult'  # Recidivism affects post-release trajectory
-            ],
 
             # ==================== SOCIETY VALUES ====================
             'soc_crime_prevention': [
@@ -112,19 +111,20 @@ class SubcomponentRegistry:
                 'length_of_stay_mult'  # Longer detention → more community disruption
             ],
 
+            'soc_court': [
+                'detainee_pop_mult'  # More detainees → more court processing
+            ],
+
             # ==================== GOVERNMENT COST ====================
             'gov_operations': [
                 'detainee_pop_mult',  # More detainees → higher operational costs
                 'length_of_stay_mult'  # Longer stays → higher per-person costs
             ],
 
-            'gov_court_admin': [
-                'detainee_pop_mult'  # More detainees → more court processing
-            ],
-
-            'gov_long_term': [
-                'recidivism_mult'  # Higher recidivism → more long-term costs
-            ],
+            'gov_health': [
+                'length_of_stay_mult',  # Longer stays → worse post-release outcomes
+                'recidivism_mult'  # Recidivism affects post-release trajectory
+            ]
         }
 
     def calculate(self, row_var, params=None):
@@ -200,7 +200,7 @@ class SubcomponentRegistry:
         """
         return self.data.get(row_var, {}).get('name', row_var)
 
-    def get_component(self, row_var):
+    def get_type(self, row_var):
         """
         Get component type for a subcomponent.
 

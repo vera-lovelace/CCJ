@@ -41,7 +41,6 @@ __author__ = "Adrienn J. Sinapis"
 # Import submodules for namespace access (use relative imports)
 
 
-
 # Main calculator (primary interface)
 from mvpf_calculator import MVPFCalculator
 

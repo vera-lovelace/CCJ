@@ -7,13 +7,17 @@ Main dashboard layout and callbacks
 import dash
 from dash import dcc, html, Input, Output, State
 import plotly.graph_objs as go
+from datetime import datetime
 
-import content_loader
 from content_loader import ContentManager
 from mvpf_calculator import MVPFCalculator, dashboard_params
 
+
 # Initialize content manager
 content = ContentManager()
+
+# Initialize calculator once (singleton pattern for performance)
+calculator = MVPFCalculator(data_dir='Data')
 
 # Initialize the Dash app
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
@@ -403,27 +407,52 @@ app.layout = html.Div(className='main-container', children=[
 
             # Main Content
             html.Div(children=[
-                # Baseline Switch
+                # Scenario Selector
                 html.Div(className='baseline-switch', children=[
-                    html.Span('Comparison', className='baseline-label'),
-                    html.Div(className='button-group', children=[
-                        html.Button(
-                            'Baseline',
-                            id='btn-historical',
-                            n_clicks=0,
-                            className='baseline-button baseline-button-active'
-                        ),
-                        html.Button(
-                            'Experience-informed Calculation',
-                            id='btn-optimal',
-                            n_clicks=0,
-                            className='baseline-button baseline-button-inactive'
-                        )
-                    ])
+                    html.Span('Scenario:', className='baseline-label'),
+                    dcc.Dropdown(
+                        id='scenario-selector',
+                        options=[
+                            {'label': 'Baseline - Current Operations', 'value': 'baseline'},
+                            {'label': 'Conservative Approach', 'value': 'most conservative'},
+                            {'label': 'Least Conservative Approach', 'value': 'least conservative'},
+                            {'label': 'Reduced Crime Scenario', 'value': 'reduced_crime'},
+                            {'label': 'Increased Crime Scenario', 'value': 'increased_crime'},
+                            {'label': 'Pre-Trial Diversion Program', 'value': 'diversion_program'},
+                            {'label': 'Bail Reform Scenario', 'value': 'bail_reform'},
+                            {'label': 'Facility Capacity Expansion', 'value': 'capacity_expansion'}
+                        ],
+                        value='baseline',
+                        clearable=False,
+                        style={'width': '400px'}
+                    )
                 ]),
 
-                # Hidden div to store baseline state
-                dcc.Store(id='baseline-type', data='historical'),
+                # Download section
+                html.Div(className='download-section', style={
+                    'display': 'flex',
+                    'justifyContent': 'flex-end',
+                    'marginBottom': '16px'
+                }, children=[
+                    html.Button(
+                        '📥 Download Results (CSV)',
+                        id='btn-download-csv',
+                        n_clicks=0,
+                        className='download-button',
+                        style={
+                            'backgroundColor': '#0ea5e9',
+                            'color': 'white',
+                            'border': 'none',
+                            'borderRadius': '6px',
+                            'padding': '10px 20px',
+                            'fontSize': '14px',
+                            'fontWeight': '600',
+                            'cursor': 'pointer',
+                            'transition': 'all 0.2s'
+                        }
+                    ),
+                    dcc.Download(id='download-dataframe-csv')
+                ]),
 
                 # MVPF KPI Card
                 html.Div(id='kpi-card'),
@@ -502,6 +531,7 @@ app.layout = html.Div(className='main-container', children=[
                                         'for a facility, using Cook County Jail as the baseline case. It uses the full annual costs of '
                                         'operating the jail and the full set of impacts on people who are detained to summarize those '
                                         'tradeoffs in an MVPF-style framework.',
+
                                         style={
                                             'color': '#4b5563',
                                             'fontSize': '14px',
@@ -938,35 +968,14 @@ def toggle_gov_crime_decrease(n_clicks, style):
 Dashboard Callbacks
 """
 
-@app.callback(
-    [Output('baseline-type', 'data'),
-     Output('btn-historical', 'className'),
-     Output('btn-optimal', 'className')],
-    [Input('btn-historical', 'n_clicks'),
-     Input('btn-optimal', 'n_clicks')],
-    [State('baseline-type', 'data')]
-)
-def update_baseline(hist_clicks, opt_clicks, current_baseline):
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        return 'historical', 'baseline-button baseline-button-active', 'baseline-button baseline-button-inactive'
-
-    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-
-    if button_id == 'btn-historical':
-        return 'historical', 'baseline-button baseline-button-active', 'baseline-button baseline-button-inactive'
-    else:
-        return 'optimal', 'baseline-button baseline-button-inactive', 'baseline-button baseline-button-active'
-
-
-def calculate_mvpf(baseline_type, detainee_param1, detainee_param2, society_param1, society_param2):
+def calculate_mvpf(scenario, detainee_param1, detainee_param2, society_param1, society_param2):
     """
     Calculate MVPF using the modular MVPFCalculator class
 
     Parameters:
     -----------
-    baseline_type : str
-        'historical' or other baseline scenario name
+    scenario : str
+        Scenario name (e.g., 'baseline', 'most conservative', etc.)
     detainee_param1 : str
         Crime rate parameter ('below', 'average', 'significant')
     detainee_param2 : str
@@ -980,12 +989,6 @@ def calculate_mvpf(baseline_type, detainee_param1, detainee_param2, society_para
     --------
     dict : MVPF results with all breakdowns
     """
-    # Initialize calculator
-    calculator = MVPFCalculator(data_dir='Data')
-
-    # Map baseline_type to scenario name
-    scenario = 'baseline' if baseline_type == 'historical' else baseline_type
-
     # Convert dashboard parameters to calculator format
     params = dashboard_params(
         crime_rate=detainee_param1,
@@ -1011,22 +1014,17 @@ def calculate_mvpf(baseline_type, detainee_param1, detainee_param2, society_para
             return lst[index]
         except IndexError:
             return default
-    # Map breakdowns to expected sub-component names
-    # Adjust these keys based on your actual CSV data
-    return {
-        'mvpf': result['mvpf'],
-        'detainee_values': result['detainee_values'],
-        'society_values': result['society_values'],
-        'govt_cost': result['govt_cost'],
-        'detainee_sub1': list(detainee_breakdown.values())[0] if len(detainee_breakdown) > 0 else 0,
-        'detainee_sub2': list(detainee_breakdown.values())[1] if len(detainee_breakdown) > 1 else 0,
-        'society_sub1': list(society_breakdown.values())[0] if len(society_breakdown) > 0 else 0,
-        'society_sub2': list(society_breakdown.values())[1] if len(society_breakdown) > 1 else 0,
-        'society_sub3': list(society_breakdown.values())[2] if len(society_breakdown) > 2 else 0,
-        'govt_sub1': list(govt_breakdown.values())[0] if len(govt_breakdown) > 0 else 0,
-        'govt_sub2': list(govt_breakdown.values())[1] if len(govt_breakdown) > 1 else 0,
-        'govt_sub3': list(govt_breakdown.values())[2] if len(govt_breakdown) > 2 else 0,
-    }
+    # Add breakdown values to the result
+    result['detainee_sub1'] = safe_get(detainee_breakdown, 0)
+    result['detainee_sub2'] = safe_get(detainee_breakdown, 1)
+    result['society_sub1'] = safe_get(society_breakdown, 0)
+    result['society_sub2'] = safe_get(society_breakdown, 1)
+    result['society_sub3'] = safe_get(society_breakdown, 2)
+    result['govt_sub1'] = safe_get(govt_breakdown, 0)
+    result['govt_sub2'] = safe_get(govt_breakdown, 1)
+    result['govt_sub3'] = safe_get(govt_breakdown, 2)
+
+    return result
 
 
 # Main callback for updating all components
@@ -1034,7 +1032,7 @@ def calculate_mvpf(baseline_type, detainee_param1, detainee_param2, society_para
     [Output('kpi-card', 'children'),
      Output('main-components-chart', 'figure'),
      Output('subcomponents-chart', 'figure')],
-    [Input('baseline-type', 'data'),
+    [Input('scenario-selector', 'value'),
      Input('detainee-param1', 'value'),
      Input('detainee-param2', 'value'),
      Input('society-param1', 'value'),
@@ -1043,17 +1041,9 @@ def calculate_mvpf(baseline_type, detainee_param1, detainee_param2, society_para
 
 def update_dashboard(scenario, det_p1, det_p2, soc_p1, soc_p2):
     # Calculate MVPF
-
-    params = dashboard_params(det_p1, det_p2, soc_p1, soc_p2)
-
-    # Calculate
     result = calculate_mvpf(scenario, det_p1, det_p2, soc_p1, soc_p2)
 
     mvpf = result['mvpf']
-
-    # Use formatting helpers
-    mvpf_str = format_mvpf(result['mvpf'])
-    rating, color = get_mvpf_rating(result['mvpf'])
 
     # Determine badge color and label
     if mvpf >= 2.5:
@@ -1081,7 +1071,7 @@ def update_dashboard(scenario, det_p1, det_p2, soc_p1, soc_p2):
         ]),
 
         html.Div([
-            html.Span(f"{mvpf:.2f}", className='kpi-value'),
+            html.Span(f"{mvpf:.4f}", className='kpi-value'),
             html.Span('ratio', className='kpi-ratio')
         ]),
 
@@ -1142,7 +1132,7 @@ def update_dashboard(scenario, det_p1, det_p2, soc_p1, soc_p2):
 
         html.P([
             html.Strong('Calculation: '),
-            f"MVPF = (${int(result['detainee_values']):,} + ${int(result['society_values']):,}) / ${int(result['govt_cost']):,} = {mvpf:.2f}"
+            f"MVPF = (${int(result['detainee_values']):,} + ${int(result['society_values']):,}) / ${int(result['govt_cost']):,} = {mvpf:.4f}"
         ]),
 
         html.Div(className='kpi-components', children=[
@@ -1238,6 +1228,43 @@ def update_dashboard(scenario, det_p1, det_p2, soc_p1, soc_p2):
     )
 
     return kpi_card, main_fig, sub_fig
+
+
+# Download CSV callback
+@app.callback(
+    Output('download-dataframe-csv', 'data'),
+    Input('btn-download-csv', 'n_clicks'),
+    [State('scenario-selector', 'value'),
+     State('detainee-param1', 'value'),
+     State('detainee-param2', 'value'),
+     State('society-param1', 'value'),
+     State('society-param2', 'value')],
+    prevent_initial_call=True
+)
+def download_csv(n_clicks, scenario, det_p1, det_p2, soc_p1, soc_p2):
+    """Generate and download CSV file with current MVPF results."""
+    if n_clicks is None or n_clicks == 0:
+        return None
+
+    # Convert dashboard parameters to calculator format
+    params = dashboard_params(
+        crime_rate=det_p1,
+        detainee_pop=det_p2,
+        community_size=soc_p1,
+        length_of_stay=soc_p2
+    )
+
+    # Calculate MVPF
+    result = calculator.calculate(scenario, params)
+
+    # Export to CSV string
+    csv_string = calculator.export_to_string(result, include_metadata=True)
+
+    # Generate filename with timestamp
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    filename = f'mvpf_results_{scenario}_{timestamp}.csv'
+
+    return dict(content=csv_string, filename=filename)
 
 
 if __name__ == '__main__':
