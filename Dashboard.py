@@ -565,20 +565,17 @@ app.layout = html.Div(className='main-container', children=[
                                                                 }
                                                             )
                                                         ]
-                                                    ),
-
-                                                 # Collapsible list
-                                                 html.Div(children=[
-                                                     # 1. Willingness to Pay for Freedom
+                                                    ),    html.Div(children=[
+                                                    # RHV
                                                      html.Div([
                                                          html.Button(
-                                                             'Willingness to Pay for Freedom',
-                                                             id='detainee-wtp-btn',
+                                                             'Willingness to Pay derived from Relative Harm Valuation',
+                                                             id='detainee-harm-btn',
                                                              n_clicks=0,
                                                              className='collapse-toggle'
                                                          ),
                                                          html.Div(
-                                                             id='detainee-wtp',
+                                                             id='detainee-harm',
                                                              style={'display': 'none'},
                                                              children=[
                                                                  html.P(
@@ -592,17 +589,16 @@ app.layout = html.Div(className='main-container', children=[
                                                              ]
                                                          )
                                                      ]),
-
-                                                     # 2. Harm During Detention
+                                                     # Willingness to Pay for Freedom
                                                      html.Div([
                                                          html.Button(
-                                                             'Willingness to Pay derived from Relative Harm Valuation',
-                                                             id='detainee-harm-btn',
+                                                             'Willingness to Pay for Freedom',
+                                                             id='detainee-wtp-btn',
                                                              n_clicks=0,
                                                              className='collapse-toggle'
                                                          ),
                                                          html.Div(
-                                                             id='detainee-harm',
+                                                             id='detainee-wtp',
                                                              style={'display': 'none'},
                                                              children=[
                                                                  html.P(
