@@ -582,8 +582,7 @@ app.layout = html.Div(className='main-container', children=[
                                                              style={'display': 'none'},
                                                              children=[
                                                                  html.P(
-                                                                     'Represents the monetary value detainees place on avoiding incarceration. '
-                                                                     'Derived from economic and wellbeing tradeoffs and interpreted as a willingness-to-pay measure.',
+                                                                     'Text from content.json',
                                                                      style={
                                                                          'fontSize': '13px',
                                                                          'color': '#6b7280',
@@ -597,7 +596,7 @@ app.layout = html.Div(className='main-container', children=[
                                                      # 2. Harm During Detention
                                                      html.Div([
                                                          html.Button(
-                                                             'Incarceration-Related Harm',
+                                                             'Willingness to Pay derived from Relative Harm Valuation',
                                                              id='detainee-harm-btn',
                                                              n_clicks=0,
                                                              className='collapse-toggle'
@@ -607,8 +606,7 @@ app.layout = html.Div(className='main-container', children=[
                                                              style={'display': 'none'},
                                                              children=[
                                                                  html.P(
-                                                                     'Captures immediate harms of detention, including loss of autonomy, exposure to stressful '
-                                                                     'conditions, disrupted routines, and consequences for mental and physical health.',
+                                                                     'Text from content.json',
                                                                      style={
                                                                          'fontSize': '13px',
                                                                          'color': '#6b7280',
@@ -618,31 +616,6 @@ app.layout = html.Div(className='main-container', children=[
                                                              ]
                                                          )
                                                      ]),
-
-                                                     # 3. Post-Release Effects
-                                                     html.Div([
-                                                         html.Button(
-                                                             'Post-Release Effects',
-                                                             id='detainee-post-btn',
-                                                             n_clicks=0,
-                                                             className='collapse-toggle'
-                                                         ),
-                                                         html.Div(
-                                                             id='detainee-post',
-                                                             style={'display': 'none'},
-                                                             children=[
-                                                                 html.P(
-                                                                     'Reflects effects of detention that persist after release, including changes to employment, '
-                                                                     'income, housing stability, and longer-run wellbeing.',
-                                                                     style={
-                                                                         'fontSize': '13px',
-                                                                         'color': '#6b7280',
-                                                                         'margin': '6px 0'
-                                                                     }
-                                                                 )
-                                                             ]
-                                                         )
-                                                     ])
                                                  ])
                                              ]
                                          ),
@@ -664,8 +637,8 @@ app.layout = html.Div(className='main-container', children=[
                                                  }),
 
                                                  html.P(
-                                                     'Society Values measure how detention affects public safety, victimization risk, and community wellbeing. '
-                                                     'These values summarize spillovers felt by people outside the jail and convert those effects into a '
+                                                     'Society Values measure how detention affects external factors like public safety, victimization risk, and community wellbeing. '
+                                                     'These values summarize the effects felt by people outside the jail and convert those effects into a '
                                                      'common dollar scale for comparison.',
                                                      style={
                                                          'fontSize': '14px',
@@ -684,10 +657,10 @@ app.layout = html.Div(className='main-container', children=[
                                                  ]
                                                  ),
                                                  html.Div(children=[
-                                                     # 1. Crime Prevention or Displacement
+                                                     # 1. Crime Prevention
                                                      html.Div([
                                                          html.Button(
-                                                             'Crime Prevention / Displacement',
+                                                             'Crime Prevention',
                                                              id='society-crime-btn',
                                                              n_clicks=0,
                                                              className='collapse-toggle'
@@ -697,8 +670,7 @@ app.layout = html.Div(className='main-container', children=[
                                                              style={'display': 'none'},
                                                              children=[
                                                                  html.P(
-                                                                     'Measures whether detention reduces or shifts crime, and monetizes the resulting changes '
-                                                                     'in safety and risk.',
+                                                                     'text from content.json',
                                                                      style={
                                                                          'fontSize': '13px',
                                                                          'color': '#6b7280'
@@ -707,22 +679,20 @@ app.layout = html.Div(className='main-container', children=[
                                                              ]
                                                          )
                                                      ]),
-
-                                                     # 2. Victimization Cost
+# 1. Crime Prevention
                                                      html.Div([
                                                          html.Button(
-                                                             'Victimization Costs',
-                                                             id='society-victim-btn',
+                                                             'Court Appearance Effects',
+                                                             id='society-court-btn',
                                                              n_clicks=0,
                                                              className='collapse-toggle'
                                                          ),
                                                          html.Div(
-                                                             id='society-victim',
+                                                             id='society-court',
                                                              style={'display': 'none'},
                                                              children=[
                                                                  html.P(
-                                                                     'Represents monetized harm to potential victims or avoided victimization resulting from '
-                                                                     'detention decisions.',
+                                                                     'text from content.json',
                                                                      style={
                                                                          'fontSize': '13px',
                                                                          'color': '#6b7280'
@@ -745,8 +715,7 @@ app.layout = html.Div(className='main-container', children=[
                                                              style={'display': 'none'},
                                                              children=[
                                                                  html.P(
-                                                                     'Captures broader economic and social ripple effects within households, neighborhoods, '
-                                                                     'and local economies.',
+                                                                     'text from content.json',
                                                                      style={
                                                                          'fontSize': '13px',
                                                                          'color': '#6b7280'
@@ -810,7 +779,7 @@ app.layout = html.Div(className='main-container', children=[
                                                              style={'display': 'none'},
                                                              children=[
                                                                  html.P(
-                                                                     'Includes daily costs of running the jail: staffing, housing, food, medical care, and supplies.',
+                                                                     'text from content.json',
                                                                      style={
                                                                          'fontSize': '13px',
                                                                          'color': '#6b7280'
@@ -820,20 +789,20 @@ app.layout = html.Div(className='main-container', children=[
                                                          )
                                                      ]),
 
-                                                     # Court/Admin
+                                                     # Crime Increase Costs
                                                      html.Div([
                                                          html.Button(
-                                                             'Court and Administrative Costs',
-                                                             id='gov-admin-btn',
+                                                             'Costs associated with Crime Effect: Increase',
+                                                             id='gov-crime-increase-btn',
                                                              n_clicks=0,
                                                              className='collapse-toggle'
                                                          ),
                                                          html.Div(
-                                                             id='gov-admin',
+                                                             id='gov-crime-increase',
                                                              style={'display': 'none'},
                                                              children=[
                                                                  html.P(
-                                                                     'Covers court processing, hearings, paperwork, supervision, and other administrative overhead.',
+                                                                     'text from content.json',
                                                                      style={
                                                                          'fontSize': '13px',
                                                                          'color': '#6b7280'
@@ -843,21 +812,20 @@ app.layout = html.Div(className='main-container', children=[
                                                          )
                                                      ]),
 
-                                                     # Long-term fiscal
+                                                     # Crime Decrease Costs
                                                      html.Div([
                                                          html.Button(
-                                                             'Long-Term Fiscal Effects',
-                                                             id='gov-long-btn',
+                                                             'Costs associated with Crime Effect: Decrease',
+                                                             id='gov-crime-decrease-btn',
                                                              n_clicks=0,
                                                              className='collapse-toggle'
                                                          ),
                                                          html.Div(
-                                                             id='gov-long',
+                                                             id='gov-crime-decrease',
                                                              style={'display': 'none'},
                                                              children=[
                                                                  html.P(
-                                                                     'Reflects downstream public spending or savings associated with post-release outcomes, '
-                                                                     'service needs, or recidivism.',
+                                                                     'text from content.json',
                                                                      style={
                                                                          'fontSize': '13px',
                                                                          'color': '#6b7280'
@@ -865,7 +833,7 @@ app.layout = html.Div(className='main-container', children=[
                                                                  )
                                                              ]
                                                          )
-                                                     ])
+                                                     ]),
                                                  ])
                                              ]
                                          )
@@ -888,6 +856,9 @@ def _toggle_style(n_clicks, style):
         return {'display': 'block'}
     return {'display': 'none'}
 
+
+# --- Detainee Values subcomponents ---
+
 @app.callback(
     Output('detainee-wtp', 'style'),
     Input('detainee-wtp-btn', 'n_clicks'),
@@ -895,6 +866,7 @@ def _toggle_style(n_clicks, style):
 )
 def toggle_detainee_wtp(n_clicks, style):
     return _toggle_style(n_clicks, style)
+
 
 @app.callback(
     Output('detainee-harm', 'style'),
@@ -904,13 +876,8 @@ def toggle_detainee_wtp(n_clicks, style):
 def toggle_detainee_harm(n_clicks, style):
     return _toggle_style(n_clicks, style)
 
-@app.callback(
-    Output('detainee-post', 'style'),
-    Input('detainee-post-btn', 'n_clicks'),
-    State('detainee-post', 'style')
-)
-def toggle_detainee_post(n_clicks, style):
-    return _toggle_style(n_clicks, style)
+
+# --- Society Values subcomponents ---
 
 @app.callback(
     Output('society-crime', 'style'),
@@ -920,13 +887,15 @@ def toggle_detainee_post(n_clicks, style):
 def toggle_society_crime(n_clicks, style):
     return _toggle_style(n_clicks, style)
 
+
 @app.callback(
-    Output('society-victim', 'style'),
-    Input('society-victim-btn', 'n_clicks'),
-    State('society-victim', 'style')
+    Output('society-court', 'style'),
+    Input('society-court-btn', 'n_clicks'),
+    State('society-court', 'style')
 )
-def toggle_society_victim(n_clicks, style):
+def toggle_society_court(n_clicks, style):
     return _toggle_style(n_clicks, style)
+
 
 @app.callback(
     Output('society-spill', 'style'),
@@ -936,6 +905,9 @@ def toggle_society_victim(n_clicks, style):
 def toggle_society_spill(n_clicks, style):
     return _toggle_style(n_clicks, style)
 
+
+# --- Government Cost subcomponents ---
+
 @app.callback(
     Output('gov-op', 'style'),
     Input('gov-op-btn', 'n_clicks'),
@@ -944,20 +916,22 @@ def toggle_society_spill(n_clicks, style):
 def toggle_gov_op(n_clicks, style):
     return _toggle_style(n_clicks, style)
 
-@app.callback(
-    Output('gov-admin', 'style'),
-    Input('gov-admin-btn', 'n_clicks'),
-    State('gov-admin', 'style')
-)
-def toggle_gov_admin(n_clicks, style):
-    return _toggle_style(n_clicks, style)
 
 @app.callback(
-    Output('gov-long', 'style'),
-    Input('gov-long-btn', 'n_clicks'),
-    State('gov-long', 'style')
+    Output('gov-crime-increase', 'style'),
+    Input('gov-crime-increase-btn', 'n_clicks'),
+    State('gov-crime-increase', 'style')
 )
-def toggle_gov_long(n_clicks, style):
+def toggle_gov_crime_increase(n_clicks, style):
+    return _toggle_style(n_clicks, style)
+
+
+@app.callback(
+    Output('gov-crime-decrease', 'style'),
+    Input('gov-crime-decrease-btn', 'n_clicks'),
+    State('gov-crime-decrease', 'style')
+)
+def toggle_gov_crime_decrease(n_clicks, style):
     return _toggle_style(n_clicks, style)
 
 """
