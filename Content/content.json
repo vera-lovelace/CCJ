@@ -5,7 +5,7 @@
   },
   "info_tile": {
     "heading": "About MVPF",
-    "description": "The MVPF measures the ratio of beneficiaries' willingness to pay to the net cost to the government.",
+    "description": "The MVPpaF measures the ratio of beneficiaries' willingness to pay to the net cost to the government.",
     "formula_label": "Formula:",
     "formula": "MVPF = (Detainee + Society) / Government Cost"
   },

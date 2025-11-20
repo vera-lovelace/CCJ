@@ -245,24 +245,57 @@ app.index_string = '''
             .kpi-components {
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
-                gap: 24px;
-                padding-top: 24px;
-                border-top: 1px solid #e5e7eb;
+                gap: 16px;
+                margin: 24px 0;
+            }
+            .kpi-component {
+                background: #f9fafb;
+                border-radius: 12px;
+                padding: 20px;
+                border: 2px solid #e5e7eb;
+                transition: all 0.2s;
+            }
+            .kpi-component:hover {
+                border-color: #3b82f6;
+                box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);
+            }
+            .kpi-component-link {
+                text-decoration: none;
+                color: inherit;
+                display: block;
             }
             .kpi-component h4 {
-                font-size: 14px;
+                font-size: 13px;
                 color: #6b7280;
-                margin: 0 0 4px 0;
-                font-weight: 400;
+                margin: 0 0 12px 0;
+                font-weight: 500;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            .kpi-component-link h4 {
+                color: #3b82f6;
+                cursor: pointer;
+            }
+            .kpi-component-link:hover h4 {
+                text-decoration: underline;
             }
             .kpi-component p {
-                font-size: 24px;
-                font-weight: 600;
-                margin: 0 0 4px 0;
+                font-size: 28px;
+                font-weight: 700;
+                margin: 0 0 8px 0;
+                line-height: 1;
             }
             .kpi-component span {
                 font-size: 12px;
                 color: #9ca3af;
+                font-weight: 400;
+            }
+            .kpi-calculation {
+                margin-top: 24px;
+                padding-top: 24px;
+                border-top: 1px solid #e5e7eb;
+                font-size: 13px;
+                color: #6b7280;
             }
             .kpi-interpretation {
                 margin-top: 24px;
@@ -316,11 +349,13 @@ app.layout = html.Div(className='main-container', children=[
             html.Div(style={'position': 'sticky', 'top': '24px', 'zIndex': '1000'}, children=[
                 # Information Tile
                 html.Div(className='info-tile', children=[
-                    html.H3('About MVPF'),
-                    html.P(
-                        'The MVPF measures the ratio of beneficiaries\' willingness to pay to the net cost to the government.'
-                    ),
-                    html.P([html.Strong('Formula:'), html.Br(), 'MVPF = (Detainee + Society) / Government Cost'])
+                    html.H3(content.get('info_tile.heading', 'About MVPF')),
+                    html.P(content.get('info_tile.description', 'The MVPF measures the ratio of beneficiaries willingness to pay to the net cost to the government')),
+                    html.P([
+                        html.Strong(content.get('info_tile.formula_label', 'Formula:')),
+                        html.Br(),
+                        content.get('info_tile.formula', 'MVPF = (Detainee + Society) / Government Cost')
+                    ])
                 ]),
 
                 # Selection Options
@@ -407,27 +442,6 @@ app.layout = html.Div(className='main-container', children=[
 
             # Main Content
             html.Div(children=[
-                # Scenario Selector
-                html.Div(className='baseline-switch', children=[
-                    html.Span('Scenario:', className='baseline-label'),
-                    dcc.Dropdown(
-                        id='scenario-selector',
-                        options=[
-                            {'label': 'Baseline - Current Operations', 'value': 'baseline'},
-                            {'label': 'Conservative Approach', 'value': 'most conservative'},
-                            {'label': 'Least Conservative Approach', 'value': 'least conservative'},
-                            {'label': 'Reduced Crime Scenario', 'value': 'reduced_crime'},
-                            {'label': 'Increased Crime Scenario', 'value': 'increased_crime'},
-                            {'label': 'Pre-Trial Diversion Program', 'value': 'diversion_program'},
-                            {'label': 'Bail Reform Scenario', 'value': 'bail_reform'},
-                            {'label': 'Facility Capacity Expansion', 'value': 'capacity_expansion'}
-                        ],
-                        value='baseline',
-                        clearable=False,
-                        style={'width': '400px'}
-                    )
-                ]),
-
                 # Download section
                 html.Div(className='download-section', style={
                     'display': 'flex',
@@ -454,12 +468,59 @@ app.layout = html.Div(className='main-container', children=[
                     dcc.Download(id='download-dataframe-csv')
                 ]),
 
-                # MVPF KPI Card
-                html.Div(id='kpi-card'),
+                # 2-Column Layout: Left (KPI) | Right (Chart + Benchmark)
+                html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '24px', 'marginBottom': '24px'}, children=[
+                    # Left Column
+                    html.Div(style={'display': 'flex', 'flexDirection': 'column', 'gap': '24px'}, children=[
+                        # KPI Card
+                        html.Div(id='kpi-card'),
 
-                # Main Components Chart
-                html.Div(className='chart-container', children=[
-                    dcc.Graph(id='main-components-chart')
+                        # Scenario Selection Section
+                        html.Div(style={'marginTop': '24px', 'paddingTop': '24px', 'borderTop': '1px solid #e5e7eb'}, children=[
+                            html.H4('Scenario Selection', style={
+                                'fontSize': '16px',
+                                'fontWeight': '600',
+                                'color': '#374151',
+                                'marginTop': '0',
+                                'marginBottom': '12px'
+                            }),
+                            html.Label('Select Scenario:', style={
+                                'fontSize': '14px',
+                                'fontWeight': '500',
+                                'color': '#6b7280',
+                                'marginBottom': '8px',
+                                'display': 'block'
+                            }),
+                            dcc.Dropdown(
+                                id='scenario-selector',
+                                options=[
+                                    {'label': 'Baseline - Current Operations', 'value': 'baseline'},
+                                    {'label': 'Conservative Approach', 'value': 'most conservative'},
+                                    {'label': 'Least Conservative Approach', 'value': 'least conservative'},
+                                    {'label': 'Reduced Crime Scenario', 'value': 'reduced_crime'},
+                                    {'label': 'Increased Crime Scenario', 'value': 'increased_crime'},
+                                    {'label': 'Pre-Trial Diversion Program', 'value': 'diversion_program'},
+                                    {'label': 'Bail Reform Scenario', 'value': 'bail_reform'},
+                                    {'label': 'Facility Capacity Expansion', 'value': 'capacity_expansion'}
+                                ],
+                                value='baseline',
+                                clearable=False
+                            )
+
+                        ])
+
+                    ]),
+
+                    # Right Column
+                    html.Div(style={'display': 'flex', 'flexDirection': 'column', 'gap': '24px'}, children=[
+                        # Main Components Chart
+                        html.Div(className='chart-container', children=[
+                            dcc.Graph(id='main-components-chart')
+                        ]),
+
+                        # Benchmark Card (populated by callback)
+                        html.Div(id='benchmark-card')
+                    ])
                 ]),
 
                 # Subcomponents Chart
@@ -560,6 +621,7 @@ app.layout = html.Div(className='main-container', children=[
                                      children=[
                                          # Detainee Values
                                          html.Div(
+                                             id='detainee-values-section',
                                              style={
                                                  'background': 'white',
                                                  'padding': '20px',
@@ -592,10 +654,10 @@ app.layout = html.Div(className='main-container', children=[
                                                      html.Span('Subcomponents', style={
                                                          'fontWeight': '500',
                                                          'fontSize': '14px'
-                                                                }
-                                                            )
-                                                        ]
-                                                    ),    html.Div(children=[
+                                                        })
+
+                                                    ]),
+                                                 html.Div(children=[
                                                     # RHV
                                                      html.Div([
                                                          html.Button(
@@ -648,6 +710,7 @@ app.layout = html.Div(className='main-container', children=[
 
                                          # Society Values
                                          html.Div(
+                                             id='society-values-section',
                                              style={
                                                  'background': 'white',
                                                  'padding': '20px',
@@ -756,6 +819,7 @@ app.layout = html.Div(className='main-container', children=[
 
                                          # Government Cost
                                          html.Div(
+                                             id='government-cost-section',
                                              style={
                                                  'background': 'white',
                                                  'padding': '20px',
@@ -867,14 +931,14 @@ app.layout = html.Div(className='main-container', children=[
                                  )
                              ])
                 ])
-            ])
+             ])
         ]
     )
 ])
 
-"""
-Toggle Callbacks
-"""
+# --- Toggle Callbacks ---
+
+
 def _toggle_style(n_clicks, style):
     if not n_clicks:
         return style or {'display': 'none'}
@@ -1026,6 +1090,7 @@ def calculate_mvpf(scenario, detainee_param1, detainee_param2, society_param1, s
 # Main callback for updating all components
 @app.callback(
     [Output('kpi-card', 'children'),
+     Output('benchmark-card', 'children'),
      Output('main-components-chart', 'figure'),
      Output('subcomponents-chart', 'figure')],
     [Input('scenario-selector', 'value'),
@@ -1071,22 +1136,53 @@ def update_dashboard(scenario, det_p1, det_p2, soc_p1, soc_p2):
             html.Span('ratio', className='kpi-ratio')
         ]),
 
+        # Component Tiles with clickable links
+        html.Div(className='kpi-components', children=[
+            # Detainee Values Tile
+            html.Div(className='kpi-component', children=[
+                html.A(href='#detainee-values-section', className='kpi-component-link', children=[
+                    html.H4('Detainee Values')
+                ]),
+                html.P(f"${int(result['detainee_values']):,}", style={'color': '#2563eb'}),
+                html.Span('2 subcomponents')
+            ]),
 
+            # Society Values Tile
+            html.Div(className='kpi-component', children=[
+                html.A(href='#society-values-section', className='kpi-component-link', children=[
+                    html.H4('Society Values')
+                ]),
+                html.P(f"${int(result['society_values']):,}", style={'color': '#16a34a'}),
+                html.Span('3 subcomponents')
+            ]),
+
+            # Government Cost Tile
+            html.Div(className='kpi-component', children=[
+                html.A(href='#government-cost-section', className='kpi-component-link', children=[
+                    html.H4('Government Cost')
+                ]),
+                html.P(f"${int(result['govt_cost']):,}", style={'color': '#dc2626'}),
+                html.Span('3 subcomponents')
+            ])
+        ]),
+
+
+        # Interpretation section
         html.Div(className='kpi-interpretation', children=[
             html.Span(label, className='kpi-badge', style={
                 'backgroundColor': badge_color,
                 'color': badge_text_color,
                 'display': 'inline-block',
-                'marginBottom': '24px'
+                'marginBottom': '12px'
             }),
 
             html.P(
                 'This indicates the program delivers more value than its cost.' if mvpf > 1
                 else 'Consider reviewing program efficiency.',
-                style={'marginTop': '8px'}
+                style={'marginTop': '8px', 'marginBottom': '16px'}
             ),
 
-            # Right column: Interpretation guide
+            # Interpretation guide
             html.Div(children=[
                 html.H4('How to Interpret', style={
                     'fontSize': '16px',
@@ -1122,54 +1218,101 @@ def update_dashboard(scenario, det_p1, det_p2, soc_p1, soc_p2):
                     ]
                 )
             ])
-
-
         ]),
 
-        html.P([
-            html.Strong('Calculation: '),
-            f"MVPF = (${int(result['detainee_values']):,} + ${int(result['society_values']):,}) / ${int(result['govt_cost']):,} = {mvpf:.4f}"
-        ]),
-
-        html.Div(className='kpi-components', children=[
-
-
-            html.Div(className='kpi-component', children=[
-                html.H4('Detainee Values'),
-                html.P(f"${int(result['detainee_values']):,}", style={'color': '#2563eb'}),
-                html.Span('2 subcomponents')
-            ]),
-            html.Div(className='kpi-component', children=[
-                html.H4('Society Values'),
-                html.P(f"${int(result['society_values']):,}", style={'color': '#16a34a'}),
-                html.Span('3 subcomponents')
-            ]),
-            html.Div(className='kpi-component', children=[
-                html.H4('Government Cost'),
-                html.P(f"${int(result['govt_cost']):,}", style={'color': '#dc2626'}),
-                html.Span('3 subcomponents')
-            ])
-        ]),
+        # Calculation at the bottom
+        html.Div(className='kpi-calculation', children=[
+            html.P([
+                html.Strong('Calculation: '),
+                f"MVPF = (${int(result['detainee_values']):,} + ${int(result['society_values']):,}) / ${int(result['govt_cost']):,} = {mvpf:.4f}"
+            ], style={'margin': '0'})
+        ])
 
     ])
 
+    # Benchmark Card
+    benchmark_card = html.Div(className='kpi-card', children=[
+        html.H3('Comparative Benchmarking', style={
+            'fontSize': '20px',
+            'fontWeight': '600',
+            'color': '#1e293b',
+            'marginBottom': '16px',
+            'marginTop': '0'
+        }),
+        html.P('CCJ program relative to federal programs:', style={
+            'fontSize': '14px',
+            'color': '#6b7280',
+            'marginBottom': '16px',
+            'fontWeight': '500'
+        }),
+        html.Ul(
+            style={
+                'margin': '0',
+                'paddingLeft': '20px',
+                'color': '#374151',
+                'fontSize': '14px',
+                'lineHeight': '1.8'
+            },
+            children=[
+                html.Li([
+                    html.Strong('23×'),
+                    ' more cost-effective: Supplemental Security Income (SSI)'
+                ]),
+                html.Li([
+                    html.Strong('6.1×'),
+                    ' more cost-effective: Food Stamps (SNAP)'
+                ]),
+                html.Li([
+                    html.Strong('1.2×'),
+                    ' more cost-effective: Mandated Mental Health Treatment in the Criminal Justice System'
+                ]),
+                html.Li([
+                    html.Strong('3.7×'),
+                    ' less harmful: American Opportunity Tax Credit (AOTC)'
+                ])
+            ]
+        ),
+        html.P('Source: Policy benchmarks based on comparative MVPF analysis', style={
+            'fontSize': '11px',
+            'color': '#9ca3af',
+            'marginTop': '16px',
+            'marginBottom': '0',
+            'fontStyle': 'italic'
+        })
+    ])
+
     # Main Components Chart
+    # Use logarithmic scale with absolute values to handle vastly different magnitudes
+    # Negative values are shown as absolute with visual indicators
+    det_val = result['detainee_values']
+    soc_val = result['society_values']
+    gov_val = result['govt_cost']
+
+    # Use absolute values for log scale, add small offset to avoid log(0)
+    y_values = [abs(det_val) + 1, abs(soc_val) + 1, abs(gov_val) + 1]
+
+    # Color code: red for negative, blue/green for positive
+    colors = ['#ef4444' if det_val < 0 else '#3b82f6',
+              '#10b981' if soc_val >= 0 else '#ef4444',
+              '#22c55e' if gov_val < 0 else '#ef4444']
+
     main_fig = go.Figure(data=[
         go.Bar(
-            x=['Detainee Values', 'Society Values', 'Government Cost'],
-            y=[result['detainee_values'], result['society_values'], result['govt_cost']],
-            marker_color=['#3b82f6', '#10b981', '#ef4444'],
-            text=[f"${int(result['detainee_values']):,}",
-                  f"${int(result['society_values']):,}",
-                  f"${int(result['govt_cost']):,}"],
+            x=['Detainee Values<br>(negative)', 'Society Values', 'Government Cost'],
+            y=y_values,
+            marker_color=colors,
+            text=[f"${int(det_val):,}",
+                  f"${int(soc_val):,}",
+                  f"${int(gov_val):,}"],
             textposition='outside'
         )
     ])
 
     main_fig.update_layout(
-        title='MVPF Main Components',
+        title='MVPF Main Components (Log Scale)',
         xaxis_title='',
-        yaxis_title='Value ($)',
+        yaxis_title='Absolute Value ($) - Log Scale',
+        yaxis_type='log',
         paper_bgcolor='#f8fafc',
         plot_bgcolor='#ffffff',
         font=dict(family='system-ui', size=12),
@@ -1179,11 +1322,12 @@ def update_dashboard(scenario, det_p1, det_p2, soc_p1, soc_p2):
 
 
     # Subcomponents Chart - grouped by component
+    # Use logarithmic scale with absolute values for vastly different magnitudes
     sub_fig = go.Figure(data=[
         go.Bar(
             name='Subcomp 1',
             x=['Detainee Values', 'Society Values', 'Govt Cost'],
-            y=[result['detainee_sub1'], result['society_sub1'], result['govt_sub1']],
+            y=[abs(result['detainee_sub1']) + 1, abs(result['society_sub1']) + 1, abs(result['govt_sub1']) + 1],
             marker_color='#93c5fd',
             text=[f"${int(result['detainee_sub1']):,}",
                   f"${int(result['society_sub1']):,}",
@@ -1193,7 +1337,7 @@ def update_dashboard(scenario, det_p1, det_p2, soc_p1, soc_p2):
         go.Bar(
             name='Subcomp 2',
             x=['Detainee Values', 'Society Values', 'Govt Cost'],
-            y=[result['detainee_sub2'], result['society_sub2'], result['govt_sub2']],
+            y=[abs(result['detainee_sub2']) + 1, abs(result['society_sub2']) + 1, abs(result['govt_sub2']) + 1],
             marker_color='#3b82f6',
             text=[f"${int(result['detainee_sub2']):,}",
                   f"${int(result['society_sub2']):,}",
@@ -1203,7 +1347,7 @@ def update_dashboard(scenario, det_p1, det_p2, soc_p1, soc_p2):
         go.Bar(
             name='Subcomp 3',
             x=['Detainee Values', 'Society Values', 'Govt Cost'],
-            y=[0, result['society_sub3'], result['govt_sub3']],
+            y=[1, abs(result['society_sub3']) + 1, abs(result['govt_sub3']) + 1],
             marker_color='#1e40af',
             text=['',
                   f"${int(result['society_sub3']):,}",
@@ -1213,9 +1357,10 @@ def update_dashboard(scenario, det_p1, det_p2, soc_p1, soc_p2):
     ])
 
     sub_fig.update_layout(
-        title='Component Breakdown',
+        title='Component Breakdown (Log Scale)',
         xaxis_title='Main Components',
-        yaxis_title='Value ($)',
+        yaxis_title='Absolute Value ($) - Log Scale',
+        yaxis_type='log',
         barmode='group',
         paper_bgcolor='#f8fafc',
         plot_bgcolor='#ffffff',
@@ -1223,7 +1368,7 @@ def update_dashboard(scenario, det_p1, det_p2, soc_p1, soc_p2):
         margin=dict(t=50, b=80, l=80, r=40)
     )
 
-    return kpi_card, main_fig, sub_fig
+    return kpi_card, benchmark_card, main_fig, sub_fig
 
 
 # Download CSV callback

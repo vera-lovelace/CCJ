@@ -36,22 +36,22 @@ class ParameterRegistry:
             'crime_rate_mult': ParameterDefinition(
                 key='crime_rate_mult',
                 name='Crime Rate Impact',
-                description='How crime rate affects detention outcomes',
-                default_value=1.0,
+                description='The rate of felonies and misdemeanors across detained population',
+                default_value=0.7,
                 min_value=0.5,
-                max_value=1.5,
+                max_value=0.9,
                 dashboard_enabled=True,
                 dropdown_map={
-                    'below': 0.8,  # 50% crime rate
-                    'average': 1.0,  # 70% crime rate (baseline)
-                    'significant': 1.5  # 90% crime rate
+                    'below': 0.5,  # 50% felonies rate
+                    'average': 0.7,  # 70% felonies rate (baseline)
+                    'significant': 0.9  # 90% felonies rate
                 }
             ),
 
             'detainee_pop_mult': ParameterDefinition(
                 key='detainee_pop_mult',
                 name='Detainee Population Size',
-                description='Scales costs/benefits by population size',
+                description='Population of CCJ detainees in a year',
                 default_value=1.0,
                 min_value=0.8,
                 max_value=1.2,
@@ -84,12 +84,12 @@ class ParameterRegistry:
                 description='Average detention duration',
                 default_value=1.0,
                 min_value=0.7,
-                max_value=1.3,
+                max_value=3,
                 dashboard_enabled=True,
                 dropdown_map={
-                    'below': 0.7,  # Shorter stays
+                    'below': 0.7,  # 60 day stays
                     'average': 1.0,  # 70 days baseline
-                    'above': 1.3  # Longer stays
+                    'above': 3  # Longer stays of 203 days
                 }
             ),
 
