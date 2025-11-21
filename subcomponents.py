@@ -85,7 +85,7 @@ class SubcomponentRegistry:
         self.param_effects = {
             # ==================== DETAINEE VALUES ====================
             'det_wtp_freedom': [
-                'crime_rate_mult',  # Higher crime rate → higher WTP to avoid detention
+                'length_of_stay_mult',  # Longer stays → more harm during detention
                 'detainee_pop_mult'  # More detainees → scales total WTP
             ],
 
@@ -99,16 +99,19 @@ class SubcomponentRegistry:
             'soc_crime_prevention': [
                 'crime_weight_mult',  # Weight given to crime prevention effects
                 'community_size_mult'  # Larger community → more people affected
+                'detainee_pop_mult'  # More detainees → scales total harm
             ],
 
             'soc_victimization': [
                 'crime_weight_mult',  # Weight given to victimization costs
                 'community_size_mult'  # Larger community → more potential victims
+                'detainee_pop_mult'  # More detainees → scales total harm
             ],
 
             'soc_spillovers': [
                 'community_size_mult',  # Larger community → more spillover effects
                 'length_of_stay_mult'  # Longer detention → more community disruption
+                'detainee_pop_mult'  # More detainees → scales total harm
             ],
 
             'soc_court': [
@@ -117,13 +120,12 @@ class SubcomponentRegistry:
 
             # ==================== GOVERNMENT COST ====================
             'gov_operations': [
-                'detainee_pop_mult',  # More detainees → higher operational costs
-                'length_of_stay_mult'  # Longer stays → higher per-person costs
             ],
 
             'gov_health': [
                 'length_of_stay_mult',  # Longer stays → worse post-release outcomes
                 'recidivism_mult'  # Recidivism affects post-release trajectory
+                'detainee_pop_mult'  # More detainees → scales total harm
             ]
         }
 

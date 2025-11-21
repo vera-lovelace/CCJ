@@ -1136,37 +1136,6 @@ def update_dashboard(scenario, det_p1, det_p2, soc_p1, soc_p2):
             html.Span('ratio', className='kpi-ratio')
         ]),
 
-        # Component Tiles with clickable links
-        html.Div(className='kpi-components', children=[
-            # Detainee Values Tile
-            html.Div(className='kpi-component', children=[
-                html.A(href='#detainee-values-section', className='kpi-component-link', children=[
-                    html.H4('Detainee Values')
-                ]),
-                html.P(f"${int(result['detainee_values']):,}", style={'color': '#2563eb'}),
-                html.Span('2 subcomponents')
-            ]),
-
-            # Society Values Tile
-            html.Div(className='kpi-component', children=[
-                html.A(href='#society-values-section', className='kpi-component-link', children=[
-                    html.H4('Society Values')
-                ]),
-                html.P(f"${int(result['society_values']):,}", style={'color': '#16a34a'}),
-                html.Span('3 subcomponents')
-            ]),
-
-            # Government Cost Tile
-            html.Div(className='kpi-component', children=[
-                html.A(href='#government-cost-section', className='kpi-component-link', children=[
-                    html.H4('Government Cost')
-                ]),
-                html.P(f"${int(result['govt_cost']):,}", style={'color': '#dc2626'}),
-                html.Span('3 subcomponents')
-            ])
-        ]),
-
-
         # Interpretation section
         html.Div(className='kpi-interpretation', children=[
             html.Span(label, className='kpi-badge', style={
@@ -1217,6 +1186,37 @@ def update_dashboard(scenario, det_p1, det_p2, soc_p1, soc_p2):
                         )
                     ]
                 )
+            ])
+        ]),
+
+        # Component Tiles with clickable links
+        html.Div(className='kpi-components', children=[
+            # Detainee Values Tile
+            html.Div(className='kpi-component', children=[
+                html.A(href='#detainee-values-section', className='kpi-component-link', children=[
+                    html.H4('Values for Detainees')
+                ]),
+                html.P(f"${int(result['detainee_values']):,}", style={'color': '#2563eb'}),
+                html.Span('2 subcomponents')
+            ]),
+
+            # Society Values Tile
+            html.Div(className='kpi-component', children=[
+                html.A(href='#society-values-section', className='kpi-component-link', children=[
+                    html.H4('Value for Society')
+                ]),
+                html.P(f"${int(result['society_values']):,}", style={'color': '#16a34a'}),
+                html.Span('3 subcomponents')
+            ]),
+
+            # Government Cost Tile
+            html.Div(className='kpi-component', children=[
+                html.A(href='#government-cost-section', className='kpi-component-link', children=[
+                    html.H4('Government Costs')
+                ]),
+                html.P(f"${int(result['govt_cost']):,}", style={'color': '#dc2626'}),
+                html.Span('3 subcomponents'),
+
             ])
         ]),
 
@@ -1298,7 +1298,7 @@ def update_dashboard(scenario, det_p1, det_p2, soc_p1, soc_p2):
 
     main_fig = go.Figure(data=[
         go.Bar(
-            x=['Detainee Values<br>(negative)', 'Society Values', 'Government Cost'],
+            x=['Value for Detainees', 'Value for Society', 'Government Cost'],
             y=y_values,
             marker_color=colors,
             text=[f"${int(det_val):,}",
@@ -1309,7 +1309,7 @@ def update_dashboard(scenario, det_p1, det_p2, soc_p1, soc_p2):
     ])
 
     main_fig.update_layout(
-        title='MVPF Main Components (Log Scale)',
+        title='MVPF Main Components (Absolute values)',
         xaxis_title='',
         yaxis_title='Absolute Value ($) - Log Scale',
         yaxis_type='log',
