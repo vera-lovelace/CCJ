@@ -1099,10 +1099,10 @@ def calculate_mvpf(scenario, detainee_param1, detainee_param2, society_param1, s
      Input('society-param1', 'value'),
      Input('society-param2', 'value')]
 )
-
 def update_dashboard(scenario, det_p1, det_p2, soc_p1, soc_p2):
     # Calculate MVPF
     result = calculate_mvpf(scenario, det_p1, det_p2, soc_p1, soc_p2)
+
 
     mvpf = result['mvpf']
 

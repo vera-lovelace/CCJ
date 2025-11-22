@@ -23,6 +23,7 @@ class MVPFCalculator:
         """Load data once at startup."""
         # Load CSVs
         self.values = pd.read_csv(os.path.join(data_dir, 'subcomponent_values.csv'))
+        self.values.columns = self.values.columns.str.strip()  # Clean column names
 
         # Use CPIAdjuster
         self.cpi = CPIAdjuster(data_dir=data_dir)
@@ -33,14 +34,7 @@ class MVPFCalculator:
             scenarios_path=os.path.join(data_dir, 'alternative_calculations.json')
         )
 
-        # Extract weight values
-        self.weights = {}
-        weight_rows = self.values[self.values['component'] == 'weight']
-        for _, row in weight_rows.iterrows():
-            self.weights[row['row_var']] = float(row['selected_value'])
-
         print(f"✓ Loaded {len(self.values)} values, {len(self.scenario_manager.scenarios)} scenarios")
-        print(f"✓ Loaded weights: n_detainees={self.weights.get('n_detainees', 0):,.0f}, los={self.weights.get('los', 0):.0f} days")
 
     def calculate(self, scenario='baseline', params=None):
         """
@@ -159,6 +153,58 @@ class MVPFCalculator:
         for scenario in self.scenario_manager.list_scenarios():
             results.append(self.calculate(scenario, params))
         return results
+
+    def calculate_and_save_all(self, params=None, filename='mvpf_all_scenarios.csv'):
+        """
+        Calculate all scenarios with all components and save to CSV.
+
+        Args:
+            params: Optional parameter dict (uses defaults if None)
+            filename: Output CSV filename
+
+        Returns:
+            pd.DataFrame: Results dataframe
+        """
+        rows = []
+
+        for scenario_key in self.scenario_manager.list_scenarios():
+            result = self.calculate(scenario_key, params)
+
+            # Build row with all data
+            row = {
+                'scenario_key': result['scenario'],
+                'scenario_name': result['scenario_name'],
+                'mvpf': result['mvpf'],
+                'detainee_total': result['detainee_values'],
+                'society_total': result['society_values'],
+                'govt_total': result['govt_cost'],
+                'numerator': result['detainee_values'] + result['society_values'],
+            }
+
+            # Add detainee breakdown
+            for name, val in result['detainee_breakdown'].items():
+                row[f'det_{name}'] = val
+
+            # Add society breakdown
+            for name, val in result['society_breakdown'].items():
+                row[f'soc_{name}'] = val
+
+            # Add govt breakdown
+            for name, val in result['govt_breakdown'].items():
+                row[f'gov_{name}'] = val
+
+            # Add parameters used
+            for param_key, param_val in result['parameters_used'].items():
+                row[f'param_{param_key}'] = param_val
+
+            rows.append(row)
+
+        # Create DataFrame and save
+        df = pd.DataFrame(rows)
+        df.to_csv(filename, index=False)
+        print(f"✓ Saved {len(rows)} scenarios to {filename}")
+
+        return df
 
     def export_csv(self, results, filename='results.csv', include_metadata=True):
         """

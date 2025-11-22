@@ -1,0 +1,10 @@
+key,Name,description,default_value,min_value,max_value,dashboard_enabled
+length_of_stay_mult,Length of Stay,Average detention duration,1,0.7,3,1
+detainee_pop_mult,Detainee Population Size,Population of CCJ detainees in a year,1,0.8,1.2,1
+crime_rate_mult,Crime Rate Impact',"The rate of felonies and misdemeanors across detained population
+",0.7,0.5,0.9,1
+community_size_mult,Size of Community Affected,"Size of affected community
+",1,0.9,1.1,1
+recidivism_mult,"Recidivism Rate Impact
+",Impact of recidivism on long-term outcomes,1,0.6,1.4,0
+crime_weight_mult,Crime Prevention Weighting,Weight given to crime prevention benefits,1,0.5,2,

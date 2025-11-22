@@ -256,10 +256,7 @@ class ParameterEffectsRegistry:
             ],
 
             # ==================== GOVERNMENT COST ====================
-            'gov_operations': [
-                'detainee_pop_mult',  # More detainees → higher operational costs
-                'length_of_stay_mult',  # Longer stays → higher costs per person
-            ],
+            'gov_operations': [],  # Fixed cost - not scaled by parameters
 
             'gov_court_admin': [
                 'detainee_pop_mult',  # More detainees → more court processing
