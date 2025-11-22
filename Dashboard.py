@@ -10,7 +10,8 @@ import plotly.graph_objs as go
 from datetime import datetime
 
 from content_loader import ContentManager
-from mvpf_calculator import MVPFCalculator, dashboard_params
+from mvpf_calculator import MVPFCalculator
+from parameters import ParameterRegistry
 
 
 # Initialize content manager
@@ -18,6 +19,40 @@ content = ContentManager()
 
 # Initialize calculator once (singleton pattern for performance)
 calculator = MVPFCalculator(data_dir='Data')
+
+# Initialize parameter registry to get CSV-based dropdown options
+param_registry = ParameterRegistry(data_dir='Data')
+
+# Get parameter definitions for dropdown generation
+fel_rate_param = param_registry.params['fel_rate']
+los_days_param = param_registry.params['los_days']
+n_detainees_param = param_registry.params['n_detainees_mult']
+n_society_param = param_registry.params['n_society_mult']
+
+# Build dropdown options from CSV weights
+FEL_RATE_OPTIONS = [
+    {'label': f"Below Average ({fel_rate_param.dropdown_map['below']:.0%})", 'value': 'below'},
+    {'label': f"Average ({fel_rate_param.dropdown_map['average']:.0%})", 'value': 'average'},
+    {'label': f"Above Average ({fel_rate_param.dropdown_map['above']:.0%})", 'value': 'above'}
+]
+
+LOS_DAYS_OPTIONS = [
+    {'label': f"Short ({los_days_param.dropdown_map['below']:.0f} days)", 'value': 'below'},
+    {'label': f"Average ({los_days_param.dropdown_map['average']:.0f} days)", 'value': 'average'},
+    {'label': f"Long ({los_days_param.dropdown_map['above']:.0f} days)", 'value': 'above'}
+]
+
+N_DETAINEES_OPTIONS = [
+    {'label': f"Below Average ({n_detainees_param.dropdown_map['below']:.0%})", 'value': 'below'},
+    {'label': f"Average ({n_detainees_param.dropdown_map['average']:.0%})", 'value': 'average'},
+    {'label': f"Above Average ({n_detainees_param.dropdown_map['above']:.0%})", 'value': 'above'}
+]
+
+N_SOCIETY_OPTIONS = [
+    {'label': f"Below Average ({n_society_param.dropdown_map['below']:.0%})", 'value': 'below'},
+    {'label': f"Average ({n_society_param.dropdown_map['average']:.0%})", 'value': 'average'},
+    {'label': f"Above Average ({n_society_param.dropdown_map['above']:.0%})", 'value': 'above'}
+]
 
 # Initialize the Dash app
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
@@ -364,18 +399,14 @@ app.layout = html.Div(className='main-container', children=[
 
                     html.Div(className='control-group', children=[
                         html.Div(className='label-with-info', children=[
-                            html.Label('Detainees - Rate of felonies charged',
+                            html.Label(f"Felony Rate (base: {fel_rate_param.default_value:.0%})",
                                        className='control-label', style={'marginBottom': '0'}),
                             html.Span('i', className='info-icon',
-                                      **{'data-tooltip': 'Placeholder explainer text - WTP Freedom'})
+                                      **{'data-tooltip': fel_rate_param.description})
                         ]),
                         dcc.Dropdown(
                             id='detainee-param1',
-                            options=[
-                                {'label': 'Minimal(50%)', 'value': 'below'},
-                                {'label': 'Average (70%)', 'value': 'average'},
-                                {'label': 'Significant (90%)', 'value': 'significant'}
-                            ],
+                            options=FEL_RATE_OPTIONS,
                             value='average',
                             clearable=False
                         )
@@ -383,56 +414,44 @@ app.layout = html.Div(className='main-container', children=[
 
                     html.Div(className='control-group', children=[
                         html.Div(className='label-with-info', children=[
-                            html.Label('Detainee population size',
+                            html.Label(f"Detainee Population (base: {n_detainees_param.base_value:,.0f})",
                                        className='control-label', style={'marginBottom': '0'}),
                             html.Span('i', className='info-icon',
-                                      **{'data-tooltip': 'Placeholder explainer text - Relative Harm Valuation'})
+                                      **{'data-tooltip': n_detainees_param.description})
                         ]),
                         dcc.Dropdown(
                             id='detainee-param2',
-                            options=[
-                                {'label': 'Minimal', 'value': 'minimal'},
-                                {'label': 'Moderate', 'value': 'moderate'},
-                                {'label': 'Large', 'value': 'large'}
-                            ],
-                            value='moderate',
+                            options=N_DETAINEES_OPTIONS,
+                            value='average',
                             clearable=False
                         )
                     ]),
 
                     html.Div(className='control-group', children=[
                         html.Div(className='label-with-info', children=[
-                            html.Label('Community size',
+                            html.Label(f"Community Size (base: {n_society_param.base_value:,.0f})",
                                        className='control-label', style={'marginBottom': '0'}),
                             html.Span('i', className='info-icon',
-                                      **{'data-tooltip': 'Placeholder explainer text - Community Impact'})
+                                      **{'data-tooltip': n_society_param.description})
                         ]),
                         dcc.Dropdown(
                             id='society-param1',
-                            options=[
-                                {'label': 'Minimal', 'value': 'minimal'},
-                                {'label': 'Moderate', 'value': 'moderate'},
-                                {'label': 'Large', 'value': 'large'}
-                            ],
-                            value='moderate',
+                            options=N_SOCIETY_OPTIONS,
+                            value='average',
                             clearable=False
                         )
                     ]),
 
                     html.Div(className='control-group', children=[
                         html.Div(className='label-with-info', children=[
-                            html.Label('Length of Stay',
+                            html.Label(f"Length of Stay (base: {los_days_param.default_value:.0f} days)",
                                        className='control-label', style={'marginBottom': '0'}),
                             html.Span('i', className='info-icon',
-                                      **{'data-tooltip': 'Placeholder explainer text - Length of Stay'})
+                                      **{'data-tooltip': los_days_param.description})
                         ]),
                         dcc.Dropdown(
                             id='society-param2',
-                            options=[
-                                {'label': 'Below Average', 'value': 'below'},
-                                {'label': 'Average', 'value': 'average'},
-                                {'label': 'Above Average', 'value': 'above'}
-                            ],
+                            options=LOS_DAYS_OPTIONS,
                             value='average',
                             clearable=False
                         )
@@ -1028,6 +1047,41 @@ def toggle_gov_crime_decrease(n_clicks, style):
 Dashboard Callbacks
 """
 
+def convert_dropdown_to_params(fel_rate_sel, n_detainees_sel, n_society_sel, los_days_sel):
+    """
+    Convert dashboard dropdown selections to parameter values using the registry.
+
+    Parameters:
+    -----------
+    fel_rate_sel : str
+        Felony rate selection ('below', 'average', 'above')
+    n_detainees_sel : str
+        Detainee population selection ('below', 'average', 'above')
+    n_society_sel : str
+        Community size selection ('below', 'average', 'above')
+    los_days_sel : str
+        Length of stay selection ('below', 'average', 'above')
+
+    Returns:
+    --------
+    dict : Parameter values for calculator
+    """
+    # Get values from registry dropdown maps
+    fel_rate_val = fel_rate_param.dropdown_map.get(fel_rate_sel, fel_rate_param.default_value)
+    los_days_val = los_days_param.dropdown_map.get(los_days_sel, los_days_param.default_value)
+    n_det_mult = n_detainees_param.dropdown_map.get(n_detainees_sel, 1.0)
+    n_soc_mult = n_society_param.dropdown_map.get(n_society_sel, 1.0)
+
+    return {
+        'fel_rate': fel_rate_val,  # Direct value (0.5, 0.7, 1.0)
+        'los_days': los_days_val,  # Direct value in days (60, 70, 203)
+        'n_detainees_mult': n_det_mult,  # Multiplier (0.8, 1.0, 1.2)
+        'n_society_mult': n_soc_mult,  # Multiplier (0.8, 1.0, 1.2)
+        'crime_weight_mult': 1.0,
+        'recidivism_mult': 1.0
+    }
+
+
 def calculate_mvpf(scenario, detainee_param1, detainee_param2, society_param1, society_param2):
     """
     Calculate MVPF using the modular MVPFCalculator class
@@ -1037,24 +1091,24 @@ def calculate_mvpf(scenario, detainee_param1, detainee_param2, society_param1, s
     scenario : str
         Scenario name (e.g., 'baseline', 'most conservative', etc.)
     detainee_param1 : str
-        Crime rate parameter ('below', 'average', 'significant')
+        Felony rate selection ('below', 'average', 'above')
     detainee_param2 : str
-        Detainee population parameter ('below', 'average', 'above')
+        Detainee population selection ('below', 'average', 'above')
     society_param1 : str
-        Community size parameter ('below', 'average', 'above')
+        Community size selection ('below', 'average', 'above')
     society_param2 : str
-        Length of stay parameter ('below', 'average', 'above')
+        Length of stay selection ('below', 'average', 'above')
 
     Returns:
     --------
     dict : MVPF results with all breakdowns
     """
-    # Convert dashboard parameters to calculator format
-    params = dashboard_params(
-        crime_rate=detainee_param1,
-        detainee_pop=detainee_param2,
-        community_size=society_param1,
-        length_of_stay=society_param2
+    # Convert dashboard parameters to calculator format using registry
+    params = convert_dropdown_to_params(
+        fel_rate_sel=detainee_param1,
+        n_detainees_sel=detainee_param2,
+        n_society_sel=society_param1,
+        los_days_sel=society_param2
     )
 
     # Calculate MVPF
@@ -1387,12 +1441,12 @@ def download_csv(n_clicks, scenario, det_p1, det_p2, soc_p1, soc_p2):
     if n_clicks is None or n_clicks == 0:
         return None
 
-    # Convert dashboard parameters to calculator format
-    params = dashboard_params(
-        crime_rate=det_p1,
-        detainee_pop=det_p2,
-        community_size=soc_p1,
-        length_of_stay=soc_p2
+    # Convert dashboard parameters to calculator format using registry
+    params = convert_dropdown_to_params(
+        fel_rate_sel=det_p1,
+        n_detainees_sel=det_p2,
+        n_society_sel=soc_p1,
+        los_days_sel=soc_p2
     )
 
     # Calculate MVPF

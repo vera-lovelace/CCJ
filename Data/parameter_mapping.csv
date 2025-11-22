@@ -1,16 +1,16 @@
   row_var,parameter,effect_type,justification
-  det_wtp_freedom,length_of_stay_mult,multiplicative,Longer detention increases WTP to avoid it
-  det_wtp_freedom,detainee_pop_mult,multiplicative,More detainees scales the total WTP
-  det_rel_harm,length_of_stay_mult,multiplicative,Longer stays increase cumulative harm
-  det_rel_harm,detainee_pop_mult,multiplicative,Scales across population
-gov_health,length_of_stay_mult,multiplicative,Longer detention worsens post-release outcomes
+  det_wtp_freedom,los_days,multiplicative,Longer detention increases WTP to avoid it
+  det_wtp_freedom,n_detainees_mult,multiplicative,More detainees scales the total WTP
+  det_rel_harm,los_days,multiplicative,Longer stays increase cumulative harm
+  det_rel_harm,n_detainees_mult,multiplicative,Scales across population
+gov_health,los_days,multiplicative,Longer detention worsens post-release outcomes
 gov_health,recidivism_mult,multiplicative,Recidivism affects trajectory
-  soc_crime_prevention,community_size_mult,multiplicative,Larger community affected
-  soc_crime_prevention,detainee_pop_mult,multiplicative,More detainees reduce crime prev
-  soc_victimization,crime_rate_mult,multiplicative,Policy weight on victim costs
-  soc_victimization,community_size_mult,multiplicative,More potential victims
-  soc_spillovers,community_size_mult,multiplicative,More spillover in larger communities
-  soc_spillovers,detainee_pop_mult,multiplicative,More detainees reduce crime prev
-  soc_spillovers,length_of_stay_mult,multiplicative,Longer detention increases disruption
-soc_court,detainee_pop_mult,multiplicative,More processing needed
+  soc_crime_prevention,n_society_mult,multiplicative,Larger community affected
+  soc_crime_prevention,n_detainees_mult,multiplicative,More detainees reduce crime prev
+  soc_victimization,fel_rate,multiplicative,Policy weight on victim costs
+  soc_victimization,n_society_mult,multiplicative,More potential victims
+  soc_spillovers,n_society_mult,multiplicative,More spillover in larger communities
+  soc_spillovers,n_detainees_mult,multiplicative,More detainees reduce crime prev
+  soc_spillovers,los_days,multiplicative,Longer detention increases disruption
+soc_court,n_detainees_mult,multiplicative,More processing needed
   gov_long_term,recidivism_mult,multiplicative,Recidivism drives long-term costs

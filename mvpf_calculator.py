@@ -34,7 +34,18 @@ class MVPFCalculator:
             scenarios_path=os.path.join(data_dir, 'alternative_calculations.json')
         )
 
+        # Extract weight values (case-insensitive match for 'Weight')
+        self.weights = {}
+        weight_rows = self.values[self.values['component'].str.lower() == 'weight']
+
+        for _, row in weight_rows.iterrows():
+            self.weights[row['row_var']] = float(row['selected_value'])
+
         print(f"✓ Loaded {len(self.values)} values, {len(self.scenario_manager.scenarios)} scenarios")
+        print(f"✓ Loaded weights: n_detainees={self.weights.get('n_detainees', 0):,.0f}, "
+              f"los_days={self.weights.get('los_days', 0):.0f}, "
+              f"fel_rate={self.weights.get('fel_rate', 0):.2f}, "
+              f"n_society={self.weights.get('n_society', 0):,.0f}")
 
     def calculate(self, scenario='baseline', params=None):
         """
