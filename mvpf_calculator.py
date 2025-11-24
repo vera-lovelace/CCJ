@@ -149,12 +149,43 @@ class MVPFCalculator:
         return param_registry.convert_dashboard_input(**kwargs)
 
     def _get_multiplier(self, row_var, params):
-        """Get parameter multiplier for a subcomponent."""
+        """
+        Get parameter multiplier for a subcomponent.
+
+        For population-based parameters (n_detainees_mult, n_society_mult),
+        applies: base_value × multiplier (e.g., 33,945 × 1.0 = 33,945)
+
+        For adjustment-only parameters (n_detainees_adj, n_society_adj),
+        applies: just the multiplier (e.g., 1.0) without base
+
+        For direct value parameters (los_days, fel_rate),
+        applies the value directly (e.g., 70 days, 0.7 rate)
+        """
         effects = ParameterEffectsRegistry.get_effects_mapping()  # Single source!
 
         multiplier = 1.0
         for param in effects.get(row_var, []):
-            multiplier *= params.get(param, 1.0)
+            # For adjustment-only params, use the corresponding _mult param value
+            if param == 'n_detainees_adj':
+                # Just the adjustment multiplier (0.8/1.0/1.2), no base
+                multiplier *= params.get('n_detainees_mult', 1.0)
+            elif param == 'n_society_adj':
+                # Just the adjustment multiplier (0.8/1.0/1.2), no base
+                multiplier *= params.get('n_society_mult', 1.0)
+            # For full population params, apply base × multiplier
+            elif param == 'n_detainees_mult':
+                # base_n_detainees × adjustment_multiplier
+                base = self.weights.get('n_detainees', 33945)
+                param_value = params.get(param, 1.0)
+                multiplier *= base * param_value
+            elif param == 'n_society_mult':
+                # base_n_society × adjustment_multiplier
+                base = self.weights.get('n_society', 5171000)
+                param_value = params.get(param, 1.0)
+                multiplier *= base * param_value
+            else:
+                # Direct values (los_days, fel_rate, crime_weight_mult, etc.)
+                multiplier *= params.get(param, 1.0)
 
         return multiplier
 
@@ -311,25 +342,36 @@ class MVPFCalculator:
 
 # ==================== HELPER FUNCTION ====================
 
-def dashboard_params(crime_rate, detainee_pop, community_size, length_of_stay):
-    """Convert dashboard dropdowns to parameter dict."""
-    maps = {
-        'minimal': 0.8,
-        'below': 0.8,
-        'moderate': 1.0,
-        'average': 1.0,
-        'above': 1.2,
-        'large': 1.2,
-        'significant': 1.5
-    }
+def dashboard_params(fel_rate='average', n_detainees_mult='average', n_society_mult='average', los_days='average', crime_weight_mult=None):
+    """Convert dashboard dropdowns to parameter dict.
 
-    return {
-        'crime_rate_mult': maps.get(crime_rate, 1.0),
-        'detainee_pop_mult': maps.get(detainee_pop, 1.0),
-        'community_size_mult': maps.get(community_size, 1.0),
-        'length_of_stay_mult': maps.get(length_of_stay, 1.0),
-        'crime_weight_mult': maps.get(crime_rate, 1.0)  # Use crime_rate for crime_weight
-    }
+    Uses ParameterRegistry to get correct values:
+    - fel_rate: Felony rate (direct value from CSV, e.g., 0.7)
+    - n_detainees_mult: Detainee population multiplier (0.8, 1.0, 1.2)
+    - n_society_mult: Community size multiplier (0.8, 1.0, 1.2)
+    - los_days: Length of stay in days (direct value from CSV, e.g., 70)
+    - crime_weight_mult: Crime prevention weighting (optional)
+
+    Args:
+        fel_rate: 'below', 'average', or 'above'
+        n_detainees_mult: 'below', 'average', or 'above'
+        n_society_mult: 'below', 'average', or 'above'
+        los_days: 'below', 'average', or 'above'
+        crime_weight_mult: Optional crime weighting
+    """
+    # Use the ParameterRegistry for correct value mapping
+    result = param_registry.convert_dashboard_input(
+        fel_rate=fel_rate,
+        n_detainees=n_detainees_mult,
+        n_society=n_society_mult,
+        los_days=los_days
+    )
+
+    if crime_weight_mult is not None:
+        mult_maps = {'low': 0.5, 'moderate': 1.0, 'average': 1.0, 'high': 1.5}
+        result['crime_weight_mult'] = mult_maps.get(crime_weight_mult, 1.0)
+
+    return result
 
 
 # ==================== USAGE ====================

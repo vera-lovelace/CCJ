@@ -106,7 +106,7 @@ def create_subcomponents_chart(result):
 
 def create_comparison_chart(policies_data):
     """
-    Create comparison chart for multiple policies (optional - for future use).
+    Create comparison chart for multiple policies
 
     Args:
         policies_data (list): List of dicts with 'policy_name' and 'mvpf' keys
@@ -141,4 +141,73 @@ def create_comparison_chart(policies_data):
         showlegend=False
     )
 
+    return fig
+
+def create_denominator_chart(result):
+    """
+    Create bar chart showing main MVPF components in the denominator.
+
+    Args:
+        result (dict): MVPF calculation results
+
+    Returns:
+        plotly.graph_objs.Figure: Main components bar chart
+    """
+    fig = go.Figure(data=[
+        go.Bar(
+            x=['Government Cost'],
+            y=[result['govt_cost']],
+            marker_color=['#3b82f6', '#10b981', '#ef4444'],
+            text=[
+                f"${int(result['govt_cost']):,}"
+            ],
+            textposition='outside'
+        )
+    ])
+
+    fig.update_layout(
+        title='MVPF Government costs',
+        xaxis_title='',
+        yaxis_title='Value ($)',
+        paper_bgcolor='#f8fafc',
+        plot_bgcolor='#ffffff',
+        font=dict(family='system-ui', size=12),
+        margin=dict(t=50, b=80, l=80, r=40),
+        showlegend=False
+    )
+    return fig
+
+def create_numerator_chart(result):
+    """
+    Create bar chart showing main MVPF components for willingness to pay
+
+    Args:
+        result (dict): MVPF calculation results
+
+    Returns:
+        plotly.graph_objs.Figure: Main components bar chart
+    """
+    fig = go.Figure(data=[
+        go.Bar(
+            x=['Detainee Values', 'Society Values'],
+            y=[result['detainee_values'], result['society_values']],
+            marker_color=['#3b82f6', '#10b981', '#ef4444'],
+            text=[
+                f"${int(result['detainee_values']):,}",
+                f"${int(result['society_values']):,}"
+            ],
+            textposition='outside'
+        )
+    ])
+
+    fig.update_layout(
+        title='MVPF Main Components',
+        xaxis_title='',
+        yaxis_title='Value ($)',
+        paper_bgcolor='#f8fafc',
+        plot_bgcolor='#ffffff',
+        font=dict(family='system-ui', size=12),
+        margin=dict(t=50, b=80, l=80, r=40),
+        showlegend=False
+    )
     return fig

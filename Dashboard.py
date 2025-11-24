@@ -8,10 +8,19 @@ import dash
 from dash import dcc, html, Input, Output, State
 import plotly.graph_objs as go
 from datetime import datetime
+import pandas as pd
+import os
 
 from content_loader import ContentManager
 from mvpf_calculator import MVPFCalculator
 from parameters import ParameterRegistry
+
+
+def load_benchmarks(data_dir='Data'):
+    """Load benchmark comparison data from CSV file."""
+    filepath = os.path.join(data_dir, 'mvpf_comparisons.csv')
+    df = pd.read_csv(filepath)
+    return df.to_dict('records')
 
 
 # Initialize content manager
@@ -414,6 +423,77 @@ app.index_string = '''
                     grid-template-columns: 1fr;
                 }
             }
+            .benchmark-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                margin-top: 16px;
+            }
+            @media (max-width: 900px) {
+                .benchmark-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+            .benchmark-tile {
+                background: #f9fafb;
+                border-radius: 8px;
+                padding: 16px;
+                border: 1px solid #e5e7eb;
+                transition: all 0.2s ease;
+            }
+            .benchmark-tile:hover {
+                border-color: #3b82f6;
+                box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+            }
+            .benchmark-tile-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 8px;
+            }
+            .benchmark-tile-value {
+                font-size: 24px;
+                font-weight: 700;
+                line-height: 1;
+            }
+            .benchmark-tile-value.positive {
+                color: #16a34a;
+            }
+            .benchmark-tile-value.negative {
+                color: #dc2626;
+            }
+            .benchmark-tile-comparison {
+                font-size: 12px;
+                font-weight: 600;
+                padding: 4px 8px;
+                border-radius: 9999px;
+            }
+            .benchmark-tile-comparison.better {
+                background: #dcfce7;
+                color: #16a34a;
+            }
+            .benchmark-tile-comparison.worse {
+                background: #fee2e2;
+                color: #dc2626;
+            }
+            .benchmark-tile-name {
+                font-size: 13px;
+                font-weight: 500;
+                color: #374151;
+                margin-bottom: 4px;
+                line-height: 1.3;
+            }
+            .benchmark-tile-link {
+                font-size: 11px;
+                color: #3b82f6;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+            }
+            .benchmark-tile-link:hover {
+                text-decoration: underline;
+            }
         </style>
     </head>
     <body>
@@ -515,6 +595,31 @@ app.layout = html.Div(className='main-container', children=[
         ])
     ]),
 
+    # Calculate Button Section
+    html.Div(className='calculate-section', style={
+        'display': 'flex',
+        'justifyContent': 'center',
+        'marginBottom': '24px'
+    }, children=[
+        html.Button(
+            'Calculate MVPF',
+            id='btn-calculate',
+            n_clicks=0,
+            style={
+                'backgroundColor': '#2563eb',
+                'color': 'white',
+                'border': 'none',
+                'borderRadius': '8px',
+                'padding': '14px 48px',
+                'fontSize': '16px',
+                'fontWeight': '600',
+                'cursor': 'pointer',
+                'transition': 'all 0.2s',
+                'boxShadow': '0 4px 6px rgba(37, 99, 235, 0.25)'
+            }
+        )
+    ]),
+
     # Main Content
     html.Div(children=[
                 # Download section
@@ -565,9 +670,17 @@ app.layout = html.Div(className='main-container', children=[
                                     # KPI Card
                                     html.Div(id='kpi-card'),
 
-                                    # Main Components Chart
-                                    html.Div(className='chart-container', children=[
-                                        dcc.Graph(id='main-components-chart')
+                                    # Charts Row: Numerator and Denominator side by side
+                                    html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '16px'}, children=[
+                                        # Numerator Chart (Detainee + Society Values)
+                                        html.Div(className='chart-container', children=[
+                                            dcc.Graph(id='numerator-chart')
+                                        ]),
+
+                                        # Denominator Chart (Government Cost vs Numerator)
+                                        html.Div(className='chart-container', children=[
+                                            dcc.Graph(id='denominator-chart')
+                                        ])
                                     ])
                                 ]),
 
@@ -1305,75 +1418,176 @@ def _build_interpretation_card():
     ])
 
 
-def _build_benchmark_card():
-    """Build the benchmark comparison card component."""
+def _build_benchmark_chart(current_mvpf, benchmarks):
+    """Build the benchmark comparison bar chart."""
+    # Prepare data: current MVPF first, then benchmarks
+    names = ['Current MVPF']
+    values = [current_mvpf]
+    colors = ['#2563eb']  # Blue for current
+
+    for benchmark in benchmarks:
+        bench_mvpf = float(benchmark['mvpf_value'])
+        description = benchmark['Description']
+        # Shorten long names for chart labels
+        short_name = description if len(description) <= 25 else description[:22] + '...'
+        names.append(short_name)
+        values.append(bench_mvpf)
+        # Color based on positive/negative
+        colors.append('#16a34a' if bench_mvpf >= 0 else '#dc2626')
+
+    # Create bar chart
+    fig = go.Figure(data=[
+        go.Bar(
+            x=names,
+            y=values,
+            marker_color=colors,
+            text=[f"{v:.2f}" for v in values],
+            textposition='outside',
+            textfont=dict(size=11)
+        )
+    ])
+
+    # Calculate y-axis range
+    min_val = min(values)
+    max_val = max(values)
+    padding = max(abs(max_val), abs(min_val)) * 0.15
+    y_range = [min(0, min_val - padding), max(0, max_val + padding)]
+
+    fig.update_layout(
+        title=None,
+        xaxis_title='',
+        yaxis_title='MVPF',
+        yaxis_range=y_range,
+        paper_bgcolor='white',
+        plot_bgcolor='#f9fafb',
+        font=dict(family='system-ui', size=11),
+        margin=dict(t=20, b=80, l=50, r=20),
+        showlegend=False,
+        xaxis_tickangle=-35,
+        height=280
+    )
+
+    # Add horizontal line at y=0
+    fig.add_hline(y=0, line_dash="solid", line_color="#9ca3af", line_width=1)
+
+    # Add horizontal line at y=1 (break-even point)
+    fig.add_hline(y=1, line_dash="dash", line_color="#f59e0b", line_width=1,
+                  annotation_text="Break-even", annotation_position="right")
+
+    return fig
+
+
+def _build_benchmark_card(current_mvpf):
+    """Build the benchmark comparison card component with dynamic tiles and chart."""
+    benchmarks = load_benchmarks()
+
+    # Build comparison chart
+    benchmark_chart = _build_benchmark_chart(current_mvpf, benchmarks)
+
+    benchmark_tiles = []
+    for benchmark in benchmarks:
+        bench_mvpf = float(benchmark['mvpf_value'])
+        description = benchmark['Description']
+        source_link = benchmark['source_link']
+
+        # Calculate percentage comparison
+        if current_mvpf != 0:
+            if bench_mvpf >= 0 and current_mvpf >= 0:
+                # Both positive: compare directly
+                pct_diff = ((current_mvpf - bench_mvpf) / abs(bench_mvpf)) * 100 if bench_mvpf != 0 else 0
+            elif bench_mvpf < 0 and current_mvpf >= 0:
+                # Benchmark negative, current positive: CCJ is better
+                pct_diff = abs(current_mvpf - bench_mvpf) / abs(bench_mvpf) * 100
+            elif bench_mvpf >= 0 and current_mvpf < 0:
+                # Benchmark positive, current negative: CCJ is worse
+                pct_diff = -abs(current_mvpf - bench_mvpf) / abs(bench_mvpf) * 100
+            else:
+                # Both negative: less negative is better
+                pct_diff = ((bench_mvpf - current_mvpf) / abs(bench_mvpf)) * 100
+        else:
+            pct_diff = 0
+
+        # Determine if CCJ is better or worse
+        is_better = current_mvpf > bench_mvpf
+
+        # Value styling
+        value_class = 'positive' if bench_mvpf >= 0 else 'negative'
+        comparison_class = 'better' if is_better else 'worse'
+
+        # Format comparison text
+        if is_better:
+            comparison_text = f"+{abs(pct_diff):.0f}%" if pct_diff != 0 else "Same"
+        else:
+            comparison_text = f"-{abs(pct_diff):.0f}%" if pct_diff != 0 else "Same"
+
+        # Get first source link if multiple
+        first_link = source_link.split(',')[0].strip()
+
+        tile = html.Div(className='benchmark-tile', children=[
+            html.Div(className='benchmark-tile-header', children=[
+                html.Span(f"{bench_mvpf:.2f}", className=f'benchmark-tile-value {value_class}'),
+                html.Span(comparison_text, className=f'benchmark-tile-comparison {comparison_class}')
+            ]),
+            html.Div(className='benchmark-tile-name', children=description),
+            html.A(
+                'View Source',
+                href=first_link,
+                target='_blank',
+                className='benchmark-tile-link'
+            )
+        ])
+        benchmark_tiles.append(tile)
+
     return html.Div(className='kpi-card', children=[
         html.H3('Comparative Benchmarking', style={
             'fontSize': '20px',
             'fontWeight': '600',
             'color': '#1e293b',
-            'marginBottom': '16px',
+            'marginBottom': '8px',
             'marginTop': '0'
         }),
-        html.P('CCJ program relative to federal programs:', style={
+        html.P([
+            'Your MVPF: ',
+            html.Strong(f'{current_mvpf:.2f}'),
+            ' compared to other programs'
+        ], style={
             'fontSize': '14px',
             'color': '#6b7280',
             'marginBottom': '16px',
-            'fontWeight': '500'
+            'fontWeight': '400'
         }),
-        html.Ul(
-            style={
-                'margin': '0',
-                'paddingLeft': '20px',
-                'color': '#374151',
-                'fontSize': '14px',
-                'lineHeight': '1.8'
-            },
-            children=[
-                html.Li([html.Strong('23×'), ' more cost-effective: Supplemental Security Income (SSI)']),
-                html.Li([html.Strong('6.1×'), ' more cost-effective: Food Stamps (SNAP)']),
-                html.Li([html.Strong('1.2×'), ' more cost-effective: Mandated Mental Health Treatment in the Criminal Justice System']),
-                html.Li([html.Strong('3.7×'), ' less harmful: American Opportunity Tax Credit (AOTC)'])
-            ]
+        # Benchmark comparison chart
+        dcc.Graph(
+            figure=benchmark_chart,
+            config={'displayModeBar': False}
         ),
-        html.P('Source: Policy benchmarks based on comparative MVPF analysis', style={
-            'fontSize': '11px',
-            'color': '#9ca3af',
-            'marginTop': '16px',
-            'marginBottom': '0',
-            'fontStyle': 'italic'
-        })
+        # Benchmark tiles grid
+        html.Div(className='benchmark-grid', style={'marginTop': '16px'}, children=benchmark_tiles)
     ])
 
 
-def _build_main_components_chart(result):
-    """Build the main components bar chart."""
+def _build_numerator_chart(result):
+    """Build the numerator chart showing Detainee Values and Society Values."""
     det_val = result['detainee_values']
     soc_val = result['society_values']
-    gov_val = result['govt_cost']
-
-    y_values = [abs(det_val) + 1, abs(soc_val) + 1, abs(gov_val) + 1]
-    colors = [
-        '#ef4444' if det_val < 0 else '#3b82f6',
-        '#10b981' if soc_val >= 0 else '#ef4444',
-        '#22c55e' if gov_val < 0 else '#ef4444'
-    ]
 
     fig = go.Figure(data=[
         go.Bar(
-            x=['Value for Detainees', 'Value for Society', 'Government Cost'],
-            y=y_values,
-            marker_color=colors,
-            text=[f"${int(det_val):,}", f"${int(soc_val):,}", f"${int(gov_val):,}"],
+            x=['Detainee Values', 'Society Values'],
+            y=[det_val, soc_val],
+            marker_color=['#3b82f6', '#10b981'],
+            text=[
+                f"${int(det_val):,}",
+                f"${int(soc_val):,}"
+            ],
             textposition='outside'
         )
     ])
 
     fig.update_layout(
-        title='MVPF Main Components (Absolute values)',
+        title='MVPF Numerator: Willingness to Pay',
         xaxis_title='',
-        yaxis_title='Absolute Value ($) - Log Scale',
-        yaxis_type='log',
+        yaxis_title='Value ($)',
         paper_bgcolor='#f8fafc',
         plot_bgcolor='#ffffff',
         font=dict(family='system-ui', size=12),
@@ -1384,46 +1598,103 @@ def _build_main_components_chart(result):
     return fig
 
 
-def _build_subcomponents_chart(result):
-    """Build the subcomponents grouped bar chart."""
+def _build_denominator_chart(result):
+    """Build the denominator chart showing Government Cost vs Numerator (Detainee + Society)."""
+    gov_val = result['govt_cost']
+    det_val = result['detainee_values']
+    soc_val = result['society_values']
+    numerator = det_val + soc_val
+
+    # Determine colors based on values (negative = red, positive = green/blue)
+    numerator_color = '#10b981' if numerator >= 0 else '#ef4444'
+
     fig = go.Figure(data=[
         go.Bar(
-            name='Subcomp 1',
-            x=['Detainee Values', 'Society Values', 'Govt Cost'],
-            y=[abs(result['detainee_sub1']) + 1, abs(result['society_sub1']) + 1, abs(result['govt_sub1']) + 1],
-            marker_color='#93c5fd',
-            text=[f"${int(result['detainee_sub1']):,}", f"${int(result['society_sub1']):,}", f"${int(result['govt_sub1']):,}"],
-            textposition='outside'
-        ),
-        go.Bar(
-            name='Subcomp 2',
-            x=['Detainee Values', 'Society Values', 'Govt Cost'],
-            y=[abs(result['detainee_sub2']) + 1, abs(result['society_sub2']) + 1, abs(result['govt_sub2']) + 1],
-            marker_color='#3b82f6',
-            text=[f"${int(result['detainee_sub2']):,}", f"${int(result['society_sub2']):,}", f"${int(result['govt_sub2']):,}"],
-            textposition='outside'
-        ),
-        go.Bar(
-            name='Subcomp 3',
-            x=['Detainee Values', 'Society Values', 'Govt Cost'],
-            y=[1, abs(result['society_sub3']) + 1, abs(result['govt_sub3']) + 1],
-            marker_color='#1e40af',
-            text=['', f"${int(result['society_sub3']):,}", f"${int(result['govt_sub3']):,}"],
+            x=['Numerator\n(Det + Soc)', 'Government Cost'],
+            y=[numerator, gov_val],
+            marker_color=[numerator_color, '#ef4444'],
+            text=[f"${int(numerator):,}", f"${int(gov_val):,}"],
             textposition='outside'
         )
     ])
 
     fig.update_layout(
-        title='Component Breakdown (Log Scale)',
-        xaxis_title='Main Components',
-        yaxis_title='Absolute Value ($) - Log Scale',
-        yaxis_type='log',
-        barmode='group',
+        title='MVPF: Numerator vs Denominator',
+        xaxis_title='',
+        yaxis_title='Value ($)',
         paper_bgcolor='#f8fafc',
         plot_bgcolor='#ffffff',
         font=dict(family='system-ui', size=12),
-        margin=dict(t=50, b=80, l=80, r=40)
+        margin=dict(t=50, b=100, l=80, r=40),
+        showlegend=False
     )
+
+    return fig
+
+
+def _build_subcomponents_chart(result):
+    """Build the subcomponents bar chart with variable names and auto-scaling."""
+    # Collect all subcomponents with their variable names and values
+    subcomponents = []
+    colors = []
+
+    # Detainee subcomponents (blue)
+    for var_name, value in result.get('detainee_breakdown', {}).items():
+        subcomponents.append({'name': var_name, 'value': value, 'category': 'Detainee'})
+        colors.append('#3b82f6')
+
+    # Society subcomponents (green)
+    for var_name, value in result.get('society_breakdown', {}).items():
+        subcomponents.append({'name': var_name, 'value': value, 'category': 'Society'})
+        colors.append('#10b981')
+
+    # Government subcomponents (red)
+    for var_name, value in result.get('govt_breakdown', {}).items():
+        subcomponents.append({'name': var_name, 'value': value, 'category': 'Govt'})
+        colors.append('#ef4444')
+
+    # Extract data for the chart
+    names = [s['name'] for s in subcomponents]
+    values = [s['value'] for s in subcomponents]
+    text_labels = [f"${int(v):,}" for v in values]
+
+    # Calculate y-axis range to ensure all bars are visible
+    if values:
+        min_val = min(values)
+        max_val = max(values)
+        # Add padding (20%) to ensure text labels are visible
+        padding = max(abs(max_val), abs(min_val)) * 0.2
+        y_range = [min(0, min_val - padding), max(0, max_val + padding)]
+    else:
+        y_range = None
+
+    fig = go.Figure(data=[
+        go.Bar(
+            x=names,
+            y=values,
+            marker_color=colors,
+            text=text_labels,
+            textposition='outside',
+            textfont=dict(size=10)
+        )
+    ])
+
+    fig.update_layout(
+        title='Subcomponent Breakdown',
+        xaxis_title='',
+        yaxis_title='Value ($)',
+        yaxis_range=y_range,
+        paper_bgcolor='#f8fafc',
+        plot_bgcolor='#ffffff',
+        font=dict(family='system-ui', size=11),
+        margin=dict(t=50, b=100, l=100, r=40),
+        showlegend=False,
+        xaxis_tickangle=-45,
+        bargap=0.3
+    )
+
+    # Add a horizontal line at y=0 for reference
+    fig.add_hline(y=0, line_dash="solid", line_color="#9ca3af", line_width=1)
 
     return fig
 
@@ -1517,15 +1788,17 @@ def register_callbacks(app):
         [Output('kpi-card', 'children'),
          Output('benchmark-card', 'children'),
          Output('interpretation-card', 'children'),
-         Output('main-components-chart', 'figure'),
+         Output('numerator-chart', 'figure'),
+         Output('denominator-chart', 'figure'),
          Output('subcomponents-chart', 'figure')],
-        [Input('scenario-selector', 'value'),
-         Input('detainee-param1', 'value'),
-         Input('detainee-param2', 'value'),
-         Input('society-param1', 'value'),
-         Input('society-param2', 'value')]
+        [Input('btn-calculate', 'n_clicks')],
+        [State('scenario-selector', 'value'),
+         State('detainee-param1', 'value'),
+         State('detainee-param2', 'value'),
+         State('society-param1', 'value'),
+         State('society-param2', 'value')]
     )
-    def update_dashboard(scenario, det_p1, det_p2, soc_p1, soc_p2):
+    def update_dashboard(n_clicks, scenario, det_p1, det_p2, soc_p1, soc_p2):
         """Main callback to update all dashboard components."""
         # Get params for display in KPI card
         params = _convert_dropdown_to_params(
@@ -1551,11 +1824,12 @@ def register_callbacks(app):
         # Build components
         kpi_card = _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params)
         interpretation_card = _build_interpretation_card()
-        benchmark_card = _build_benchmark_card()
-        main_fig = _build_main_components_chart(result)
+        benchmark_card = _build_benchmark_card(mvpf)
+        numerator_fig = _build_numerator_chart(result)
+        denominator_fig = _build_denominator_chart(result)
         sub_fig = _build_subcomponents_chart(result)
 
-        return kpi_card, benchmark_card, interpretation_card, main_fig, sub_fig
+        return kpi_card, benchmark_card, interpretation_card, numerator_fig, denominator_fig, sub_fig
 
     # -------------------------------------------------------------------------
     # Download CSV Callback

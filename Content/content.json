@@ -1,13 +1,13 @@
 {
   "header": {
     "title": " MVPF Analysis Dashboard",
-    "subtitle": "Marginal Value of Public Funds Calculation"
+    "subtitle": "Understanding the Marginal Value of Pre-Trial Detainment"
   },
   "info_tile": {
-    "heading": "About MVPF",
-    "description": "The MVPF measures the ratio of beneficiaries' willingness to pay to the net cost to the government.",
-    "formula_label": "Formula:",
-    "formula": "MVPF = (Detainee + Society) / Government Cost"
+    "heading": "What is MVPF?",
+    "description": "The Marginal Value of Public Funds (MVPF) is a metric that measures the social welfare benefit of a policy per dollar of government spending. It represents how much value beneficiaries receive relative to what the policy costs.",
+    "formula_label": "Applying MVPF to detention",
+    "formula": "Most MVPF work looks at policies where the person subject to the policy is also the main beneficiary, such as cash transfers. Detention is different. Jail is imposed on detainees but is justified as benefiting the general public. That is why this tool tracks both Detainee effects and broader Society effects when calculating the MVPF of detention.\n\nMost studies on detention focus on marginal changes, like one extra day in jail or one additional person detained. This tool instead looks at the overall or infra-marginal picture for a facility, using Cook County Jail as the baseline case. It uses the full annual costs of operating the jail and the full set of impacts on people who are detained to summarize those tradeoffs in an MVPF-style framework."
   },
   "tabs": {
     "overview": "Baseline MVPF Calculation",
@@ -19,20 +19,20 @@
   "controls": {
     "section_title": "Analysis Parameters",
     "felony_rate": {
-      "title": "Felony Rate",
+      "title": "What percentage of misdemeanors and felonies should be detained?",
       "tooltip": "The proportion of detainees that have been charged with at least one felony"
     },
     "detainee_population": {
-      "title": "Detainee Population",
-      "tooltip": "The number of individuals detained for at least one night over the course of the year"
+      "title": "Select Detainee Population Size",
+      "tooltip": "The number of individuals detained at Cook County Jail for at least sixty nights over the course of the year was 34,000 "
     },
     "community_size": {
-      "title": "Community Size",
+      "title": "Select Community Size",
       "tooltip": "The number of individuals who live in the jurisdiction of the detention center"
     },
     "length_of_stay": {
-      "title": "Length of Stay",
-      "tooltip": "The average number of days detainees are detained"
+      "title": "How long an individual should be detained on average?",
+      "tooltip": "The average number of days detainees are detained in Cook County Jail was 70 days in 2018. "
     }
   },
   "scenarios": {
@@ -144,15 +144,15 @@
     "main_components": {
       "title": "MVPF Main Components (Absolute values)",
       "x_labels": ["Value for Detainees", "Value for Society", "Government Cost"],
-      "y_axis_label": "Absolute Value ($) - Log Scale",
+      "y_axis_label": "Net Value ($)",
       "description": "Bar graph showing the total value for each main MVPF component (Detainees, Society, Government), combining all selected subcomponents. Positive values indicate net benefits and negative values indicate net harms or costs."
     },
     "subcomponents": {
       "title": "Component Breakdown (Log Scale)",
       "x_labels": ["Detainee Values", "Society Values", "Govt Cost"],
       "x_axis_label": "Main Components",
-      "y_axis_label": "Absolute Value ($) - Log Scale",
-      "legend": ["Subcomp 1", "Subcomp 2", "Subcomp 3"],
+      "y_axis_label": "Net Value ($) ",
+      "legend": [ ],
       "description": "Bar graph showing how each main MVPF component is broken down into its subcomponents, with values indicating the contribution of each subcomponent to the overall Detainee, Society, and Government totals."
     }
   },

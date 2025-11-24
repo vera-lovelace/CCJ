@@ -53,7 +53,7 @@ from helpers import (
     get_mvpf_rating
 )
 
-# Scenario management (if needed externally)
+# Scenario management
 from scenarios import ScenarioManager
 
 # Content management

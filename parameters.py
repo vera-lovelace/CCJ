@@ -184,12 +184,6 @@ class ParameterRegistry:
             n_society: 'below' | 'average' | 'above'
             los_days: 'below' | 'average' | 'above'
 
-        Args (legacy names, still supported):
-            crime_rate: 'below' | 'average' | 'significant'
-            detainee_pop: 'below' | 'moderate' | 'above'
-            community_size: 'below' | 'moderate' | 'above'
-            length_of_stay: 'below' | 'average' | 'above'
-
         Returns:
             Dict of parameter values (direct values and multipliers)
         """
@@ -201,11 +195,7 @@ class ParameterRegistry:
             'n_detainees': 'n_detainees_mult',
             'n_society': 'n_society_mult',
             'los_days': 'los_days',
-            # Legacy mappings
-            'crime_rate': 'crime_rate_mult',
-            'detainee_pop': 'detainee_pop_mult',
-            'community_size': 'community_size_mult',
-            'length_of_stay': 'length_of_stay_mult'
+
         }
 
         # Convert each input
@@ -276,6 +266,11 @@ class ParameterEffectsRegistry:
         """
         Get mapping of subcomponents to their affecting parameters.
 
+        row_var names must match subcomponent_values.csv exactly:
+        - det_wtp_freedom, det_rel_harm (detainee_values)
+        - soc_court, soc_crime_prevention, soc_spillover, soc_victimization (society_values)
+        - gov_operations, gov_health (govt_cost)
+
         Returns:
             Dict mapping row_var to list of parameter keys
         """
@@ -286,53 +281,38 @@ class ParameterEffectsRegistry:
                 'n_detainees_mult',  # Scales total across population
             ],
 
-            'det_harm_during': [
-                'los_days',  # Longer stays → more harm accumulates
-                'n_detainees_mult',  # Scales total across population
-            ],
-
             'det_rel_harm': [
                 'los_days',  # Longer stays → more harm accumulates (RHV)
-                'n_detainees_mult',  # Scales total across population
-            ],
-
-            'det_post_release': [
-                'los_days',  # Longer detention → worse post-release outcomes
-                'recidivism_mult',  # Recidivism affects post-release trajectory
+                # Note: RHV value ($295,275/day) is already a daily aggregate total,
+                # NOT per-detainee. Don't multiply by n_detainees.
             ],
 
             # ==================== SOCIETY VALUES ====================
             'soc_court': [
-                'n_detainees_mult',  # More detainees → more court appearances
+                'n_detainees_mult',  # Per detainee value × detainee population
             ],
 
             'soc_crime_prevention': [
-                'crime_weight_mult',  # Policy weight on crime prevention
-                'n_society_mult',  # Larger community → more people affected
+                # Unit: "dollars per detainee" - value is $0 currently
+                'n_detainees_mult',  # Per detainee value × detainee population
                 'fel_rate',  # Felony rate affects crime prevention value
             ],
 
             'soc_victimization': [
-                'crime_weight_mult',  # Policy weight on victim costs
-                'n_society_mult',  # Larger community → more potential victims
-                'fel_rate',  # Felony rate affects victimization costs
+                # Unit: "dollar per victim" - $875,000 per victim
+                # This is a per-victim cost, not per-detainee or per-society
+                # Don't multiply by population - it's already a unit cost
+                'fel_rate',  # Felony rate affects victimization likelihood
             ],
 
-            'soc_spillovers': [
-                'n_society_mult',  # Larger community → more spillover effects
-                'los_days',  # Longer detention → more disruption
+            'soc_spillover': [  # Note: no 's' - matches CSV
+                # Unit: "dollars per detainee" - $294,728 per detainee
+                'n_detainees_mult',  # Per detainee value × detainee population (base × mult)
+                'n_society_adj',  # Society weight adjustment only (0.8/1.0/1.2), no base
             ],
 
             # ==================== GOVERNMENT COST ====================
             'gov_operations': [],  # Fixed cost - not scaled by parameters
-
-            'gov_court_admin': [
-                'n_detainees_mult',  # More detainees → more court processing
-            ],
-
-            'gov_long_term': [
-                'recidivism_mult',  # Higher recidivism → more long-term costs
-            ],
 
             'gov_health': [
                 'n_detainees_mult',  # More detainees → more health costs
@@ -496,11 +476,6 @@ class ParameterValidator:
         'n_detainees_mult': (0.5, 2.0),  # Detainee population multiplier
         'n_society_mult': (0.7, 1.5),  # Community size multiplier
 
-        # Legacy parameter names (for backward compatibility)
-        'crime_rate_mult': (0.3, 1.0),  # Maps to fel_rate
-        'detainee_pop_mult': (0.5, 2.0),  # Maps to n_detainees_mult
-        'community_size_mult': (0.7, 1.5),  # Maps to n_society_mult
-        'length_of_stay_mult': (0.5, 3.0),  # Multiplier version of los_days
 
         # Other parameters
         'crime_weight_mult': (0.2, 3.0),

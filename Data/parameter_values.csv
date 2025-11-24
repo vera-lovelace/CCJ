@@ -7,4 +7,4 @@ n_society_mult,Size of Community Affected,"Size of affected community
 ",1,0.9,1.1,1
 recidivism_mult,"Recidivism Rate Impact
 ",Impact of recidivism on long-term outcomes,1,0.6,1.4,0
-crime_weight_mult,Crime Prevention Weighting,Weight given to crime prevention benefits,1,0.5,2,
+crime_weight_mult,Crime Prevention Weighting,Weight given to crime prevention benefits,1,0.5,2,1

@@ -279,31 +279,3 @@ class EnhancedScenarioManager:
         print(f"✓ Exported {len(self.scenarios)} scenarios to {path}")
 
 
-#_if__name__ == "__main__":
-    # Example usage
-    # Example 1: Use scenario with default parameters
-    #calc = MVPFCalculator()
-    #result = calc.calculate('diversion_program')
-    #print(f"MVPF: {result['mvpf']:.2f}")
-    #print(f"Parameters used: {result['parameters_used']}")
-
-    # Example 2: Override scenario parameters
-    #custom_params = {'detainee_pop_mult': 0.9}
-    #result = calc.calculate('diversion_program', params=custom_params)
-
-    # Example 3: Compare scenarios
-    #scenarios = ['baseline', 'diversion_program', 'bail_reform']
-    #results = [calc.calculate(s) for s in scenarios]
-    #for r in results:
-     #   print(f"{r['scenario_name']:30s} MVPF: {r['mvpf']:.2f}")
-
-    # Example 4: Sensitivity analysis per scenario
-    #from parameters import ParameterSensitivityAnalyzer
-
-    #analyzer = ParameterSensitivityAnalyzer(calc)
-    #for scenario in scenarios:
-    #    scenario_def = calc.scenario_manager.get_scenario(scenario)
-    #    params = scenario_def.get_parameters()
-    #    sensitivity = analyzer.run_sensitivity(params, scenario)
-    #    print(f"\n{scenario} - Most sensitive parameter: {sensitivity.iloc[0]['parameter']}")
-

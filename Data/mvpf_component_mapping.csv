@@ -1,10 +1,9 @@
-subcomponent,baseline,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
-det_wtp,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0
-det_rhv,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1
-soc_court,1,0,1,1,0,0,1,1,0,0,1,1,0,0,1,0
-soc_crimeprev,0,0,0,0,1,1,1,1,0,0,0,0,1,1,1,1
-soc_community,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0
-govt_operative,1,1,1,1,1,0,0,0,0,1,1,1,0,0,0,0
-govt_health,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0
-govt_refractions,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0
-no. of criteria,5,4,4,4,6,5,5,5,3,4,4,4,3,3,3,2
+subcomponent,baseline,Least conserv,3,conservative,all-in
+det_wtp,0,0,1,1,1
+det_rhv,1,1,0,0,1
+soc_court,1,1,1,1,1
+soc_crimeprev,0,0,0,0,1
+soc_community,0,1,1,0,1
+govt_operative,1,1,1,1,1
+govt_health,0,0,1,0,1
+govt_refractions,0,0,0,0,1
