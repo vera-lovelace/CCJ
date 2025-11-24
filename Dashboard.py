@@ -1547,9 +1547,7 @@ def _build_benchmark_card(current_mvpf):
             'marginTop': '0'
         }),
         html.P([
-            'Your MVPF: ',
-            html.Strong(f'{current_mvpf:.2f}'),
-            ' compared to other programs'
+            'MVPF results of maintaining Cook County Jail  compared to other programs'
         ], style={
             'fontSize': '14px',
             'color': '#6b7280',
