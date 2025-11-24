@@ -1,7 +1,7 @@
-Id,mvpf_value,Description
-ssi_adults,1.0,Supplemental Security Income (SSI) for Adults
-food_stamps_crime,3.9,Food Stamps and Crime
-police_station_closures,7.2,Police Station Closures in the UK
-mandated_mental_health,19.3,Mandated Mental Health Treatment in the Criminal Justice System
-HTC_single_phaseout_begin,-2.71,Hope & Lifetime Learning Tax Credit (HTC)
-AOTC_joint_phaseout_begin,-6.47,American Opportunity Tax Credit (AOTC)
+Id,mvpf_value,Description,source_link
+ssi_adults,1.0,Supplemental Security Income (SSI) for Adults,https://www.aeaweb.org/articles?id=10.1257/app.20190709
+food_stamps_crime,3.9,Food Stamps and Crime,https://doi.org/10.3368/jhr.58.3.0619-10276R2
+police_station_closures,7.2,Police Station Closures in the UK,https://ifs.org.uk/publications/police-infrastructure-police-performance-and-crime-evidence-austerity-cuts
+mandated_mental_health,19.3,Mandated Mental Health Treatment in the Criminal Justice System,https://www.aeaweb.org/conference/2024/program/paper/F465Yk2A
+HTC_single_phaseout_begin,-2.71,Hope & Lifetime Learning Tax Credit (HTC),"https://www.journals.uchicago.edu/doi/10.1086/683364, https://opportunityinsights.org/paper/welfare/"
+AOTC_joint_phaseout_begin,-6.47,American Opportunity Tax Credit (AOTC),"https://www.journals.uchicago.edu/doi/10.1086/683364, https://opportunityinsights.org/paper/welfare/"

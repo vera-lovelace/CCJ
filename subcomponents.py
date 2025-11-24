@@ -81,51 +81,60 @@ class SubcomponentRegistry:
 
         This mapping controls how dashboard parameters multiply subcomponent values.
         Each subcomponent lists the parameter keys that should multiply its value.
+
+        Parameter names (matching CSV and ParameterEffectsRegistry):
+        - los_days: Length of stay in days (direct value)
+        - n_detainees_mult: Detainee population multiplier
+        - n_society_mult: Community size multiplier
+        - fel_rate: Felony rate (direct value)
+        - crime_weight_mult: Crime prevention weighting
+        - recidivism_mult: Recidivism rate impact
         """
         self.param_effects = {
             # ==================== DETAINEE VALUES ====================
             'det_wtp_freedom': [
-                'length_of_stay_mult',  # Longer stays → more harm during detention
-                'detainee_pop_mult'  # More detainees → scales total WTP
+                'los_days',  # Longer stays → more harm during detention
+                'n_detainees_mult'  # More detainees → scales total WTP
             ],
 
             'det_rel_harm': [
-                'length_of_stay_mult',  # Longer stays → more harm during detention
-                'detainee_pop_mult'  # More detainees → scales total harm
+                'los_days',  # Longer stays → more harm during detention
+                # Note: RHV value ($295,275/day) is already a daily aggregate total,
+                # NOT per-detainee. Don't multiply by n_detainees.
             ],
 
-
             # ==================== SOCIETY VALUES ====================
+            'soc_court': [
+                'n_detainees_mult'  # Per detainee value × detainee population
+            ],
+
             'soc_crime_prevention': [
-                'crime_weight_mult',  # Weight given to crime prevention effects
-                'community_size_mult'  # Larger community → more people affected
-                'detainee_pop_mult'  # More detainees → scales total harm
+                # Unit: "dollars per detainee" - value is $0 currently
+                'n_detainees_mult',  # Per detainee value × detainee population
+                'fel_rate'  # Felony rate affects crime prevention value
             ],
 
             'soc_victimization': [
-                'crime_weight_mult',  # Weight given to victimization costs
-                'community_size_mult'  # Larger community → more potential victims
-                'detainee_pop_mult'  # More detainees → scales total harm
+                # Unit: "dollar per victim" - $875,000 per victim
+                # This is a per-victim cost, not per-detainee or per-society
+                # Don't multiply by population - it's already a unit cost
+                'fel_rate'  # Felony rate affects victimization likelihood
             ],
 
-            'soc_spillovers': [
-                'community_size_mult',  # Larger community → more spillover effects
-                'length_of_stay_mult'  # Longer detention → more community disruption
-                'detainee_pop_mult'  # More detainees → scales total harm
-            ],
-
-            'soc_court': [
-                'detainee_pop_mult'  # More detainees → more court processing
+            'soc_spillover': [
+                # Unit: "dollars per detainee" - $294,728 per detainee
+                'n_detainees_mult',  # Per detainee value × detainee population (base × mult)
+                'n_society_adj'  # Society weight adjustment only (0.8/1.0/1.2), no base
             ],
 
             # ==================== GOVERNMENT COST ====================
             'gov_operations': [
+                # Fixed cost - not scaled by parameters
             ],
 
             'gov_health': [
-                'length_of_stay_mult',  # Longer stays → worse post-release outcomes
-                'recidivism_mult'  # Recidivism affects post-release trajectory
-                'detainee_pop_mult'  # More detainees → scales total harm
+                'los_days',  # Longer stays → more health needs
+                'n_detainees_mult'  # More detainees → scales total health costs
             ]
         }
 
@@ -135,15 +144,7 @@ class SubcomponentRegistry:
 
         Args:
             row_var (str): Subcomponent identifier (e.g., 'det_wtp_freedom')
-            params (dict): Parameter multipliers, e.g.:
-                {
-                    'crime_rate_mult': 1.2,
-                    'detainee_pop_mult': 0.9,
-                    'length_of_stay_mult': 1.1,
-                    'community_size_mult': 1.0,
-                    'crime_weight_mult': 1.0,
-                    'recidivism_mult': 0.8
-                }
+            params (dict): Parameter multipliers
 
         Returns:
             float: Calculated value (CPI-adjusted, sign-applied, parameter-multiplied)

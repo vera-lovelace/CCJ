@@ -3,8 +3,10 @@
  Centralizes all parameter definitions, mappings, and conversions
  """
 import pandas as pd
-from dataclasses import dataclass
+import os
+from dataclasses import dataclass, field
 from typing import Dict, List, Optional
+
 
 @dataclass
 class ParameterDefinition:
@@ -16,80 +18,125 @@ class ParameterDefinition:
     min_value: float
     max_value: float
     dashboard_enabled: bool = True
+    is_multiplier: bool = True  # True = multiplier, False = direct value from CSV
 
-    # Mapping from dashboard dropdown values to multipliers
+    # Mapping from dashboard dropdown values to multipliers or direct values
     dropdown_map: Optional[Dict[str, float]] = None
+
+    # Base value from CSV (for multiplier params)
+    base_value: Optional[float] = None
 
 
 class ParameterRegistry:
     """
     Central registry for all MVPF parameters, including definitions and conversions.
     Single source of truth for dashboard setup and parameter handling.
+    Loads weight values from subcomponent_values.csv.
     """
 
-    def __init__(self):
+    def __init__(self, data_dir='Data'):
+        self.weights = self._load_weights(data_dir)
         self.params = self._define_parameters()
 
+    def _load_weights(self, data_dir: str) -> Dict[str, Dict]:
+        """Load weight values from CSV."""
+        csv_path = os.path.join(data_dir, 'subcomponent_values.csv')
+        try:
+            df = pd.read_csv(csv_path)
+            df.columns = df.columns.str.strip()
+            weight_rows = df[df['component'].str.lower() == 'weight']
+
+            weights = {}
+            for _, row in weight_rows.iterrows():
+                weights[row['row_var']] = {
+                    'value': float(row['selected_value']),
+                    'min': float(row['min']) if pd.notna(row['min']) else None,
+                    'max': float(row['max']) if pd.notna(row['max']) else None,
+                    'name': row['name'],
+                    'unit': row['unit']
+                }
+            return weights
+        except Exception as e:
+            print(f"⚠️ Could not load weights from CSV: {e}")
+            return {}
+
     def _define_parameters(self) -> Dict[str, ParameterDefinition]:
-        """Define all available parameters."""
+        """Define all available parameters using CSV weights where available."""
+
+        # Get weight values with defaults
+        fel_rate = self.weights.get('fel_rate', {'value': 0.7, 'min': 0.5, 'max': 1.0})
+        los_days = self.weights.get('los_days', {'value': 70, 'min': 60, 'max': 203})
+        n_detainees = self.weights.get('n_detainees', {'value': 33945})
+        n_society = self.weights.get('n_society', {'value': 5171000})
+
         return {
-            'crime_rate_mult': ParameterDefinition(
-                key='crime_rate_mult',
-                name='Crime Rate Impact',
-                description='The rate of felonies and misdemeanors across detained population',
-                default_value=0.7,
-                min_value=0.5,
-                max_value=0.9,
+            # === DIRECT VALUE PARAMS (use CSV min/selected/max as dropdown options) ===
+
+            'fel_rate': ParameterDefinition(
+                key='fel_rate',
+                name='Felony Rate',
+                description='Proportion of felonies vs. misdemeanors in detained population',
+                default_value=fel_rate['value'],
+                min_value=fel_rate['min'] or 0.5,
+                max_value=fel_rate['max'] or 1.0,
                 dashboard_enabled=True,
+                is_multiplier=False,  # Direct value
                 dropdown_map={
-                    'below': 0.5,  # 50% felonies rate
-                    'average': 0.7,  # 70% felonies rate (baseline)
-                    'significant': 0.9  # 90% felonies rate
+                    'below': fel_rate['min'] or 0.5,
+                    'average': fel_rate['value'],
+                    'above': fel_rate['max'] or 1.0
                 }
             ),
 
-            'detainee_pop_mult': ParameterDefinition(
-                key='detainee_pop_mult',
-                name='Detainee Population Size',
-                description='Population of CCJ detainees in a year',
+            'los_days': ParameterDefinition(
+                key='los_days',
+                name='Length of Stay',
+                description='Average detention duration in days',
+                default_value=los_days['value'],
+                min_value=los_days['min'] or 60,
+                max_value=los_days['max'] or 203,
+                dashboard_enabled=True,
+                is_multiplier=False,  # Direct value
+                dropdown_map={
+                    'below': los_days['min'] or 60,
+                    'average': los_days['value'],
+                    'above': los_days['max'] or 203
+                }
+            ),
+
+            # === MULTIPLIER PARAMS (base value × multiplier) ===
+
+            'n_detainees_mult': ParameterDefinition(
+                key='n_detainees_mult',
+                name='Detainee Population',
+                description=f"Multiplier for detainee population (base: {n_detainees['value']:,.0f})",
                 default_value=1.0,
                 min_value=0.8,
                 max_value=1.2,
                 dashboard_enabled=True,
+                is_multiplier=True,
+                base_value=n_detainees['value'],
                 dropdown_map={
                     'below': 0.8,
-                    'moderate': 1.0,
+                    'average': 1.0,
                     'above': 1.2
                 }
             ),
 
-            'community_size_mult': ParameterDefinition(
-                key='community_size_mult',
+            'n_society_mult': ParameterDefinition(
+                key='n_society_mult',
                 name='Community Size',
-                description='Size of affected community',
+                description=f"Multiplier for community size (base: {n_society['value']:,.0f})",
                 default_value=1.0,
-                min_value=0.9,
-                max_value=1.1,
+                min_value=0.8,
+                max_value=1.2,
                 dashboard_enabled=True,
+                is_multiplier=True,
+                base_value=n_society['value'],
                 dropdown_map={
-                    'below': 0.9,
-                    'moderate': 1.0,
-                    'above': 1.1
-                }
-            ),
-
-            'length_of_stay_mult': ParameterDefinition(
-                key='length_of_stay_mult',
-                name='Length of Stay',
-                description='Average detention duration',
-                default_value=1.0,
-                min_value=0.7,
-                max_value=3,
-                dashboard_enabled=True,
-                dropdown_map={
-                    'below': 0.7,  # 60 day stays
-                    'average': 1.0,  # 70 days baseline
-                    'above': 3  # Longer stays of 203 days
+                    'below': 0.8,
+                    'average': 1.0,
+                    'above': 1.2
                 }
             ),
 
@@ -100,7 +147,8 @@ class ParameterRegistry:
                 default_value=1.0,
                 min_value=0.5,
                 max_value=2.0,
-                dashboard_enabled=False,  # Not exposed to dashboard yet
+                dashboard_enabled=False,
+                is_multiplier=True,
                 dropdown_map={
                     'low': 0.5,
                     'moderate': 1.0,
@@ -116,7 +164,8 @@ class ParameterRegistry:
                 default_value=1.0,
                 min_value=0.6,
                 max_value=1.4,
-                dashboard_enabled=False,  # Not exposed to dashboard yet
+                dashboard_enabled=False,
+                is_multiplier=True,
                 dropdown_map={
                     'low': 0.6,
                     'average': 1.0,
@@ -127,25 +176,26 @@ class ParameterRegistry:
 
     def convert_dashboard_input(self, **kwargs) -> Dict[str, float]:
         """
-        Convert dashboard dropdown selections to parameter multipliers.
+        Convert dashboard dropdown selections to parameter values.
 
-        Args:
-            crime_rate: 'below' | 'average' | 'significant'
-            detainee_pop: 'below' | 'moderate' | 'above'
-            community_size: 'below' | 'moderate' | 'above'
-            length_of_stay: 'below' | 'average' | 'above'
+        Args (new names):
+            fel_rate: 'below' | 'average' | 'above'
+            n_detainees: 'below' | 'average' | 'above'
+            n_society: 'below' | 'average' | 'above'
+            los_days: 'below' | 'average' | 'above'
 
         Returns:
-            Dict of parameter multipliers
+            Dict of parameter values (direct values and multipliers)
         """
         result = {}
 
-        # Map dashboard inputs to parameters
+        # Map dashboard inputs to parameters (new names)
         input_mapping = {
-            'crime_rate': 'crime_rate_mult',
-            'detainee_pop': 'detainee_pop_mult',
-            'community_size': 'community_size_mult',
-            'length_of_stay': 'length_of_stay_mult'
+            'fel_rate': 'fel_rate',
+            'n_detainees': 'n_detainees_mult',
+            'n_society': 'n_society_mult',
+            'los_days': 'los_days',
+
         }
 
         # Convert each input
@@ -203,6 +253,12 @@ class ParameterEffectsRegistry:
     """
     Defines which parameters affect which subcomponents.
     Single source of truth for parameter-subcomponent relationships.
+
+    Parameters use new naming convention:
+    - los_days: Length of stay in days (direct value from CSV)
+    - n_detainees_mult: Detainee population multiplier (base from CSV)
+    - n_society_mult: Community size multiplier (base from CSV)
+    - fel_rate: Felony rate (direct value from CSV)
     """
 
     @staticmethod
@@ -210,68 +266,57 @@ class ParameterEffectsRegistry:
         """
         Get mapping of subcomponents to their affecting parameters.
 
+        row_var names must match subcomponent_values.csv exactly:
+        - det_wtp_freedom, det_rel_harm (detainee_values)
+        - soc_court, soc_crime_prevention, soc_spillover, soc_victimization (society_values)
+        - gov_operations, gov_health (govt_cost)
+
         Returns:
             Dict mapping row_var to list of parameter keys
         """
         return {
             # ==================== DETAINEE VALUES ====================
             'det_wtp_freedom': [
-                'length_of_stay_mult',  # Longer detention → higher WTP to avoid
-                'detainee_pop_mult',  # Scales total across population
-            ],
-
-            'det_harm_during': [
-                'length_of_stay_mult',  # Longer stays → more harm accumulates
-                'detainee_pop_mult',  # Scales total across population
+                'los_days',  # Longer detention → higher WTP to avoid
+                'n_detainees_mult',  # Scales total across population
             ],
 
             'det_rel_harm': [
-                'length_of_stay_mult',  # Longer stays → more harm accumulates (RHV)
-                'detainee_pop_mult',  # Scales total across population
-            ],
-
-            'det_post_release': [
-                'length_of_stay_mult',  # Longer detention → worse post-release outcomes
-                'recidivism_mult',  # Recidivism affects post-release trajectory
+                'los_days',  # Longer stays → more harm accumulates (RHV)
+                # Note: RHV value ($295,275/day) is already a daily aggregate total,
+                # NOT per-detainee. Don't multiply by n_detainees.
             ],
 
             # ==================== SOCIETY VALUES ====================
             'soc_court': [
-                'detainee_pop_mult',  # More detainees → more court appearances
+                'n_detainees_mult',  # Per detainee value × detainee population
             ],
 
             'soc_crime_prevention': [
-                'crime_weight_mult',  # Policy weight on crime prevention
-                'community_size_mult',  # Larger community → more people affected
+                # Unit: "dollars per detainee" - value is $0 currently
+                'n_detainees_mult',  # Per detainee value × detainee population
+                'fel_rate',  # Felony rate affects crime prevention value
             ],
 
             'soc_victimization': [
-                'crime_weight_mult',  # Policy weight on victim costs
-                'community_size_mult',  # Larger community → more potential victims
+                # Unit: "dollar per victim" - $875,000 per victim
+                # This is a per-victim cost, not per-detainee or per-society
+                # Don't multiply by population - it's already a unit cost
+                'fel_rate',  # Felony rate affects victimization likelihood
             ],
 
-            'soc_spillovers': [
-                'community_size_mult',  # Larger community → more spillover effects
-                'length_of_stay_mult',  # Longer detention → more disruption
+            'soc_spillover': [  # Note: no 's' - matches CSV
+                # Unit: "dollars per detainee" - $294,728 per detainee
+                'n_detainees_mult',  # Per detainee value × detainee population (base × mult)
+                'n_society_adj',  # Society weight adjustment only (0.8/1.0/1.2), no base
             ],
 
             # ==================== GOVERNMENT COST ====================
-            'gov_operations': [
-                'detainee_pop_mult',  # More detainees → higher operational costs
-                'length_of_stay_mult',  # Longer stays → higher costs per person
-            ],
-
-            'gov_court_admin': [
-                'detainee_pop_mult',  # More detainees → more court processing
-            ],
-
-            'gov_long_term': [
-                'recidivism_mult',  # Higher recidivism → more long-term costs
-            ],
+            'gov_operations': [],  # Fixed cost - not scaled by parameters
 
             'gov_health': [
-                'detainee_pop_mult',  # More detainees → more health costs
-                'length_of_stay_mult',  # Longer stays → more health needs
+                'n_detainees_mult',  # More detainees → more health costs
+                'los_days',  # Longer stays → more health needs
             ],
         }
 
@@ -282,31 +327,62 @@ class ParameterEffectsRegistry:
         Useful for documentation and debugging.
         """
         justifications = {
-            ('det_wtp_freedom', 'length_of_stay_mult'):
+            # Detainee effects
+            ('det_wtp_freedom', 'los_days'):
                 'Longer detention increases WTP to avoid it',
-            ('det_wtp_freedom', 'detainee_pop_mult'):
+            ('det_wtp_freedom', 'n_detainees_mult'):
                 'More detainees scales the total WTP',
-            ('gov_operations', 'detainee_pop_mult'):
+            ('det_harm_during', 'los_days'):
+                'Longer stays accumulate more harm',
+            ('det_harm_during', 'n_detainees_mult'):
+                'More detainees scales total harm',
+            ('det_rel_harm', 'los_days'):
+                'Relative harm valuation scales with detention length',
+            ('det_post_release', 'los_days'):
+                'Longer detention worsens post-release outcomes',
+
+            # Society effects
+            ('soc_crime_prevention', 'fel_rate'):
+                'Higher felony rate increases crime prevention value',
+            ('soc_crime_prevention', 'n_society_mult'):
+                'Larger community benefits more from crime prevention',
+            ('soc_victimization', 'fel_rate'):
+                'Higher felony rate affects victimization costs',
+            ('soc_spillovers', 'los_days'):
+                'Longer detention increases family/community disruption',
+
+            # Government effects
+            ('gov_operations', 'n_detainees_mult'):
                 'Operational costs scale with population size',
-            ('gov_operations', 'length_of_stay_mult'):
-                'Longer stays increase per-person operational costs',
-            # ... add more
+            ('gov_health', 'los_days'):
+                'Longer stays increase per-person health costs',
         }
         return justifications.get((row_var, param_key), 'No justification documented')
 
 
 class ParameterPresets:
-    """Predefined parameter configurations for common scenarios."""
+    """Predefined parameter configurations for common scenarios.
+
+    Uses new naming convention:
+    - fel_rate: Felony rate (direct value, e.g., 0.7 = 70%)
+    - los_days: Length of stay in days (direct value)
+    - n_detainees_mult: Detainee population multiplier
+    - n_society_mult: Community size multiplier
+    """
+
+    # Base values from CSV (defaults if CSV not available)
+    BASE_LOS_DAYS = 70
+    BASE_FEL_RATE = 0.7
 
     PRESETS = {
         'baseline': {
             'name': 'Baseline (Current Conditions)',
             'description': 'Default parameters reflecting current CCJ operations',
             'params': {
-                'crime_rate_mult': 1.0,
-                'detainee_pop_mult': 1.0,
-                'community_size_mult': 1.0,
-                'length_of_stay_mult': 1.0,
+                'fel_rate': 0.7,  # 70% felony rate
+                'los_days': 70,  # 70 days average stay
+                'n_detainees_mult': 1.0,
+                'n_society_mult': 1.0,
                 'crime_weight_mult': 1.0,
                 'recidivism_mult': 1.0,
             }
@@ -316,10 +392,10 @@ class ParameterPresets:
             'name': 'High Crime Environment',
             'description': 'Elevated crime rate scenario',
             'params': {
-                'crime_rate_mult': 1.5,
-                'detainee_pop_mult': 1.2,
-                'community_size_mult': 1.0,
-                'length_of_stay_mult': 1.1,
+                'fel_rate': 0.9,  # 90% felony rate
+                'los_days': 77,  # 77 days (10% longer)
+                'n_detainees_mult': 1.2,
+                'n_society_mult': 1.0,
                 'crime_weight_mult': 1.5,
                 'recidivism_mult': 1.3,
             }
@@ -329,10 +405,10 @@ class ParameterPresets:
             'name': 'Optimistic Reform Scenario',
             'description': 'Reduced detention with better outcomes',
             'params': {
-                'crime_rate_mult': 0.9,
-                'detainee_pop_mult': 0.8,
-                'community_size_mult': 1.0,
-                'length_of_stay_mult': 0.7,
+                'fel_rate': 0.63,  # 63% felony rate (10% lower)
+                'los_days': 49,  # 49 days (30% shorter)
+                'n_detainees_mult': 0.8,
+                'n_society_mult': 1.0,
                 'crime_weight_mult': 1.0,
                 'recidivism_mult': 0.8,
             }
@@ -342,10 +418,10 @@ class ParameterPresets:
             'name': 'Conservative Estimates',
             'description': 'Conservative assumptions on benefits',
             'params': {
-                'crime_rate_mult': 1.0,
-                'detainee_pop_mult': 1.1,
-                'community_size_mult': 0.9,
-                'length_of_stay_mult': 1.2,
+                'fel_rate': 0.7,  # 70% felony rate (baseline)
+                'los_days': 84,  # 84 days (20% longer)
+                'n_detainees_mult': 1.1,
+                'n_society_mult': 0.9,
                 'crime_weight_mult': 0.7,
                 'recidivism_mult': 1.2,
             }
@@ -392,11 +468,16 @@ class ParameterValidator:
     """Validate parameter inputs and provide warnings."""
 
     # Define reasonable bounds (not hard limits, but warning thresholds)
+    # Includes both new param names and legacy names for compatibility
     REASONABLE_BOUNDS = {
-        'crime_rate_mult': (0.3, 2.0),
-        'detainee_pop_mult': (0.5, 2.0),
-        'community_size_mult': (0.7, 1.5),
-        'length_of_stay_mult': (0.5, 2.0),
+        # New parameter names (direct values)
+        'fel_rate': (0.3, 1.0),  # Felony rate: 30% to 100%
+        'los_days': (30, 365),  # Length of stay: 30 to 365 days
+        'n_detainees_mult': (0.5, 2.0),  # Detainee population multiplier
+        'n_society_mult': (0.7, 1.5),  # Community size multiplier
+
+
+        # Other parameters
         'crime_weight_mult': (0.2, 3.0),
         'recidivism_mult': (0.4, 2.0),
     }

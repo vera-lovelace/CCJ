@@ -1,13 +1,13 @@
-row_var,component,name,unit,sign,source_dollar_year,selected_value,min,max,mean,median,,
-soc_court,society_values,Valuation of effects of detention on court appearance,dollars per detainee,positive,2020,12.6,,,,,,
-soc_crime_prevention,society_values,Incapacitation and deterrance crime effects of detention  ,dollars per detainee,positive,2018,0,133685,75000,,,,
-soc_spillovers,society_values,Wrongful death damages Social cost of detainment (focusing on economic impact submeasure),dollars per detainee,negative,2023,294728,100000,300000,,,,
-soc_victimization,society_values,Acute Cost of crime - HAVEN framework (victims),dollar per victim,negative,2024,875000,10000,875000,,,,
-det_wtp_freedom,detainee_values,WTP for Freedom,dollars per day,negative,2022,11,,,,,,
-det_rel_harm,detainee_values,Relative Harm Valuation (RHV),dollars per day,negative,2021,295275,,295275.00,,,,
-gov_health,govt_cost,Spike in Public Health Spending post-release,dollar per detainee,positive,2018,300,200,400,,,,
-gov_operations,govt_cost,Total Funding for CCJ (2018),dollars per year,positive,2018,448677628,448677628,,,,,
-n_detainees,weight,n Detainees,people,N/A,N/A,33945,,,,,,
-n_society,weight,n Society,people,N/A,N/A,5171000,,,,,,
-fel_rate,weight,Proportion of Felonies vs. Misdemeanors ,%,N/A,N/A,0.70,0.5,0.9,,,,
-los,weight,Length of Stay (LoS),days,N/A,N/A,70,60,203,,,,
+row_var,component,name,unit,sign ,source_dollar_year,selected_value,min,max
+soc_court,society_values,Valuation of effects of detention on court appearance,dollars per detainee,positive,2020,12.6,,
+soc_crime_prevention,society_values,Incapacitation and deterrance crime effects of detention  ,dollars per detainee,positive,2018,0,133685,75000
+soc_spillover,society_values,Wrongful death damages Social cost of detainment (focusing on economic impact submeasure),dollars per detainee,negative,2023,294728,100000,300000
+soc_victimization,society_values,Acute Cost of crime - HAVEN framework (victims),dollar per victim,negative,2024,875000,10000,875000
+det_wtp_freedom,detainee_values,WTP for Freedom,dollars per day,negative,2022,11,,
+det_rel_harm,detainee_values,Relative Harm Valuation (RHV),dollars per day,negative,2021,295275,,295275.00
+gov_health,govt_cost,Spike in Public Health Spending post-release,dollar per detainee,positive,2018,300,200,400
+gov_operations,govt_cost,Total Funding for CCJ (2018),dollars per year,positive,2018,448677628,448677628,
+n_detainees,Weight,n Detainees,people,N/A,2018,33945,,
+n_society,Weight,n Society,people,N/A,2018,5171000,,
+fel_rate,Weight,Proportion of Felonies vs. Misdemeanors,%,N/A,N/A,0.7,0.5,1
+los_days,Weight,Length of Stay (LoS),days,N/A,N/A,70,60,203
