@@ -595,6 +595,48 @@ app.layout = html.Div(className='main-container', children=[
         ])
     ]),
 
+    # Scenario Selection Section
+    html.Div(className='jumbotron', style={'marginBottom': '24px'}, children=[
+        html.H4('Scenario Selection', style={
+            'fontSize': '18px',
+            'fontWeight': '600',
+            'color': '#374151',
+            'marginTop': '0',
+            'marginBottom': '12px'
+        }),
+        html.Label('Select Scenario to calculate the :', style={
+            'fontSize': '14px',
+            'fontWeight': '500',
+            'color': '#374151',
+            'marginBottom': '8px',
+            'display': 'block'
+        }),
+        dcc.Dropdown(
+            id='scenario-selector',
+            options=[
+                {'label': content.get('scenarios.options.baseline', 'Baseline - Current Operations'), 'value': 'baseline'},
+                {'label': content.get('scenarios.options.most_conservative', 'Conservative Approach'), 'value': 'most conservative'},
+                {'label': content.get('scenarios.options.least_conservative', 'Least Conservative Approach'), 'value': 'least conservative'},
+                {'label': content.get('scenarios.options.reduced_crime', 'Reduced Crime Scenario'), 'value': 'reduced_crime'},
+                {'label': content.get('scenarios.options.increased_crime', 'Increased Crime Scenario'), 'value': 'increased_crime'},
+                {'label': content.get('scenarios.options.diversion_program', 'Pre-Trial Diversion Program'), 'value': 'diversion_program'},
+                {'label': content.get('scenarios.options.bail_reform', 'Bail Reform Scenario'), 'value': 'bail_reform'},
+                {'label': content.get('scenarios.options.capacity_expansion', 'Facility Capacity Expansion'), 'value': 'capacity_expansion'}
+            ],
+            value='baseline',
+            clearable=False,
+            style={'marginBottom': '16px'}
+        ),
+        # Scenario Description
+        html.Div(id='scenario-description', style={
+            'backgroundColor': '#f9fafb',
+            'padding': '16px',
+            'borderRadius': '8px',
+            'borderLeft': '4px solid #3b82f6',
+            'marginTop': '16px'
+        })
+    ]),
+
     # Calculate Button Section
     html.Div(className='calculate-section', style={
         'display': 'flex',
@@ -709,53 +751,108 @@ app.layout = html.Div(className='main-container', children=[
                         'backgroundColor': 'white'
                     }, children=[
                         html.Div(style={'padding': '24px 0'}, children=[
-                            # Scenario Selection Section
-                            html.Div(className='chart-container', style={'marginBottom': '24px'}, children=[
-                                html.H4(content.get('scenarios.section_title', 'Scenario Selection'), style={
+                            # Tab 2 Description Placeholder
+                            html.Div(style={
+                                'backgroundColor': '#f9fafb',
+                                'padding': '20px',
+                                'borderRadius': '8px',
+                                'marginBottom': '24px',
+                                'borderLeft': '4px solid #3b82f6'
+                            }, children=[
+                                html.H3('Placeholder for Tab 2 Description', style={
                                     'fontSize': '18px',
                                     'fontWeight': '600',
                                     'color': '#374151',
-                                    'marginTop': '0',
-                                    'marginBottom': '16px'
+                                    'margin': '0 0 8px 0'
                                 }),
-                                html.P(content.get('scenarios.description', 'Compare different policy scenarios and their impact on MVPF calculations.'), style={
+                                html.P('Placeholder for: Overview of the Scenario Analysis tab, explaining what users can explore and learn from the visualizations below.', style={
                                     'fontSize': '14px',
                                     'color': '#6b7280',
-                                    'marginBottom': '16px'
-                                }),
-                                html.Label(content.get('scenarios.label', 'Select Scenario:'), style={
-                                    'fontSize': '14px',
-                                    'fontWeight': '500',
-                                    'color': '#374151',
-                                    'marginBottom': '8px',
-                                    'display': 'block'
-                                }),
-                                dcc.Dropdown(
-                                    id='scenario-selector',
-                                    options=[
-                                        {'label': content.get('scenarios.options.baseline', 'Baseline - Current Operations'), 'value': 'baseline'},
-                                        {'label': content.get('scenarios.options.most_conservative', 'Conservative Approach'), 'value': 'most conservative'},
-                                        {'label': content.get('scenarios.options.least_conservative', 'Least Conservative Approach'), 'value': 'least conservative'},
-                                        {'label': content.get('scenarios.options.reduced_crime', 'Reduced Crime Scenario'), 'value': 'reduced_crime'},
-                                        {'label': content.get('scenarios.options.increased_crime', 'Increased Crime Scenario'), 'value': 'increased_crime'},
-                                        {'label': content.get('scenarios.options.diversion_program', 'Pre-Trial Diversion Program'), 'value': 'diversion_program'},
-                                        {'label': content.get('scenarios.options.bail_reform', 'Bail Reform Scenario'), 'value': 'bail_reform'},
-                                        {'label': content.get('scenarios.options.capacity_expansion', 'Facility Capacity Expansion'), 'value': 'capacity_expansion'}
-                                    ],
-                                    value='baseline',
-                                    clearable=False,
-                                    style={'maxWidth': '400px'}
-                                )
+                                    'margin': '0',
+                                    'lineHeight': '1.6'
+                                })
                             ]),
 
-                            # Parameter Comparison Chart
-                            html.Div(className='chart-container', style={'marginBottom': '24px'}, children=[
-                                dcc.Graph(id='parameter-comparison-chart')
+                            # Alternative Scenarios Description Placeholder
+                            html.Div(style={
+                                'backgroundColor': '#fffbeb',
+                                'padding': '20px',
+                                'borderRadius': '8px',
+                                'marginBottom': '24px',
+                                'borderLeft': '4px solid #f59e0b'
+                            }, children=[
+                                html.H3('Placeholder for Alternative Scenarios Description', style={
+                                    'fontSize': '18px',
+                                    'fontWeight': '600',
+                                    'color': '#374151',
+                                    'margin': '0 0 8px 0'
+                                }),
+                                html.P('Placeholder for: Explanation of the different scenarios available (baseline, conservative, reduced crime, etc.) and how they differ from each other in terms of assumptions and parameters.', style={
+                                    'fontSize': '14px',
+                                    'color': '#92400e',
+                                    'margin': '0',
+                                    'lineHeight': '1.6'
+                                })
+                            ]),
+
+                            # Side-by-side charts: Scenario Comparison and Parameter Sensitivity
+                            html.Div(style={
+                                'display': 'flex',
+                                'gap': '24px',
+                                'marginBottom': '24px'
+                            }, children=[
+                                html.Div(className='chart-container', style={'flex': '1'}, children=[
+                                    dcc.Graph(id='scenario-comparison-chart')
+                                ]),
+                                html.Div(className='chart-container', style={'flex': '1'}, children=[
+                                    dcc.Graph(id='parameter-comparison-chart')
+                                ])
                             ]),
 
                             # Subcomponents Chart
                             html.Div(className='chart-container', children=[
                                 dcc.Graph(id='subcomponents-chart')
+                            ])
+                        ])
+                    ]),
+
+                    # Tab 3: Comparative Benchmarking
+                    dcc.Tab(label='Comparative Benchmarking', value='tab-benchmarking', style={
+                        'padding': '12px 24px',
+                        'fontWeight': '500',
+                        'fontSize': '14px'
+                    }, selected_style={
+                        'padding': '12px 24px',
+                        'fontWeight': '600',
+                        'fontSize': '14px',
+                        'borderTop': '3px solid #3b82f6',
+                        'backgroundColor': 'white'
+                    }, children=[
+                        html.Div(style={'padding': '24px 0'}, children=[
+                            # Placeholder for Tab 3
+                            html.Div(style={
+                                'backgroundColor': '#f0fdf4',
+                                'padding': '40px',
+                                'borderRadius': '8px',
+                                'marginBottom': '24px',
+                                'borderLeft': '4px solid #16a34a',
+                                'textAlign': 'center'
+                            }, children=[
+                                html.H3('Placeholder for Comparative Benchmarking Content', style={
+                                    'fontSize': '24px',
+                                    'fontWeight': '600',
+                                    'color': '#374151',
+                                    'margin': '0 0 16px 0'
+                                }),
+                                html.P('Placeholder for: Detailed comparative analysis showing how Cook County Jail MVPF compares to other government programs, interventions, and policy initiatives across different domains.', style={
+                                    'fontSize': '16px',
+                                    'color': '#166534',
+                                    'margin': '0',
+                                    'lineHeight': '1.6',
+                                    'maxWidth': '800px',
+                                    'marginLeft': 'auto',
+                                    'marginRight': 'auto'
+                                })
                             ])
                         ])
                     ])
@@ -1165,6 +1262,21 @@ app.layout = html.Div(className='main-container', children=[
 # =============================================================================
 
 
+def _get_scenario_description(scenario):
+    """Return the description for a given scenario."""
+    descriptions = {
+        'baseline': 'Represents current operations at Cook County Jail with standard parameters. This scenario serves as the reference point for comparison.',
+        'most conservative': 'Uses conservative estimates for all parameters, minimizing potential benefits and maximizing costs. Provides a lower-bound estimate of MVPF.',
+        'least conservative': 'Uses optimistic estimates that maximize potential benefits and minimize costs. Provides an upper-bound estimate of MVPF.',
+        'reduced_crime': 'Models a scenario where crime rates decrease, resulting in lower detention demand and associated costs.',
+        'increased_crime': 'Models a scenario where crime rates increase, resulting in higher detention demand and associated costs.',
+        'diversion_program': 'Simulates the impact of implementing pre-trial diversion programs that reduce jail population through alternative interventions.',
+        'bail_reform': 'Models the effects of bail reform policies that reduce pretrial detention for low-risk individuals.',
+        'capacity_expansion': 'Analyzes the impact of expanding facility capacity to accommodate more detainees.'
+    }
+    return descriptions.get(scenario, 'No description available for this scenario.')
+
+
 def _toggle_style(n_clicks, style):
     """Helper function to toggle visibility of collapsible sections."""
     if not n_clicks:
@@ -1426,7 +1538,7 @@ def _build_interpretation_card():
 def _build_benchmark_chart(current_mvpf, benchmarks):
     """Build the benchmark comparison bar chart."""
     # Prepare data: current MVPF first, then benchmarks
-    names = ['Current MVPF']
+    names = ['Current MVPF for CCJ']
     values = [current_mvpf]
     colors = ['#2563eb']  # Blue for current
 
@@ -1495,20 +1607,20 @@ def _build_benchmark_card(current_mvpf):
         description = benchmark['Description']
         source_link = benchmark['source_link']
 
-        # Calculate percentage comparison
+        # Calculate comparison
         if current_mvpf != 0:
             if bench_mvpf >= 0 and current_mvpf >= 0:
                 # Both positive: compare directly
-                pct_diff = ((current_mvpf - bench_mvpf) / abs(bench_mvpf)) * 100 if bench_mvpf != 0 else 0
+                pct_diff = (abs(bench_mvpf)/ (current_mvpf ))  if bench_mvpf != 0 else 0
             elif bench_mvpf < 0 and current_mvpf >= 0:
                 # Benchmark negative, current positive: CCJ is better
-                pct_diff = abs(current_mvpf - bench_mvpf) / abs(bench_mvpf) * 100
+                pct_diff = abs (bench_mvpf) / abs(current_mvpf)
             elif bench_mvpf >= 0 and current_mvpf < 0:
                 # Benchmark positive, current negative: CCJ is worse
-                pct_diff = -abs(current_mvpf - bench_mvpf) / abs(bench_mvpf) * 100
+                pct_diff = -abs(bench_mvpf)/ abs(current_mvpf)
             else:
                 # Both negative: less negative is better
-                pct_diff = ((bench_mvpf - current_mvpf) / abs(bench_mvpf)) * 100
+                pct_diff = (abs(bench_mvpf)/ (current_mvpf ))
         else:
             pct_diff = 0
 
@@ -1521,9 +1633,9 @@ def _build_benchmark_card(current_mvpf):
 
         # Format comparison text
         if is_better:
-            comparison_text = f"+{abs(pct_diff):.0f}%" if pct_diff != 0 else "Same"
+            comparison_text = f"-{abs(pct_diff):.0f}X" if pct_diff != 0 else "Same"
         else:
-            comparison_text = f"-{abs(pct_diff):.0f}%" if pct_diff != 0 else "Same"
+            comparison_text = f"+{abs(pct_diff):.0f}X" if pct_diff != 0 else "Same"
 
         # Get first source link if multiple
         first_link = source_link.split(',')[0].strip()
@@ -1552,7 +1664,7 @@ def _build_benchmark_card(current_mvpf):
             'marginTop': '0'
         }),
         html.P([
-            'MVPF results of maintaining Cook County Jail  compared to other programs'
+            'Marginal value of maintaining Cook County Jail compared to other Government programs and interventions. The benchmark cards include the actual MVPF values and how much social return they offer for each US dollar compared to the current CCJ calculation.'
         ], style={
             'fontSize': '14px',
             'color': '#6b7280',
@@ -1588,7 +1700,7 @@ def _build_numerator_chart(result):
     ])
 
     fig.update_layout(
-        title='MVPF Numerator: Willingness to Pay',
+        title='Willingness to Pay (MVPF numerator value)',
         xaxis_title='',
         yaxis_title='Value ($)',
         paper_bgcolor='#f8fafc',
@@ -1613,7 +1725,7 @@ def _build_denominator_chart(result):
 
     fig = go.Figure(data=[
         go.Bar(
-            x=['Numerator\n(Det + Soc)', 'Government Cost'],
+            x=['Aggregated Value', 'Government Cost'],
             y=[numerator, gov_val],
             marker_color=[numerator_color, '#ef4444'],
             text=[f"${int(numerator):,}", f"${int(gov_val):,}"],
@@ -1622,7 +1734,7 @@ def _build_denominator_chart(result):
     ])
 
     fig.update_layout(
-        title='MVPF: Numerator vs Denominator',
+        title='Marginal Value to Government Costs Comparison',
         xaxis_title='',
         yaxis_title='Value ($)',
         paper_bgcolor='#f8fafc',
@@ -1705,6 +1817,93 @@ def _build_parameter_comparison_chart(scenario, base_det_p1, base_det_p2, base_s
     # Add horizontal line at y=1 (break-even)
     fig.add_hline(y=1, line_dash="dash", line_color="#f59e0b", line_width=1,
                   annotation_text="Break-even", annotation_position="right")
+
+    return fig
+
+
+def _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2):
+    """Build the scenario comparison chart showing MVPF for all scenarios on y-axis."""
+    scenarios = [
+        'baseline',
+        'most conservative',
+        'least conservative',
+        'reduced_crime',
+        'increased_crime',
+        'diversion_program',
+        'bail_reform',
+        'capacity_expansion'
+    ]
+
+    scenario_labels = {
+        'baseline': 'Baseline',
+        'most conservative': 'Conservative',
+        'least conservative': 'Least Conservative',
+        'reduced_crime': 'Reduced Crime',
+        'increased_crime': 'Increased Crime',
+        'diversion_program': 'Diversion Program',
+        'bail_reform': 'Bail Reform',
+        'capacity_expansion': 'Capacity Expansion'
+    }
+
+    # Calculate MVPF for each scenario
+    mvpf_values = []
+    for scenario in scenarios:
+        result = _calculate_mvpf(scenario, det_p1, det_p2, soc_p1, soc_p2)
+        mvpf_values.append(result['mvpf'])
+
+    # Color bars based on MVPF value (green for good, yellow for fair, red for poor)
+    colors = []
+    for mvpf in mvpf_values:
+        if mvpf >= 2.5:
+            colors.append('#16a34a')  # Green - Excellent
+        elif mvpf >= 1.5:
+            colors.append('#3b82f6')  # Blue - Good
+        elif mvpf >= 1.0:
+            colors.append('#f59e0b')  # Yellow - Fair
+        else:
+            colors.append('#dc2626')  # Red - Poor
+
+    # Create horizontal bar chart with scenarios on y-axis
+    labels = [scenario_labels[s] for s in scenarios]
+
+    fig = go.Figure(data=[
+        go.Bar(
+            y=labels,
+            x=mvpf_values,
+            marker_color=colors,
+            text=[f"{v:.2f}" for v in mvpf_values],
+            textposition='outside',
+            textfont=dict(size=11),
+            orientation='h'
+        )
+    ])
+
+    # Calculate x-axis range
+    min_val = min(mvpf_values)
+    max_val = max(mvpf_values)
+    padding = max(abs(max_val), abs(min_val)) * 0.15
+    x_range = [min(0, min_val - padding), max(0, max_val + padding)]
+
+    fig.update_layout(
+        title='MVPF Comparison Across Scenarios',
+        xaxis_title='MVPF',
+        yaxis_title='',
+        xaxis_range=x_range,
+        paper_bgcolor='#f8fafc',
+        plot_bgcolor='#ffffff',
+        font=dict(family='system-ui', size=11),
+        margin=dict(t=50, b=60, l=180, r=100),
+        showlegend=False,
+        bargap=0.3,
+        height=max(400, len(scenarios) * 50)
+    )
+
+    # Add vertical line at x=0
+    fig.add_vline(x=0, line_dash="solid", line_color="#9ca3af", line_width=1)
+
+    # Add vertical line at x=1 (break-even)
+    fig.add_vline(x=1, line_dash="dash", line_color="#f59e0b", line_width=1,
+                  annotation_text="Break-even", annotation_position="top")
 
     return fig
 
@@ -1859,6 +2058,24 @@ def register_callbacks(app):
         return _toggle_style(n_clicks, style)
 
     # -------------------------------------------------------------------------
+    # Scenario Description Callback
+    # -------------------------------------------------------------------------
+
+    @app.callback(
+        Output('scenario-description', 'children'),
+        Input('scenario-selector', 'value')
+    )
+    def update_scenario_description(scenario):
+        """Update the scenario description when dropdown changes."""
+        description = _get_scenario_description(scenario)
+        return html.P(description, style={
+            'fontSize': '14px',
+            'color': '#374151',
+            'margin': '0',
+            'lineHeight': '1.6'
+        })
+
+    # -------------------------------------------------------------------------
     # Main Dashboard Update Callback
     # -------------------------------------------------------------------------
 
@@ -1869,7 +2086,8 @@ def register_callbacks(app):
          Output('numerator-chart', 'figure'),
          Output('denominator-chart', 'figure'),
          Output('subcomponents-chart', 'figure'),
-         Output('parameter-comparison-chart', 'figure')],
+         Output('parameter-comparison-chart', 'figure'),
+         Output('scenario-comparison-chart', 'figure')],
         [Input('btn-calculate', 'n_clicks')],
         [State('scenario-selector', 'value'),
          State('detainee-param1', 'value'),
@@ -1908,8 +2126,9 @@ def register_callbacks(app):
         denominator_fig = _build_denominator_chart(result)
         sub_fig = _build_subcomponents_chart(result)
         param_comparison_fig = _build_parameter_comparison_chart(scenario, det_p1, det_p2, soc_p1, soc_p2)
+        scenario_comparison_fig = _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2)
 
-        return kpi_card, benchmark_card, interpretation_card, numerator_fig, denominator_fig, sub_fig, param_comparison_fig
+        return kpi_card, benchmark_card, interpretation_card, numerator_fig, denominator_fig, sub_fig, param_comparison_fig, scenario_comparison_fig
 
     # -------------------------------------------------------------------------
     # Download CSV Callback

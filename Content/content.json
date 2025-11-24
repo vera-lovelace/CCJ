@@ -19,12 +19,12 @@
   "controls": {
     "section_title": "Analysis Parameters",
     "felony_rate": {
-      "title": "What percentage of misdemeanors and felonies should be detained?",
-      "tooltip": "The proportion of detainees that have been charged with at least one felony"
+      "title": "Select percentage of detainees with felony charges",
+      "tooltip": "The proportion of detainees that have been charged with at least one felony in 2018"
     },
     "detainee_population": {
       "title": "Select Detainee Population Size",
-      "tooltip": "The number of individuals detained at Cook County Jail for at least sixty nights over the course of the year was 34,000 "
+      "tooltip": "The number of individuals detained at Cook County Jail for at least sixty nights over the course of the year"
     },
     "community_size": {
       "title": "Select Community Size",
@@ -163,7 +163,7 @@
       "description": "The Marginal Value of Public Funds (MVPF) is a metric that measures the social welfare benefit of a policy per dollar of government spending. It represents how much value beneficiaries receive relative to what the policy costs."
     },
     "applying_to_detention": {
-      "heading": "Applying MVPF to detention",
+      "heading": "Applying MVPF to detention in Cook County Jail",
       "paragraph1": "Most MVPF work looks at policies where the person subject to the policy is also the main beneficiary, such as cash transfers. Detention is different. Jail is imposed on detainees but is justified as benefiting the general public. That is why this tool tracks both Detainee effects and broader Society effects when calculating the MVPF of detention.",
       "paragraph2": "Most studies on detention focus on marginal changes, like one extra day in jail or one additional person detained. This tool instead looks at the overall or infra-marginal picture for a facility, using Cook County Jail as the baseline case. It uses the full annual costs of operating the jail and the full set of impacts on people who are detained to summarize those tradeoffs in an MVPF-style framework."
     }
