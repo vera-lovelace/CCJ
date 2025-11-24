@@ -748,6 +748,11 @@ app.layout = html.Div(className='main-container', children=[
                                 )
                             ]),
 
+                            # Parameter Comparison Chart
+                            html.Div(className='chart-container', style={'marginBottom': '24px'}, children=[
+                                dcc.Graph(id='parameter-comparison-chart')
+                            ]),
+
                             # Subcomponents Chart
                             html.Div(className='chart-container', children=[
                                 dcc.Graph(id='subcomponents-chart')
@@ -1630,8 +1635,82 @@ def _build_denominator_chart(result):
     return fig
 
 
+def _build_parameter_comparison_chart(scenario, base_det_p1, base_det_p2, base_soc_p1, base_soc_p2):
+    """Build the parameter comparison chart showing MVPF sensitivity to parameter changes."""
+    # Calculate MVPFs for each parameter variation
+    param_variations = {
+        'Felony Rate': [],
+        'Detainee Population': [],
+        'Community Size': [],
+        'Length of Stay': []
+    }
+
+    # Vary Felony Rate (detainee_param1)
+    for variation in ['below', 'average', 'above']:
+        result = _calculate_mvpf(scenario, variation, base_det_p2, base_soc_p1, base_soc_p2)
+        param_variations['Felony Rate'].append(result['mvpf'])
+
+    # Vary Detainee Population (detainee_param2)
+    for variation in ['below', 'average', 'above']:
+        result = _calculate_mvpf(scenario, base_det_p1, variation, base_soc_p1, base_soc_p2)
+        param_variations['Detainee Population'].append(result['mvpf'])
+
+    # Vary Community Size (society_param1)
+    for variation in ['below', 'average', 'above']:
+        result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, variation, base_soc_p2)
+        param_variations['Community Size'].append(result['mvpf'])
+
+    # Vary Length of Stay (society_param2)
+    for variation in ['below', 'average', 'above']:
+        result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, base_soc_p1, variation)
+        param_variations['Length of Stay'].append(result['mvpf'])
+
+    # Create grouped bar chart
+    fig = go.Figure()
+
+    colors = ['#93c5fd', '#3b82f6', '#1e40af']  # Light to dark blue for below, average, above
+    labels = ['Below', 'Average', 'Above']
+
+    for i, label in enumerate(labels):
+        values = [param_variations[param][i] for param in param_variations.keys()]
+        fig.add_trace(go.Bar(
+            name=label,
+            x=list(param_variations.keys()),
+            y=values,
+            marker_color=colors[i],
+            text=[f"{v:.2f}" for v in values],
+            textposition='outside',
+            textfont=dict(size=10)
+        ))
+
+    fig.update_layout(
+        title='MVPF Sensitivity to Parameter Changes',
+        xaxis_title='Parameter',
+        yaxis_title='MVPF',
+        barmode='group',
+        paper_bgcolor='#f8fafc',
+        plot_bgcolor='#ffffff',
+        font=dict(family='system-ui', size=11),
+        margin=dict(t=50, b=100, l=60, r=40),
+        legend=dict(
+            orientation='h',
+            yanchor='bottom',
+            y=1.02,
+            xanchor='right',
+            x=1
+        ),
+        height=400
+    )
+
+    # Add horizontal line at y=1 (break-even)
+    fig.add_hline(y=1, line_dash="dash", line_color="#f59e0b", line_width=1,
+                  annotation_text="Break-even", annotation_position="right")
+
+    return fig
+
+
 def _build_subcomponents_chart(result):
-    """Build the subcomponents bar chart with variable names and auto-scaling."""
+    """Build the subcomponents horizontal bar chart with variable names on y-axis."""
     # Collect all subcomponents with their variable names and values
     subcomponents = []
     colors = []
@@ -1656,43 +1735,44 @@ def _build_subcomponents_chart(result):
     values = [s['value'] for s in subcomponents]
     text_labels = [f"${int(v):,}" for v in values]
 
-    # Calculate y-axis range to ensure all bars are visible
+    # Calculate x-axis range to ensure all bars are visible (horizontal bars use x-axis for values)
     if values:
         min_val = min(values)
         max_val = max(values)
         # Add padding (20%) to ensure text labels are visible
         padding = max(abs(max_val), abs(min_val)) * 0.2
-        y_range = [min(0, min_val - padding), max(0, max_val + padding)]
+        x_range = [min(0, min_val - padding), max(0, max_val + padding)]
     else:
-        y_range = None
+        x_range = None
 
     fig = go.Figure(data=[
         go.Bar(
-            x=names,
-            y=values,
+            y=names,  # Names on y-axis for horizontal bars
+            x=values,  # Values on x-axis for horizontal bars
             marker_color=colors,
             text=text_labels,
             textposition='outside',
-            textfont=dict(size=10)
+            textfont=dict(size=10),
+            orientation='h'  # Horizontal orientation
         )
     ])
 
     fig.update_layout(
         title='Subcomponent Breakdown',
-        xaxis_title='',
-        yaxis_title='Value ($)',
-        yaxis_range=y_range,
+        xaxis_title='Value ($)',
+        yaxis_title='',
+        xaxis_range=x_range,
         paper_bgcolor='#f8fafc',
         plot_bgcolor='#ffffff',
         font=dict(family='system-ui', size=11),
-        margin=dict(t=50, b=100, l=100, r=40),
+        margin=dict(t=50, b=60, l=250, r=100),  # Increased left margin for labels
         showlegend=False,
-        xaxis_tickangle=-45,
-        bargap=0.3
+        bargap=0.3,
+        height=max(400, len(names) * 40)  # Dynamic height based on number of items
     )
 
-    # Add a horizontal line at y=0 for reference
-    fig.add_hline(y=0, line_dash="solid", line_color="#9ca3af", line_width=1)
+    # Add a vertical line at x=0 for reference (vertical line for horizontal bars)
+    fig.add_vline(x=0, line_dash="solid", line_color="#9ca3af", line_width=1)
 
     return fig
 
@@ -1788,7 +1868,8 @@ def register_callbacks(app):
          Output('interpretation-card', 'children'),
          Output('numerator-chart', 'figure'),
          Output('denominator-chart', 'figure'),
-         Output('subcomponents-chart', 'figure')],
+         Output('subcomponents-chart', 'figure'),
+         Output('parameter-comparison-chart', 'figure')],
         [Input('btn-calculate', 'n_clicks')],
         [State('scenario-selector', 'value'),
          State('detainee-param1', 'value'),
@@ -1826,8 +1907,9 @@ def register_callbacks(app):
         numerator_fig = _build_numerator_chart(result)
         denominator_fig = _build_denominator_chart(result)
         sub_fig = _build_subcomponents_chart(result)
+        param_comparison_fig = _build_parameter_comparison_chart(scenario, det_p1, det_p2, soc_p1, soc_p2)
 
-        return kpi_card, benchmark_card, interpretation_card, numerator_fig, denominator_fig, sub_fig
+        return kpi_card, benchmark_card, interpretation_card, numerator_fig, denominator_fig, sub_fig, param_comparison_fig
 
     # -------------------------------------------------------------------------
     # Download CSV Callback
