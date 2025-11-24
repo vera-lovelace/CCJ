@@ -5,7 +5,7 @@ import os
 class ContentManager:
     """Load and manage external content files."""
 
-    def __init__(self, content_dir='CCJ/Content'):
+    def __init__(self, content_dir='Content'):
         self.content_dir = content_dir
         self.content = {}
         self.load_all()
