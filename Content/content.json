@@ -24,7 +24,7 @@
     },
     "detainee_population": {
       "title": "Select Detainee Population Size",
-      "tooltip": "The number of individuals detained at Cook County Jail for at least sixty nights over the course of the year"
+      "tooltip": "The number of individuals detained at Cook County Jail for at least one night over the course of the year"
     },
     "community_size": {
       "title": "Select Community Size",

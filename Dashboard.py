@@ -705,34 +705,28 @@ app.layout = html.Div(className='main-container', children=[
                         'backgroundColor': 'white'
                     }, children=[
                         html.Div(style={'padding': '24px 0'}, children=[
-                            # 2-Column Layout: Left (KPI + Chart) | Right (Interpretation + Benchmark)
+                            # Top Row: KPI, Interpretation, and Benchmark Cards
+                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': '24px', 'marginBottom': '24px'}, children=[
+                                # KPI Card
+                                html.Div(id='kpi-card'),
+
+                                # Interpretation Card
+                                html.Div(id='interpretation-card'),
+
+                                # Benchmark Card
+                                html.Div(id='benchmark-card')
+                            ]),
+
+                            # Bottom Row: Numerator and Denominator Charts (Full Width)
                             html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '24px'}, children=[
-                                # Left Column
-                                html.Div(style={'display': 'flex', 'flexDirection': 'column', 'gap': '24px'}, children=[
-                                    # KPI Card
-                                    html.Div(id='kpi-card'),
-
-                                    # Charts Row: Numerator and Denominator side by side
-                                    html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '16px'}, children=[
-                                        # Numerator Chart (Detainee + Society Values)
-                                        html.Div(className='chart-container', children=[
-                                            dcc.Graph(id='numerator-chart')
-                                        ]),
-
-                                        # Denominator Chart (Government Cost vs Numerator)
-                                        html.Div(className='chart-container', children=[
-                                            dcc.Graph(id='denominator-chart')
-                                        ])
-                                    ])
+                                # Numerator Chart (Detainee + Society Values)
+                                html.Div(className='chart-container', children=[
+                                    dcc.Graph(id='numerator-chart')
                                 ]),
 
-                                # Right Column
-                                html.Div(style={'display': 'flex', 'flexDirection': 'column', 'gap': '24px'}, children=[
-                                    # Interpretation Card (populated by callback)
-                                    html.Div(id='interpretation-card'),
-
-                                    # Benchmark Card (populated by callback)
-                                    html.Div(id='benchmark-card')
+                                # Denominator Chart (Government Cost vs Numerator)
+                                html.Div(className='chart-container', children=[
+                                    dcc.Graph(id='denominator-chart')
                                 ])
                             ])
                         ])
@@ -1664,7 +1658,7 @@ def _build_benchmark_card(current_mvpf):
             'marginTop': '0'
         }),
         html.P([
-            'Marginal value of maintaining Cook County Jail compared to other Government programs and interventions. The benchmark cards include the actual MVPF values and how much social return they offer for each US dollar compared to the current CCJ calculation.'
+            'Comparing the the actual MVPF values of selected government programs, interventions, and policy initiatives across different domains, and the impact of how 1 US dollar is spent on Cook County Jail comparing to spending on these initiatives.'
         ], style={
             'fontSize': '14px',
             'color': '#6b7280',
