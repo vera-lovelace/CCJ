@@ -4,7 +4,7 @@
       "description": "All cost/benefit components with neutral parameters",
       "subcomponents": {
         "detainee_values": ["det_rel_harm"],
-        "society_values": ["soc_court", "soc_crime_prevention"],
+        "society_values": ["soc_court"],
         "govt_cost": ["gov_operations"]
       },
       "default_parameters": "baseline",

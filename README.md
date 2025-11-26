@@ -1,24 +1,14 @@
 # CCJ Detention Facility Analysis Platform
 
-A comprehensive data analysis and visualization platform for understanding detention facility dynamics, predicting length of stay, and evaluating the Marginal Value of Public Funds (MVPF) for detention policies.
+A comprehensive data analysis and visualization platform for evaluating the Marginal Value of Public Funds (MVPF) for detention policies using economic frameworks and interactive dashboards.
 
 ## 📋 Overview
 
-This project provides tools for analyzing detention facility data with three main components:
+This project provides tools for analyzing detention facility policies through:
 
-1. **MVPF Calculator** - Economic framework for evaluating detention policy costs and benefits
-2. **Interactive Dashboards** - Plotly Dash visualizations for exploring data and model results
-
-## 📝 Research Background
-
-This project implements research-based approaches for detention facility analysis:
-
-- **MVPF Framework**: Economic evaluation methodology for public policy
-
-Key considerations:
-- 70-day prediction window vs. full stay duration
-- Time-based cross-validation strategies
-- Feature availability at prediction time
+1. **MVPF Calculator** - Economic framework for evaluating detention policy costs and benefits across multiple scenarios
+2. **Interactive Dashboard** - Plotly Dash application with real-time parameter adjustment and visualization
+3. **Scenario Analysis** - Compare baseline, reform, and expansion scenarios with configurable parameters
 
 Data and code to support the Cook County Jail project for the "Building Data Products for Public Impact" course (INFO 290, Fall 2025, UC Berkeley).
 
@@ -57,28 +47,39 @@ MVPF = (Detainee Values + Society Values) / Government Costs
 ## 📈 Key Features
 
 ### MVPF Calculator Capabilities
-- Scenario-based analysis (baseline, optimal, enhanced)
-- Parameter sensitivity testing
-- Component-level breakdown
-- CPI-adjusted calculations
-- Batch processing for multiple scenarios
+- **Multiple Scenarios**: Baseline, conservative/least conservative, reform programs, capacity expansion
+- **CSV-Driven Configuration**: Parameters and subcomponent values loaded from data files
+- **CPI Adjustment**: Automatic inflation adjustment for monetary values
+- **Component Registry**: Modular subcomponent system for detainee values, society values, and government costs
+- **Scenario Management**: JSON-based scenario definitions with component selection and parameter overrides
 
 ### Dashboard Features
-- Real-time parameter adjustment
-- Interactive visualizations
-- Component drill-down
-- Scenario comparison
-- Export functionality
+- **Interactive Parameter Controls**: CSV-driven dropdowns for felony rate, length of stay, population size
+- **Real-Time Calculation**: Instant MVPF recalculation as parameters change
+- **Component Breakdown**: Detailed visualization of detainee, society, and government cost components
+- **Scenario Comparison**: Compare baseline against alternative policy scenarios
+- **Benchmark Comparisons**: View MVPF against other public policy interventions
 
-## 🔧 Configuration
+## 🔧 Available Scenarios
 
-### MVPF Parameters
+The platform includes the following pre-configured scenarios:
 
-Adjustable scenario parameters:
-- `crime_rate_mult`: Crime rate multiplier (0.8 - 1.5)
-- `detainee_pop_mult`: Population size multiplier (0.8 - 1.5)
-- `community_size_mult`: Community impact multiplier (0.8 - 1.5)
-- `length_of_stay_mult`: LoS duration multiplier (0.8 - 1.5)
+- **Baseline**: Current operations with neutral parameters
+- **Conservative Approach**: Focus on government costs and limited societal benefits
+- **Least Conservative Approach**: Emphasizing detainee and societal benefits
+- **Reduced Crime Scenario**: Increased societal benefits from crime reduction
+- **Increased Crime Scenario**: Decreased societal benefits from capacity reductions
+- **Pre-Trial Diversion Program**: Reduced detention through community programs
+- **Bail Reform**: Reduced pre-trial detention via bail reform
+- **Facility Capacity Expansion**: Increased capacity to handle larger population
+
+### Key Parameters
+
+Dashboard parameters are CSV-driven with dropdown options:
+- **Felony Rate**: Below average / Average / Above average
+- **Length of Stay**: Short (days) / Average / Long (days)
+- **Detainee Population Multiplier**: Adjusts total affected population
+- **Society Size Multiplier**: Adjusts community impact scale
 
 
 ## 🚀 Getting Started
@@ -86,7 +87,7 @@ Adjustable scenario parameters:
 ### Running the Dashboard
 
 ```bash
-python dashboard.py
+python Dashboard.py
 ```
 
 Then open your browser to `http://localhost:8050`
@@ -95,16 +96,23 @@ Then open your browser to `http://localhost:8050`
 
 ```
 CCJ/
-├── mvpf_package/
-│   ├── __init__.py
-│   ├── mvpf_calculation.py    # Core MVPF calculator
-│   ├── content_loader.py      # Content management
-│   ├── helpers.py             # Utility functions
-│   └── graphs.py              # Visualization helpers
+├── Dashboard.py               # Main Plotly Dash application
+├── mvpf_calculator.py         # Core MVPF calculation engine
+├── parameters.py              # Parameter registry and management
+├── scenarios.py               # Scenario management system
+├── subcomponents.py           # Subcomponent registry
+├── content_loader.py          # Content management
+├── graphs.py                  # Visualization helpers
+├── helpers.py                 # Utility functions
+├── cpi_adjuster.py            # CPI inflation adjustment
 ├── Data/
-│   └── [CSV files]
-├── dashboard.py               # Plotly Dash application
-└── README.md
+│   ├── subcomponent_values.csv      # Component cost/benefit values
+│   ├── parameter_values.csv         # Parameter definitions
+│   ├── parameter_mapping.csv        # Parameter-to-component mapping
+│   ├── alternative_calculations.json # Scenario definitions
+│   ├── mvpf_comparisons.csv         # Benchmark comparisons
+│   └── CPI.csv                      # CPI adjustment data
+└── Content/                   # Dashboard content and descriptions
 ```
 
 ## 🤝 Contributing
@@ -115,15 +123,6 @@ Contributions are welcome! Areas for enhancement:
 - Additional MVPF components
 - Dashboard improvements
 - Documentation and examples
-
-
-## 📄 License
-
-This project is intended for research and policy analysis purposes.
-
-## 📧 Contact
-
-For questions or collaboration opportunities, please open an issue on GitHub.
 
 ## 🙏 Acknowledgments
 
