@@ -494,6 +494,11 @@ app.index_string = '''
             .benchmark-tile-link:hover {
                 text-decoration: underline;
             }
+            .landing-nav-card:hover {
+                border-color: #3b82f6 !important;
+                box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2) !important;
+                transform: translateY(-4px);
+            }
         </style>
     </head>
     <body>
@@ -515,154 +520,9 @@ app.layout = html.Div(className='main-container', children=[
         html.P(content.get('header.subtitle', 'Marginal Value of Public Funds Calculation'))
     ]),
 
-    html.Div(style={'position': 'sticky', 'top': '24px', 'zIndex': '1000'}, children=[
-                # Information Tile
-                html.Div(className='info-tile', children=[
-                    html.H3(content.get('info_tile.heading', 'About MVPF')),
-                    html.P(content.get('info_tile.description', 'The MVPF measures the ratio of beneficiaries willingness to pay to the net cost to the government')),
-                    html.P([
-                        html.Strong(content.get('info_tile.formula_label', 'Formula:')),
-                        html.Br(),
-                        content.get('info_tile.formula', 'MVPF = (Detainee + Society) / Government Cost')
-                    ])
-                ]),
-
-
-    # Analysis Parameters - Four Jumbotrons
-    html.Div(className='jumbotron-grid', children=[
-        # Jumbotron 1: Felony Rate
-        html.Div(className='jumbotron', children=[
-            html.Div(className='jumbotron-icon', style={'background': '#dbeafe'}, children=[
-                html.Span('%%', style={'color': '#2563eb'})
-            ]),
-            html.H4(content.get('controls.felony_rate.title', 'Felony Rate'), className='jumbotron-title'),
-            html.P(f"{fel_rate_param.default_value:.0%}", className='jumbotron-value'),
-            html.P(content.get('controls.felony_rate.tooltip', fel_rate_param.description), className='jumbotron-description'),
-            dcc.Dropdown(
-                id='detainee-param1',
-                options=FEL_RATE_OPTIONS,
-                value='average',
-                clearable=False
-            )
-        ]),
-
-        # Jumbotron 2: Detainee Population
-        html.Div(className='jumbotron', children=[
-            html.Div(className='jumbotron-icon', style={'background': '#fef3c7'}, children=[
-                html.Span('#', style={'color': '#d97706', 'fontWeight': '700'})
-            ]),
-            html.H4(content.get('controls.detainee_population.title', 'Detainee Population'), className='jumbotron-title'),
-            html.P(f"{n_detainees_param.base_value:,.0f}", className='jumbotron-value'),
-            html.P(content.get('controls.detainee_population.tooltip', n_detainees_param.description), className='jumbotron-description'),
-            dcc.Dropdown(
-                id='detainee-param2',
-                options=N_DETAINEES_OPTIONS,
-                value='average',
-                clearable=False
-            )
-        ]),
-
-        # Jumbotron 3: Community Size
-        html.Div(className='jumbotron', children=[
-            html.Div(className='jumbotron-icon', style={'background': '#dcfce7'}, children=[
-                html.Span('#', style={'color': '#16a34a', 'fontWeight': '700'})
-            ]),
-            html.H4(content.get('controls.community_size.title', 'Community Size'), className='jumbotron-title'),
-            html.P(f"{n_society_param.base_value:,.0f}", className='jumbotron-value'),
-            html.P(content.get('controls.community_size.tooltip', n_society_param.description), className='jumbotron-description'),
-            dcc.Dropdown(
-                id='society-param1',
-                options=N_SOCIETY_OPTIONS,
-                value='average',
-                clearable=False
-            )
-        ]),
-
-        # Jumbotron 4: Length of Stay
-        html.Div(className='jumbotron', children=[
-            html.Div(className='jumbotron-icon', style={'background': '#fee2e2'}, children=[
-                html.Span('D', style={'color': '#dc2626', 'fontWeight': '700'})
-            ]),
-            html.H4(content.get('controls.length_of_stay.title', 'Length of Stay'), className='jumbotron-title'),
-            html.P(f"{los_days_param.default_value:.0f} days", className='jumbotron-value'),
-            html.P(content.get('controls.length_of_stay.tooltip', los_days_param.description), className='jumbotron-description'),
-            dcc.Dropdown(
-                id='society-param2',
-                options=LOS_DAYS_OPTIONS,
-                value='average',
-                clearable=False
-            )
-        ])
-    ]),
-
-    # Scenario Selection Section
-    html.Div(className='jumbotron', style={'marginBottom': '24px'}, children=[
-        html.H4('Scenario Selection', style={
-            'fontSize': '18px',
-            'fontWeight': '600',
-            'color': '#374151',
-            'marginTop': '0',
-            'marginBottom': '12px'
-        }),
-        html.Label('Select Scenario to calculate the :', style={
-            'fontSize': '14px',
-            'fontWeight': '500',
-            'color': '#374151',
-            'marginBottom': '8px',
-            'display': 'block'
-        }),
-        dcc.Dropdown(
-            id='scenario-selector',
-            options=[
-                {'label': content.get('scenarios.options.baseline', 'Baseline - Current Operations'), 'value': 'baseline'},
-                {'label': content.get('scenarios.options.most_conservative', 'Conservative Approach'), 'value': 'most conservative'},
-                {'label': content.get('scenarios.options.least_conservative', 'Least Conservative Approach'), 'value': 'least conservative'},
-                {'label': content.get('scenarios.options.reduced_crime', 'Reduced Crime Scenario'), 'value': 'reduced_crime'},
-                {'label': content.get('scenarios.options.increased_crime', 'Increased Crime Scenario'), 'value': 'increased_crime'},
-                {'label': content.get('scenarios.options.diversion_program', 'Pre-Trial Diversion Program'), 'value': 'diversion_program'},
-                {'label': content.get('scenarios.options.bail_reform', 'Bail Reform Scenario'), 'value': 'bail_reform'},
-                {'label': content.get('scenarios.options.capacity_expansion', 'Facility Capacity Expansion'), 'value': 'capacity_expansion'}
-            ],
-            value='baseline',
-            clearable=False,
-            style={'marginBottom': '16px'}
-        ),
-        # Scenario Description
-        html.Div(id='scenario-description', style={
-            'backgroundColor': '#f9fafb',
-            'padding': '16px',
-            'borderRadius': '8px',
-            'borderLeft': '4px solid #3b82f6',
-            'marginTop': '16px'
-        })
-    ]),
-
-    # Calculate Button Section
-    html.Div(className='calculate-section', style={
-        'display': 'flex',
-        'justifyContent': 'center',
-        'marginBottom': '24px'
-    }, children=[
-        html.Button(
-            'Calculate MVPF',
-            id='btn-calculate',
-            n_clicks=0,
-            style={
-                'backgroundColor': '#2563eb',
-                'color': 'white',
-                'border': 'none',
-                'borderRadius': '8px',
-                'padding': '14px 48px',
-                'fontSize': '16px',
-                'fontWeight': '600',
-                'cursor': 'pointer',
-                'transition': 'all 0.2s',
-                'boxShadow': '0 4px 6px rgba(37, 99, 235, 0.25)'
-            }
-        )
-    ]),
-
     # Main Content
+
+
     html.Div(children=[
                 # Download section
                 html.Div(className='download-section', style={
@@ -691,7 +551,371 @@ app.layout = html.Div(className='main-container', children=[
                 ]),
 
                 # Tabs Container
-                dcc.Tabs(id='main-tabs', value='tab-overview', children=[
+                dcc.Tabs(id='main-tabs', value='tab-landing', children=[
+                    # Tab 0: Landing Page
+                    dcc.Tab(label='Home', value='tab-landing', style={
+                        'padding': '12px 24px',
+                        'fontWeight': '500',
+                        'fontSize': '14px'
+                    }, selected_style={
+                        'padding': '12px 24px',
+                        'fontWeight': '600',
+                        'fontSize': '14px',
+                        'borderTop': '3px solid #3b82f6',
+                        'backgroundColor': 'white'
+                    }, children=[
+                        html.Div(style={'padding': '48px 24px', 'maxWidth': '900px', 'margin': '0 auto'}, children=[
+                            # Title
+                            html.H1('Welcome to the MVPF Analysis Dashboard', style={
+                                'fontSize': '36px',
+                                'fontWeight': 'bold',
+                                'color': '#1e293b',
+                                'marginBottom': '24px',
+                                'textAlign': 'center'
+                            }),
+
+                            # Information Tile
+                            html.Div(style={
+                                'background': 'white',
+                                'padding': '20px',
+                                'borderRadius': '8px',
+                                'marginBottom': '32px',
+                                'border': '1px solid #e5e7eb'
+                            }, children=[
+                                html.H3(content.get('info_tile.heading', 'About MVPF'), style={
+                                    'fontSize': '16px',
+                                    'fontWeight': '600',
+                                    'color': '#374151',
+                                    'marginTop': '0',
+                                    'marginBottom': '8px'
+                                }),
+                                html.P(content.get('info_tile.description', 'The MVPF measures the ratio of beneficiaries willingness to pay to the net cost to the government'), style={
+                                    'fontSize': '14px',
+                                    'color': '#6b7280',
+                                    'lineHeight': '1.6',
+                                    'margin': '0 0 12px 0'
+                                }),
+                                html.P([
+                                    html.Strong(content.get('info_tile.formula_label', 'Formula:'), style={'color': '#374151'}),
+                                    html.Br(),
+                                    content.get('info_tile.formula', 'MVPF = (Detainee + Society) / Government Cost')
+                                ], style={
+                                    'fontSize': '14px',
+                                    'color': '#6b7280',
+                                    'lineHeight': '1.6',
+                                    'margin': '0'
+                                })
+                            ]),
+
+                            # Description
+                            html.Div(style={
+                                'backgroundColor': '#f0f9ff',
+                                'padding': '32px',
+                                'borderRadius': '12px',
+                                'marginBottom': '48px',
+                                'borderLeft': '6px solid #3b82f6'
+                            }, children=[
+                                html.P([
+                                    'This interactive dashboard helps you analyze the ',
+                                    html.Strong('Marginal Value of Public Funds (MVPF)'),
+                                    ' for Cook County Jail operations. The MVPF measures the social welfare benefit of a policy per dollar of government spending.'
+                                ], style={
+                                    'fontSize': '16px',
+                                    'color': '#334155',
+                                    'lineHeight': '1.8',
+                                    'marginBottom': '16px'
+                                }),
+                                html.P(
+                                    'Use the tabs below to explore different aspects of the analysis, from high-level overview to detailed scenario comparisons and benchmarking against other government programs.',
+                                    style={
+                                        'fontSize': '16px',
+                                        'color': '#334155',
+                                        'lineHeight': '1.8',
+                                        'margin': '0'
+                                    }
+                                )
+                            ]),
+
+                            # Navigation Cards
+                            html.H2('Explore the Dashboard', style={
+                                'fontSize': '24px',
+                                'fontWeight': '600',
+                                'color': '#1e293b',
+                                'marginBottom': '24px',
+                                'textAlign': 'center'
+                            }),
+
+                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': '24px'}, children=[
+                                # Card 1: Overview
+                                html.A(href='#', id='link-to-overview', style={'textDecoration': 'none'}, children=[
+                                    html.Div(style={
+                                        'backgroundColor': 'white',
+                                        'padding': '32px',
+                                        'borderRadius': '12px',
+                                        'boxShadow': '0 4px 6px rgba(0,0,0,0.1)',
+                                        'border': '2px solid transparent',
+                                        'transition': 'all 0.2s',
+                                        'cursor': 'pointer'
+                                    }, className='landing-nav-card', children=[
+                                        html.Div(style={
+                                            'width': '56px',
+                                            'height': '56px',
+                                            'borderRadius': '12px',
+                                            'backgroundColor': '#dbeafe',
+                                            'display': 'flex',
+                                            'alignItems': 'center',
+                                            'justifyContent': 'center',
+                                            'marginBottom': '20px'
+                                        }, children=[
+                                            html.Span('📊', style={'fontSize': '28px'})
+                                        ]),
+                                        html.H3('Overview', style={
+                                            'fontSize': '20px',
+                                            'fontWeight': '600',
+                                            'color': '#1e293b',
+                                            'marginBottom': '12px'
+                                        }),
+                                        html.P(
+                                            'View the MVPF calculation, key performance indicators, and comparison charts showing detainee values, society values, and government costs.',
+                                            style={
+                                                'fontSize': '14px',
+                                                'color': '#64748b',
+                                                'lineHeight': '1.6',
+                                                'margin': '0'
+                                            }
+                                        )
+                                    ])
+                                ]),
+
+                                # Card 2: Scenario Analysis
+                                html.A(href='#', id='link-to-scenarios', style={'textDecoration': 'none'}, children=[
+                                    html.Div(style={
+                                        'backgroundColor': 'white',
+                                        'padding': '32px',
+                                        'borderRadius': '12px',
+                                        'boxShadow': '0 4px 6px rgba(0,0,0,0.1)',
+                                        'border': '2px solid transparent',
+                                        'transition': 'all 0.2s',
+                                        'cursor': 'pointer'
+                                    }, className='landing-nav-card', children=[
+                                        html.Div(style={
+                                            'width': '56px',
+                                            'height': '56px',
+                                            'borderRadius': '12px',
+                                            'backgroundColor': '#fef3c7',
+                                            'display': 'flex',
+                                            'alignItems': 'center',
+                                            'justifyContent': 'center',
+                                            'marginBottom': '20px'
+                                        }, children=[
+                                            html.Span('🔍', style={'fontSize': '28px'})
+                                        ]),
+                                        html.H3('Scenario Analysis', style={
+                                            'fontSize': '20px',
+                                            'fontWeight': '600',
+                                            'color': '#1e293b',
+                                            'marginBottom': '12px'
+                                        }),
+                                        html.P(
+                                            'Compare different policy scenarios and analyze parameter sensitivity to understand how changes in assumptions affect MVPF outcomes.',
+                                            style={
+                                                'fontSize': '14px',
+                                                'color': '#64748b',
+                                                'lineHeight': '1.6',
+                                                'margin': '0'
+                                            }
+                                        )
+                                    ])
+                                ]),
+
+                                # Card 3: Comparative Benchmarking
+                                html.A(href='#', id='link-to-benchmarking', style={'textDecoration': 'none'}, children=[
+                                    html.Div(style={
+                                        'backgroundColor': 'white',
+                                        'padding': '32px',
+                                        'borderRadius': '12px',
+                                        'boxShadow': '0 4px 6px rgba(0,0,0,0.1)',
+                                        'border': '2px solid transparent',
+                                        'transition': 'all 0.2s',
+                                        'cursor': 'pointer'
+                                    }, className='landing-nav-card', children=[
+                                        html.Div(style={
+                                            'width': '56px',
+                                            'height': '56px',
+                                            'borderRadius': '12px',
+                                            'backgroundColor': '#dcfce7',
+                                            'display': 'flex',
+                                            'alignItems': 'center',
+                                            'justifyContent': 'center',
+                                            'marginBottom': '20px'
+                                        }, children=[
+                                            html.Span('📈', style={'fontSize': '28px'})
+                                        ]),
+                                        html.H3('Comparative Benchmarking', style={
+                                            'fontSize': '20px',
+                                            'fontWeight': '600',
+                                            'color': '#1e293b',
+                                            'marginBottom': '12px'
+                                        }),
+                                        html.P(
+                                            'Compare Cook County Jail MVPF against other government programs and policy initiatives to contextualize the value of public spending.',
+                                            style={
+                                                'fontSize': '14px',
+                                                'color': '#64748b',
+                                                'lineHeight': '1.6',
+                                                'margin': '0'
+                                            }
+                                        )
+                                    ])
+                                ])
+                            ]),
+
+                            # Analysis Parameters Section
+                            html.H2('Analysis Parameters', style={
+                                'fontSize': '24px',
+                                'fontWeight': '600',
+                                'color': '#1e293b',
+                                'marginTop': '48px',
+                                'marginBottom': '24px',
+                                'textAlign': 'center'
+                            }),
+
+                            # Parameter Jumbotrons Grid
+                            html.Div(className='jumbotron-grid', children=[
+                                # Jumbotron 1: Felony Rate
+                                html.Div(className='jumbotron', children=[
+                                    html.Div(className='jumbotron-icon', style={'background': '#dbeafe'}, children=[
+                                        html.Span('%%', style={'color': '#2563eb'})
+                                    ]),
+                                    html.H4(content.get('controls.felony_rate.title', 'Felony Rate'), className='jumbotron-title'),
+                                    html.P(f"{fel_rate_param.default_value:.0%}", className='jumbotron-value'),
+                                    html.P(content.get('controls.felony_rate.tooltip', fel_rate_param.description), className='jumbotron-description'),
+                                    dcc.Dropdown(
+                                        id='detainee-param1',
+                                        options=FEL_RATE_OPTIONS,
+                                        value='average',
+                                        clearable=False
+                                    )
+                                ]),
+
+                                # Jumbotron 2: Detainee Population
+                                html.Div(className='jumbotron', children=[
+                                    html.Div(className='jumbotron-icon', style={'background': '#fef3c7'}, children=[
+                                        html.Span('#', style={'color': '#d97706', 'fontWeight': '700'})
+                                    ]),
+                                    html.H4(content.get('controls.detainee_population.title', 'Detainee Population'), className='jumbotron-title'),
+                                    html.P(f"{n_detainees_param.base_value:,.0f}", className='jumbotron-value'),
+                                    html.P(content.get('controls.detainee_population.tooltip', n_detainees_param.description), className='jumbotron-description'),
+                                    dcc.Dropdown(
+                                        id='detainee-param2',
+                                        options=N_DETAINEES_OPTIONS,
+                                        value='average',
+                                        clearable=False
+                                    )
+                                ]),
+
+                                # Jumbotron 3: Community Size
+                                html.Div(className='jumbotron', children=[
+                                    html.Div(className='jumbotron-icon', style={'background': '#dcfce7'}, children=[
+                                        html.Span('#', style={'color': '#16a34a', 'fontWeight': '700'})
+                                    ]),
+                                    html.H4(content.get('controls.community_size.title', 'Community Size'), className='jumbotron-title'),
+                                    html.P(f"{n_society_param.base_value:,.0f}", className='jumbotron-value'),
+                                    html.P(content.get('controls.community_size.tooltip', n_society_param.description), className='jumbotron-description'),
+                                    dcc.Dropdown(
+                                        id='society-param1',
+                                        options=N_SOCIETY_OPTIONS,
+                                        value='average',
+                                        clearable=False
+                                    )
+                                ]),
+
+                                # Jumbotron 4: Length of Stay
+                                html.Div(className='jumbotron', children=[
+                                    html.Div(className='jumbotron-icon', style={'background': '#fee2e2'}, children=[
+                                        html.Span('D', style={'color': '#dc2626', 'fontWeight': '700'})
+                                    ]),
+                                    html.H4(content.get('controls.length_of_stay.title', 'Length of Stay'), className='jumbotron-title'),
+                                    html.P(f"{los_days_param.default_value:.0f} days", className='jumbotron-value'),
+                                    html.P(content.get('controls.length_of_stay.tooltip', los_days_param.description), className='jumbotron-description'),
+                                    dcc.Dropdown(
+                                        id='society-param2',
+                                        options=LOS_DAYS_OPTIONS,
+                                        value='average',
+                                        clearable=False
+                                    )
+                                ])
+                            ]),
+
+                            # Scenario Selection Section
+                            html.Div(className='jumbotron', style={'marginTop': '24px', 'marginBottom': '24px'}, children=[
+                                html.H4('Scenario Selection', style={
+                                    'fontSize': '18px',
+                                    'fontWeight': '600',
+                                    'color': '#374151',
+                                    'marginTop': '0',
+                                    'marginBottom': '12px'
+                                }),
+                                html.Label('Select Scenario to calculate the MVPF:', style={
+                                    'fontSize': '14px',
+                                    'fontWeight': '500',
+                                    'color': '#374151',
+                                    'marginBottom': '8px',
+                                    'display': 'block'
+                                }),
+                                dcc.Dropdown(
+                                    id='scenario-selector',
+                                    options=[
+                                        {'label': content.get('scenarios.options.baseline', 'Baseline - Current Operations'), 'value': 'baseline'},
+                                        {'label': content.get('scenarios.options.most_conservative', 'Conservative Approach'), 'value': 'most conservative'},
+                                        {'label': content.get('scenarios.options.least_conservative', 'Least Conservative Approach'), 'value': 'least conservative'},
+                                        {'label': content.get('scenarios.options.reduced_crime', 'Reduced Crime Scenario'), 'value': 'reduced_crime'},
+                                        {'label': content.get('scenarios.options.increased_crime', 'Increased Crime Scenario'), 'value': 'increased_crime'},
+                                        {'label': content.get('scenarios.options.diversion_program', 'Pre-Trial Diversion Program'), 'value': 'diversion_program'},
+                                        {'label': content.get('scenarios.options.bail_reform', 'Bail Reform Scenario'), 'value': 'bail_reform'},
+                                        {'label': content.get('scenarios.options.capacity_expansion', 'Facility Capacity Expansion'), 'value': 'capacity_expansion'}
+                                    ],
+                                    value='baseline',
+                                    clearable=False,
+                                    style={'marginBottom': '16px'}
+                                ),
+                                # Scenario Description
+                                html.Div(id='scenario-description', style={
+                                    'backgroundColor': '#f9fafb',
+                                    'padding': '16px',
+                                    'borderRadius': '8px',
+                                    'borderLeft': '4px solid #3b82f6',
+                                    'marginTop': '16px'
+                                })
+                            ]),
+
+                            # Calculate Button Section
+                            html.Div(className='calculate-section', style={
+                                'display': 'flex',
+                                'justifyContent': 'center',
+                                'marginBottom': '24px'
+                            }, children=[
+                                html.Button(
+                                    'Calculate MVPF',
+                                    id='btn-calculate',
+                                    n_clicks=0,
+                                    style={
+                                        'backgroundColor': '#2563eb',
+                                        'color': 'white',
+                                        'border': 'none',
+                                        'borderRadius': '8px',
+                                        'padding': '14px 48px',
+                                        'fontSize': '16px',
+                                        'fontWeight': '600',
+                                        'cursor': 'pointer',
+                                        'transition': 'all 0.2s',
+                                        'boxShadow': '0 4px 6px rgba(37, 99, 235, 0.25)'
+                                    }
+                                )
+                            ])
+                        ])
+                    ]),
+
                     # Tab 1: Overview - KPI, Main Chart, Interpretation, Benchmarks
                     dcc.Tab(label=content.get('tabs.overview', 'Overview'), value='tab-overview', style={
                         'padding': '12px 24px',
@@ -705,16 +929,13 @@ app.layout = html.Div(className='main-container', children=[
                         'backgroundColor': 'white'
                     }, children=[
                         html.Div(style={'padding': '24px 0'}, children=[
-                            # Top Row: KPI, Interpretation, and Benchmark Cards
-                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': '24px', 'marginBottom': '24px'}, children=[
+                            # Top Row: KPI and Interpretation Cards
+                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '24px', 'marginBottom': '24px'}, children=[
                                 # KPI Card
                                 html.Div(id='kpi-card'),
 
                                 # Interpretation Card
-                                html.Div(id='interpretation-card'),
-
-                                # Benchmark Card
-                                html.Div(id='benchmark-card')
+                                html.Div(id='interpretation-card')
                             ]),
 
                             # Bottom Row: Numerator and Denominator Charts (Full Width)
@@ -823,432 +1044,714 @@ app.layout = html.Div(className='main-container', children=[
                         'backgroundColor': 'white'
                     }, children=[
                         html.Div(style={'padding': '24px 0'}, children=[
-                            # Placeholder for Tab 3
-                            html.Div(style={
-                                'backgroundColor': '#f0fdf4',
-                                'padding': '40px',
-                                'borderRadius': '8px',
-                                'marginBottom': '24px',
-                                'borderLeft': '4px solid #16a34a',
-                                'textAlign': 'center'
-                            }, children=[
-                                html.H3('Placeholder for Comparative Benchmarking Content', style={
-                                    'fontSize': '24px',
+                            # Benchmark Card
+                            html.Div(id='benchmark-card')
+                        ])
+                    ]),
+
+                    # Tab 4: Descriptions
+                    dcc.Tab(label='Descriptions', value='tab-descriptions', style={
+                        'padding': '12px 24px',
+                        'fontWeight': '500',
+                        'fontSize': '14px'
+                    }, selected_style={
+                        'padding': '12px 24px',
+                        'fontWeight': '600',
+                        'fontSize': '14px',
+                        'borderTop': '3px solid #3b82f6',
+                        'backgroundColor': 'white'
+                    }, children=[
+                        html.Div(style={'padding': '24px 0'}, children=[
+                            # MVPF Explainer Section
+                            html.Div(className='chart-container', style={'background': '#f8fafc'}, children=[
+                                html.H3(content.get('mvpf_explainer.section_title', 'Understanding MVPF'), style={
+                                    'fontSize': '20px',
                                     'fontWeight': '600',
-                                    'color': '#374151',
-                                    'margin': '0 0 16px 0'
+                                    'color': '#1e293b',
+                                    'marginBottom': '16px',
+                                    'marginTop': '0'
                                 }),
-                                html.P('Placeholder for: Detailed comparative analysis showing how Cook County Jail MVPF compares to other government programs, interventions, and policy initiatives across different domains.', style={
-                                    'fontSize': '16px',
-                                    'color': '#166534',
-                                    'margin': '0',
-                                    'lineHeight': '1.6',
-                                    'maxWidth': '800px',
-                                    'marginLeft': 'auto',
-                                    'marginRight': 'auto'
-                                })
+                                html.Div(
+                                    style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '24px'},
+                                    children=[
+                                        # Left column
+                                        html.Div(children=[
+                                            html.H4(
+                                                content.get('mvpf_explainer.what_is_mvpf.heading', 'What is MVPF?'),
+                                                style={
+                                                    'fontSize': '16px',
+                                                    'fontWeight': '600',
+                                                    'color': '#374151',
+                                                    'marginTop': '0',
+                                                    'marginBottom': '12px'
+                                                }
+                                            ),
+                                            html.P(
+                                                content.get('mvpf_explainer.what_is_mvpf.description', 'The Marginal Value of Public Funds (MVPF) is a metric that measures the social welfare benefit of a policy per dollar of government spending.'),
+                                                style={
+                                                    'color': '#4b5563',
+                                                    'fontSize': '14px',
+                                                    'lineHeight': '1.6',
+                                                    'margin': '0'
+                                                }
+                                            ),
+                                            html.Div(children=[
+                                                html.H4(
+                                                    content.get('mvpf_explainer.applying_to_detention.heading', 'Applying MVPF to detention'),
+                                                    style={
+                                                        'fontSize': '16px',
+                                                        'fontWeight': '600',
+                                                        'color': '#374151',
+                                                        'marginTop': '1',
+                                                        'marginBottom': '12px'
+                                                    }
+                                                ),
+                                                html.P(
+                                                    content.get('mvpf_explainer.applying_to_detention.paragraph1', 'Most MVPF work looks at policies where the person subject to the policy is also the main beneficiary.'),
+                                                    style={
+                                                        'color': '#4b5563',
+                                                        'fontSize': '14px',
+                                                        'lineHeight': '1.6',
+                                                        'margin': '0'
+                                                    }
+                                                ),
+                                                html.P(
+                                                    content.get('mvpf_explainer.applying_to_detention.paragraph2', 'Most studies on detention focus on marginal changes.'),
+                                                    style={
+                                                        'color': '#4b5563',
+                                                        'fontSize': '14px',
+                                                        'lineHeight': '1.6',
+                                                        'marginTop': '1',
+                                                        'marginBottom': '12px'
+                                                    }
+                                                )
+                                            ])
+                                        ])
+                                    ]
+                                ),
+
+                                # Components breakdown
+                                html.Div(style={'marginTop': '24px', 'paddingTop': '24px', 'borderTop': '1px solid #e5e7eb'},
+                                         children=[
+                                             html.H4('Components Breakdown', style={
+                                                 'fontSize': '16px',
+                                                 'fontWeight': '600',
+                                                 'color': '#374151',
+                                                 'marginTop': '0',
+                                                 'marginBottom': '16px'
+                                             }),
+                                             html.Div(
+                                                 style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': '16px'},
+                                                 children=[
+                                                     # Detainee Values
+                                                     html.Div(
+                                                         id='detainee-values-section',
+                                                         style={
+                                                             'background': 'white',
+                                                             'padding': '20px',
+                                                             'borderRadius': '8px',
+                                                             'borderLeft': '4px solid #2563eb'
+                                                         },
+                                                         children=[
+                                                             html.H5('Detainee Values', style={
+                                                                 'fontSize': '15px',
+                                                                 'fontWeight': '600',
+                                                                 'color': '#2563eb',
+                                                                 'margin': '0 0 12px 0'
+                                                             }),
+
+                                                             html.P(
+                                                                 'Detainee Values capture the total harm detention imposes on people who are jailed. '
+                                                                 'We measure this using a willingness-to-pay lens, estimating how much a person would trade '
+                                                                 'to avoid being detained. This reflects short-term harms, disruptions to work and family life, '
+                                                                 'and long-term effects on health, income, and stability.',
+                                                                 style={
+                                                                     'fontSize': '14px',
+                                                                     'color': '#374151',
+                                                                     'margin': '0 0 12px 0',
+                                                                     'lineHeight': '1.6'
+                                                                 }
+                                                             ),
+
+                                                             # Subcomponents header
+                                                             html.Div(className='label-with-info', children=[
+                                                                 html.Span('Subcomponents', style={
+                                                                     'fontWeight': '500',
+                                                                     'fontSize': '14px'
+                                                                    })
+
+                                                                ]),
+                                                             html.Div(children=[
+                                                                # RHV
+                                                                 html.Div([
+                                                                     html.Button(
+                                                                         content.get('components_breakdown.detainee_values.subcomponents.harm_valuation.button_text', 'Willingness to Pay derived from Relative Harm Valuation'),
+                                                                         id='detainee-harm-btn',
+                                                                         n_clicks=0,
+                                                                         className='collapse-toggle'
+                                                                     ),
+                                                                     html.Div(
+                                                                         id='detainee-harm',
+                                                                         style={'display': 'none'},
+                                                                         children=[
+                                                                             html.P(
+                                                                                 content.get('components_breakdown.detainee_values.subcomponents.harm_valuation.explanation', ''),
+                                                                                 style={
+                                                                                     'fontSize': '13px',
+                                                                                     'color': '#6b7280',
+                                                                                     'margin': '6px 0'
+                                                                                 }
+                                                                             )
+                                                                         ]
+                                                                     )
+                                                                 ]),
+                                                                 # Willingness to Pay for Freedom
+                                                                 html.Div([
+                                                                     html.Button(
+                                                                         content.get('components_breakdown.detainee_values.subcomponents.wtp_freedom.button_text', 'Willingness to Pay for Freedom'),
+                                                                         id='detainee-wtp-btn',
+                                                                         n_clicks=0,
+                                                                         className='collapse-toggle'
+                                                                     ),
+                                                                     html.Div(
+                                                                         id='detainee-wtp',
+                                                                         style={'display': 'none'},
+                                                                         children=[
+                                                                             html.P(
+                                                                                 content.get('components_breakdown.detainee_values.subcomponents.wtp_freedom.explanation', ''),
+                                                                                 style={
+                                                                                     'fontSize': '13px',
+                                                                                     'color': '#6b7280',
+                                                                                     'margin': '6px 0'
+                                                                                 }
+                                                                             )
+                                                                         ]
+                                                                     )
+                                                                 ]),
+                                                             ])
+                                                         ]
+                                                     ),
+
+                                                     # Society Values
+                                                     html.Div(
+                                                         id='society-values-section',
+                                                         style={
+                                                             'background': 'white',
+                                                             'padding': '20px',
+                                                             'borderRadius': '8px',
+                                                             'borderLeft': '4px solid #16a34a'
+                                                         },
+                                                         children=[
+                                                             html.H5('Society Values', style={
+                                                                 'fontSize': '15px',
+                                                                 'fontWeight': '600',
+                                                                 'color': '#16a34a',
+                                                                 'margin': '0 0 12px 0'
+                                                             }),
+
+                                                             html.P(
+                                                                 'Society Values measure how detention affects external factors like public safety, victimization risk, and community wellbeing. '
+                                                                 'These values summarize the effects felt by people outside the jail and convert those effects into a '
+                                                                 'common dollar scale for comparison.',
+                                                                 style={
+                                                                     'fontSize': '14px',
+                                                                     'color': '#374151',
+                                                                     'margin': '0 0 12px 0',
+                                                                     'lineHeight': '1.6'
+                                                                 }
+                                                             ),
+
+                                                             html.Div(className='label-with-info', children=[
+                                                                 html.Span('Subcomponents', style={
+                                                                     'fontWeight': '500',
+                                                                     'fontSize': '14px'
+                                                                 }
+                                                                )
+                                                             ]
+                                                             ),
+                                                             html.Div(children=[
+                                                                 # 1. Crime Prevention
+                                                                 html.Div([
+                                                                     html.Button(
+                                                                         content.get('components_breakdown.society_values.subcomponents.crime_prevention.button_text', 'Crime Prevention'),
+                                                                         id='society-crime-btn',
+                                                                         n_clicks=0,
+                                                                         className='collapse-toggle'
+                                                                     ),
+                                                                     html.Div(
+                                                                         id='society-crime',
+                                                                         style={'display': 'none'},
+                                                                         children=[
+                                                                             html.P(
+                                                                                 content.get('components_breakdown.society_values.subcomponents.crime_prevention.explanation', ''),
+                                                                                 style={
+                                                                                     'fontSize': '13px',
+                                                                                     'color': '#6b7280'
+                                                                                 }
+                                                                             )
+                                                                         ]
+                                                                     )
+                                                                 ]),
+                                                                 # 2. Court Appearance Effects
+                                                                 html.Div([
+                                                                     html.Button(
+                                                                         content.get('components_breakdown.society_values.subcomponents.court_appearance.button_text', 'Court Appearance Effects'),
+                                                                         id='society-court-btn',
+                                                                         n_clicks=0,
+                                                                         className='collapse-toggle'
+                                                                     ),
+                                                                     html.Div(
+                                                                         id='society-court',
+                                                                         style={'display': 'none'},
+                                                                         children=[
+                                                                             html.P(
+                                                                                 content.get('components_breakdown.society_values.subcomponents.court_appearance.explanation', ''),
+                                                                                 style={
+                                                                                     'fontSize': '13px',
+                                                                                     'color': '#6b7280'
+                                                                                 }
+                                                                             )
+                                                                         ]
+                                                                     )
+                                                                 ]),
+
+                                                                 # 3. Community Spillovers
+                                                                 html.Div([
+                                                                     html.Button(
+                                                                         content.get('components_breakdown.society_values.subcomponents.community_spillovers.button_text', 'Community and Economic Spillovers'),
+                                                                         id='society-spill-btn',
+                                                                         n_clicks=0,
+                                                                         className='collapse-toggle'
+                                                                     ),
+                                                                     html.Div(
+                                                                         id='society-spill',
+                                                                         style={'display': 'none'},
+                                                                         children=[
+                                                                             html.P(
+                                                                                 content.get('components_breakdown.society_values.subcomponents.community_spillovers.explanation', ''),
+                                                                                 style={
+                                                                                     'fontSize': '13px',
+                                                                                     'color': '#6b7280'
+                                                                                 }
+                                                                             )
+                                                                         ]
+                                                                     )
+                                                                 ])
+                                                             ])
+                                                         ]
+                                                     ),
+
+                                                     # Government Cost
+                                                     html.Div(
+                                                         id='government-cost-section',
+                                                         style={
+                                                             'background': 'white',
+                                                             'padding': '20px',
+                                                             'borderRadius': '8px',
+                                                             'borderLeft': '4px solid #dc2626'
+                                                         },
+                                                         children=[
+                                                             html.H5('Government Cost', style={
+                                                                 'fontSize': '15px',
+                                                                 'fontWeight': '600',
+                                                                 'color': '#dc2626',
+                                                                 'margin': '0 0 12px 0'
+                                                             }),
+
+                                                             html.P(
+                                                                 'Government Cost reflects all public spending required to run the detention system. This includes daily '
+                                                                 'operations, staffing, healthcare, facilities, court processing, and administrative overhead. It represents '
+                                                                 'the fiscal cost taxpayers bear to support the current level of detention.',
+                                                                 style={
+                                                                     'fontSize': '14px',
+                                                                     'color': '#374151',
+                                                                     'margin': '0 0 12px 0',
+                                                                     'lineHeight': '1.6'
+                                                                 }
+                                                             ),
+
+                                                             html.Div(className='label-with-info', children=[
+                                                                 html.Span('Subcomponents', style={
+                                                                     'fontWeight': '500',
+                                                                     'fontSize': '14px'
+                                                                 }
+                                                                 )
+                                                             ]
+                                                            ),
+
+                                                             html.Div(children=[
+                                                                 # Operational Cost
+                                                                 html.Div([
+                                                                     html.Button(
+                                                                         content.get('components_breakdown.government_cost.subcomponents.operational.button_text', 'Operational Costs'),
+                                                                         id='gov-op-btn',
+                                                                         n_clicks=0,
+                                                                         className='collapse-toggle'
+                                                                     ),
+                                                                     html.Div(
+                                                                         id='gov-op',
+                                                                         style={'display': 'none'},
+                                                                         children=[
+                                                                             html.P(
+                                                                                 content.get('components_breakdown.government_cost.subcomponents.operational.explanation', ''),
+                                                                                 style={
+                                                                                     'fontSize': '13px',
+                                                                                     'color': '#6b7280'
+                                                                                 }
+                                                                             )
+                                                                         ]
+                                                                     )
+                                                                 ]),
+
+                                                                 # Crime Increase Costs
+                                                                 html.Div([
+                                                                     html.Button(
+                                                                         content.get('components_breakdown.government_cost.subcomponents.crime_increase.button_text', 'Costs associated with Crime Effect: Increase'),
+                                                                         id='gov-crime-increase-btn',
+                                                                         n_clicks=0,
+                                                                         className='collapse-toggle'
+                                                                     ),
+                                                                     html.Div(
+                                                                         id='gov-crime-increase',
+                                                                         style={'display': 'none'},
+                                                                         children=[
+                                                                             html.P(
+                                                                                 content.get('components_breakdown.government_cost.subcomponents.crime_increase.explanation', ''),
+                                                                                 style={
+                                                                                     'fontSize': '13px',
+                                                                                     'color': '#6b7280'
+                                                                                 }
+                                                                             )
+                                                                         ]
+                                                                     )
+                                                                 ]),
+
+                                                                 # Crime Decrease Costs
+                                                                 html.Div([
+                                                                     html.Button(
+                                                                         content.get('components_breakdown.government_cost.subcomponents.crime_decrease.button_text', 'Costs associated with Crime Effect: Decrease'),
+                                                                         id='gov-crime-decrease-btn',
+                                                                         n_clicks=0,
+                                                                         className='collapse-toggle'
+                                                                     ),
+                                                                     html.Div(
+                                                                         id='gov-crime-decrease',
+                                                                         style={'display': 'none'},
+                                                                         children=[
+                                                                             html.P(
+                                                                                 content.get('components_breakdown.government_cost.subcomponents.crime_decrease.explanation', ''),
+                                                                                 style={
+                                                                                     'fontSize': '13px',
+                                                                                     'color': '#6b7280'
+                                                                                 }
+                                                                             )
+                                                                         ]
+                                                                     )
+                                                                 ]),
+                                                             ])
+                                                         ]
+                                                     )
+                                                 ]
+                                             )
+                                         ])
                             ])
                         ])
-                    ])
-                ]),
+                    ]),
 
-                # MVPF Explainer Section
-                html.Div(className='chart-container', style={'background': '#f8fafc'}, children=[
-                    html.H3(content.get('mvpf_explainer.section_title', 'Understanding MVPF'), style={
-                        'fontSize': '20px',
+                    # Tab 5: About this Data Tool
+                    dcc.Tab(label='About this Data Tool', value='tab-about', style={
+                        'padding': '12px 24px',
+                        'fontWeight': '500',
+                        'fontSize': '14px'
+                    }, selected_style={
+                        'padding': '12px 24px',
                         'fontWeight': '600',
-                        'color': '#1e293b',
-                        'marginBottom': '16px',
-                        'marginTop': '0'
-                    }),
-                    html.Div(
-                        style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '24px'},
-                        children=[
-                            # Left column
-                            html.Div(children=[
-                                html.H4(
-                                    content.get('mvpf_explainer.what_is_mvpf.heading', 'What is MVPF?'),
-                                    style={
-                                        'fontSize': '16px',
+                        'fontSize': '14px',
+                        'borderTop': '3px solid #3b82f6',
+                        'backgroundColor': 'white'
+                    }, children=[
+                        html.Div(style={'padding': '24px 0', 'maxWidth': '900px', 'margin': '0 auto'}, children=[
+                            html.Div(className='chart-container', children=[
+                                html.H2('About this Data Tool', style={
+                                    'fontSize': '28px',
+                                    'fontWeight': 'bold',
+                                    'color': '#1e293b',
+                                    'marginTop': '0',
+                                    'marginBottom': '24px'
+                                }),
+
+                                # Purpose section
+                                html.Div(style={'marginBottom': '32px'}, children=[
+                                    html.H3('Purpose', style={
+                                        'fontSize': '20px',
                                         'fontWeight': '600',
                                         'color': '#374151',
                                         'marginTop': '0',
                                         'marginBottom': '12px'
-                                    }
-                                ),
-                                html.P(
-                                    content.get('mvpf_explainer.what_is_mvpf.description', 'The Marginal Value of Public Funds (MVPF) is a metric that measures the social welfare benefit of a policy per dollar of government spending.'),
-                                    style={
-                                        'color': '#4b5563',
-                                        'fontSize': '14px',
-                                        'lineHeight': '1.6',
-                                        'margin': '0'
-                                    }
-                                ),
-                                html.Div(children=[
-                                    html.H4(
-                                        content.get('mvpf_explainer.applying_to_detention.heading', 'Applying MVPF to detention'),
-                                        style={
-                                            'fontSize': '16px',
-                                            'fontWeight': '600',
-                                            'color': '#374151',
-                                            'marginTop': '1',
-                                            'marginBottom': '12px'
-                                        }
-                                    ),
+                                    }),
                                     html.P(
-                                        content.get('mvpf_explainer.applying_to_detention.paragraph1', 'Most MVPF work looks at policies where the person subject to the policy is also the main beneficiary.'),
+                                        'This interactive dashboard provides a comprehensive analysis of the Marginal Value of Public Funds (MVPF) '
+                                        'for Cook County Jail operations. It enables policymakers, researchers, and stakeholders to evaluate the '
+                                        'social welfare impacts of detention policies through a systematic, data-driven framework.',
                                         style={
+                                            'fontSize': '15px',
                                             'color': '#4b5563',
-                                            'fontSize': '14px',
-                                            'lineHeight': '1.6',
+                                            'lineHeight': '1.8',
                                             'margin': '0'
                                         }
-                                    ),
+                                    )
+                                ]),
+
+                                # Methodology section
+                                html.Div(style={'marginBottom': '32px'}, children=[
+                                    html.H3('Methodology', style={
+                                        'fontSize': '20px',
+                                        'fontWeight': '600',
+                                        'color': '#374151',
+                                        'marginTop': '0',
+                                        'marginBottom': '12px'
+                                    }),
                                     html.P(
-                                        content.get('mvpf_explainer.applying_to_detention.paragraph2', 'Most studies on detention focus on marginal changes.'),
+                                        'The MVPF framework calculates the ratio of social benefits (measured through willingness-to-pay) '
+                                        'to government costs. This tool incorporates three main components:',
                                         style={
+                                            'fontSize': '15px',
                                             'color': '#4b5563',
-                                            'fontSize': '14px',
-                                            'lineHeight': '1.6',
-                                            'marginTop': '1',
+                                            'lineHeight': '1.8',
                                             'marginBottom': '12px'
+                                        }
+                                    ),
+                                    html.Ul(style={'fontSize': '15px', 'color': '#4b5563', 'lineHeight': '1.8'}, children=[
+                                        html.Li('Detainee Values: Quantifying the harm imposed on individuals through detention'),
+                                        html.Li('Society Values: Measuring external impacts on public safety and community wellbeing'),
+                                        html.Li('Government Costs: Calculating the full fiscal burden of detention operations')
+                                    ])
+                                ]),
+
+                                # Data Sources section
+                                html.Div(style={'marginBottom': '32px'}, children=[
+                                    html.H3('Data Sources', style={
+                                        'fontSize': '20px',
+                                        'fontWeight': '600',
+                                        'color': '#374151',
+                                        'marginTop': '0',
+                                        'marginBottom': '12px'
+                                    }),
+                                    html.P(
+                                        'This tool draws from multiple peer-reviewed research studies, government reports, and administrative data sources '
+                                        'to ensure accuracy and reliability. Parameter values are based on empirical estimates from criminal justice research '
+                                        'and can be adjusted to reflect different scenarios and assumptions.',
+                                        style={
+                                            'fontSize': '15px',
+                                            'color': '#4b5563',
+                                            'lineHeight': '1.8',
+                                            'margin': '0'
+                                        }
+                                    )
+                                ]),
+
+                                # How to Use section
+                                html.Div(style={'marginBottom': '32px'}, children=[
+                                    html.H3('How to Use This Tool', style={
+                                        'fontSize': '20px',
+                                        'fontWeight': '600',
+                                        'color': '#374151',
+                                        'marginTop': '0',
+                                        'marginBottom': '12px'
+                                    }),
+                                    html.Ol(style={'fontSize': '15px', 'color': '#4b5563', 'lineHeight': '1.8'}, children=[
+                                        html.Li('Start on the Home tab to set your analysis parameters (felony rate, population size, length of stay)'),
+                                        html.Li('Select a scenario that reflects the policy context you want to analyze'),
+                                        html.Li('Click "Calculate MVPF" to generate results'),
+                                        html.Li('Explore the Overview tab to see the MVPF score and component breakdowns'),
+                                        html.Li('Use Scenario Analysis to compare different policy approaches'),
+                                        html.Li('Review Comparative Benchmarking to contextualize results against other government programs'),
+                                        html.Li('Consult the Descriptions tab for detailed explanations of each component')
+                                    ])
+                                ]),
+
+                                # Limitations section
+                                html.Div(style={'marginBottom': '0'}, children=[
+                                    html.H3('Limitations and Considerations', style={
+                                        'fontSize': '20px',
+                                        'fontWeight': '600',
+                                        'color': '#374151',
+                                        'marginTop': '0',
+                                        'marginBottom': '12px'
+                                    }),
+                                    html.P(
+                                        'While this tool provides valuable insights, users should be aware of several important limitations:',
+                                        style={
+                                            'fontSize': '15px',
+                                            'color': '#4b5563',
+                                            'lineHeight': '1.8',
+                                            'marginBottom': '12px'
+                                        }
+                                    ),
+                                    html.Ul(style={'fontSize': '15px', 'color': '#4b5563', 'lineHeight': '1.8', 'marginBottom': '16px'}, children=[
+                                        html.Li('Estimates rely on available research and may not capture all local context'),
+                                        html.Li('Willingness-to-pay measures have inherent uncertainties and ethical considerations'),
+                                        html.Li('Results should be interpreted as informative estimates rather than precise predictions'),
+                                        html.Li('Policy decisions should consider multiple factors beyond MVPF analysis alone')
+                                    ]),
+                                    html.P(
+                                        'This tool is designed to inform policy discussions and should be used alongside other evidence, '
+                                        'stakeholder input, and contextual knowledge about Cook County Jail operations.',
+                                        style={
+                                            'fontSize': '15px',
+                                            'color': '#4b5563',
+                                            'lineHeight': '1.8',
+                                            'margin': '0',
+                                            'fontStyle': 'italic'
                                         }
                                     )
                                 ])
                             ])
-                        ]
-                    ),
+                        ])
+                    ]),
 
-                    # Components breakdown
-                    html.Div(style={'marginTop': '24px', 'paddingTop': '24px', 'borderTop': '1px solid #e5e7eb'},
-                             children=[
-                                 html.H4('Components Breakdown', style={
-                                     'fontSize': '16px',
-                                     'fontWeight': '600',
-                                     'color': '#374151',
-                                     'marginTop': '0',
-                                     'marginBottom': '16px'
-                                 }),
-                                 html.Div(
-                                     style={'display': 'flex', 'flexDirection': 'column', 'gap': '16px'},
-                                     children=[
-                                         # Detainee Values
-                                         html.Div(
-                                             id='detainee-values-section',
-                                             style={
-                                                 'background': 'white',
-                                                 'padding': '20px',
-                                                 'borderRadius': '8px',
-                                                 'borderLeft': '4px solid #2563eb'
-                                             },
-                                             children=[
-                                                 html.H5('Detainee Values', style={
-                                                     'fontSize': '15px',
-                                                     'fontWeight': '600',
-                                                     'color': '#2563eb',
-                                                     'margin': '0 0 12px 0'
-                                                 }),
+                    # Tab 6: Acknowledgements
+                    dcc.Tab(label='Acknowledgements', value='tab-acknowledgements', style={
+                        'padding': '12px 24px',
+                        'fontWeight': '500',
+                        'fontSize': '14px'
+                    }, selected_style={
+                        'padding': '12px 24px',
+                        'fontWeight': '600',
+                        'fontSize': '14px',
+                        'borderTop': '3px solid #3b82f6',
+                        'backgroundColor': 'white'
+                    }, children=[
+                        html.Div(style={'padding': '24px 0', 'maxWidth': '900px', 'margin': '0 auto'}, children=[
+                            html.Div(className='chart-container', children=[
+                                html.H2('Acknowledgements', style={
+                                    'fontSize': '28px',
+                                    'fontWeight': 'bold',
+                                    'color': '#1e293b',
+                                    'marginTop': '0',
+                                    'marginBottom': '24px'
+                                }),
 
-                                                 html.P(
-                                                     'Detainee Values capture the total harm detention imposes on people who are jailed. '
-                                                     'We measure this using a willingness-to-pay lens, estimating how much a person would trade '
-                                                     'to avoid being detained. This reflects short-term harms, disruptions to work and family life, '
-                                                     'and long-term effects on health, income, and stability.',
-                                                     style={
-                                                         'fontSize': '14px',
-                                                         'color': '#374151',
-                                                         'margin': '0 0 12px 0',
-                                                         'lineHeight': '1.6'
-                                                     }
-                                                 ),
+                                # Development section
+                                html.Div(style={'marginBottom': '32px'}, children=[
+                                    html.H3('Development Team', style={
+                                        'fontSize': '20px',
+                                        'fontWeight': '600',
+                                        'color': '#374151',
+                                        'marginTop': '0',
+                                        'marginBottom': '12px'
+                                    }),
+                                    html.P(
+                                        'This data tool was developed to support evidence-based policymaking and research on criminal justice reform. '
+                                        'We gratefully acknowledge the contributions of researchers, data scientists, and policy experts who made this work possible.',
+                                        style={
+                                            'fontSize': '15px',
+                                            'color': '#4b5563',
+                                            'lineHeight': '1.8',
+                                            'margin': '0'
+                                        }
+                                    )
+                                ]),
 
-                                                 # Subcomponents header
-                                                 html.Div(className='label-with-info', children=[
-                                                     html.Span('Subcomponents', style={
-                                                         'fontWeight': '500',
-                                                         'fontSize': '14px'
-                                                        })
+                                # Research Foundations section
+                                html.Div(style={'marginBottom': '32px'}, children=[
+                                    html.H3('Research Foundations', style={
+                                        'fontSize': '20px',
+                                        'fontWeight': '600',
+                                        'color': '#374151',
+                                        'marginTop': '0',
+                                        'marginBottom': '12px'
+                                    }),
+                                    html.P(
+                                        'This tool builds upon the MVPF framework developed by Hendren and Sprung-Keyser and applies it to '
+                                        'the context of pretrial detention. We acknowledge the foundational research in criminal justice, '
+                                        'welfare economics, and public policy that informs our methodology.',
+                                        style={
+                                            'fontSize': '15px',
+                                            'color': '#4b5563',
+                                            'lineHeight': '1.8',
+                                            'margin': '0'
+                                        }
+                                    )
+                                ]),
 
-                                                    ]),
-                                                 html.Div(children=[
-                                                    # RHV
-                                                     html.Div([
-                                                         html.Button(
-                                                             content.get('components_breakdown.detainee_values.subcomponents.harm_valuation.button_text', 'Willingness to Pay derived from Relative Harm Valuation'),
-                                                             id='detainee-harm-btn',
-                                                             n_clicks=0,
-                                                             className='collapse-toggle'
-                                                         ),
-                                                         html.Div(
-                                                             id='detainee-harm',
-                                                             style={'display': 'none'},
-                                                             children=[
-                                                                 html.P(
-                                                                     content.get('components_breakdown.detainee_values.subcomponents.harm_valuation.explanation', ''),
-                                                                     style={
-                                                                         'fontSize': '13px',
-                                                                         'color': '#6b7280',
-                                                                         'margin': '6px 0'
-                                                                     }
-                                                                 )
-                                                             ]
-                                                         )
-                                                     ]),
-                                                     # Willingness to Pay for Freedom
-                                                     html.Div([
-                                                         html.Button(
-                                                             content.get('components_breakdown.detainee_values.subcomponents.wtp_freedom.button_text', 'Willingness to Pay for Freedom'),
-                                                             id='detainee-wtp-btn',
-                                                             n_clicks=0,
-                                                             className='collapse-toggle'
-                                                         ),
-                                                         html.Div(
-                                                             id='detainee-wtp',
-                                                             style={'display': 'none'},
-                                                             children=[
-                                                                 html.P(
-                                                                     content.get('components_breakdown.detainee_values.subcomponents.wtp_freedom.explanation', ''),
-                                                                     style={
-                                                                         'fontSize': '13px',
-                                                                         'color': '#6b7280',
-                                                                         'margin': '6px 0'
-                                                                     }
-                                                                 )
-                                                             ]
-                                                         )
-                                                     ]),
-                                                 ])
-                                             ]
-                                         ),
+                                # Data and Technical Support section
+                                html.Div(style={'marginBottom': '32px'}, children=[
+                                    html.H3('Data and Technical Support', style={
+                                        'fontSize': '20px',
+                                        'fontWeight': '600',
+                                        'color': '#374151',
+                                        'marginTop': '0',
+                                        'marginBottom': '12px'
+                                    }),
+                                    html.P(
+                                        'We thank Cook County government agencies for providing access to administrative data and operational information. '
+                                        'This project also benefited from open-source software tools and libraries that enable interactive data visualization and analysis.',
+                                        style={
+                                            'fontSize': '15px',
+                                            'color': '#4b5563',
+                                            'lineHeight': '1.8',
+                                            'margin': '0'
+                                        }
+                                    )
+                                ]),
 
-                                         # Society Values
-                                         html.Div(
-                                             id='society-values-section',
-                                             style={
-                                                 'background': 'white',
-                                                 'padding': '20px',
-                                                 'borderRadius': '8px',
-                                                 'borderLeft': '4px solid #16a34a'
-                                             },
-                                             children=[
-                                                 html.H5('Society Values', style={
-                                                     'fontSize': '15px',
-                                                     'fontWeight': '600',
-                                                     'color': '#16a34a',
-                                                     'margin': '0 0 12px 0'
-                                                 }),
+                                # Funding and Support section
+                                html.Div(style={'marginBottom': '32px'}, children=[
+                                    html.H3('Funding and Support', style={
+                                        'fontSize': '20px',
+                                        'fontWeight': '600',
+                                        'color': '#374151',
+                                        'marginTop': '0',
+                                        'marginBottom': '12px'
+                                    }),
+                                    html.P(
+                                        'This work was supported by organizations committed to advancing evidence-based criminal justice reform. '
+                                        'We are grateful for their financial support and commitment to rigorous policy analysis.',
+                                        style={
+                                            'fontSize': '15px',
+                                            'color': '#4b5563',
+                                            'lineHeight': '1.8',
+                                            'margin': '0'
+                                        }
+                                    )
+                                ]),
 
-                                                 html.P(
-                                                     'Society Values measure how detention affects external factors like public safety, victimization risk, and community wellbeing. '
-                                                     'These values summarize the effects felt by people outside the jail and convert those effects into a '
-                                                     'common dollar scale for comparison.',
-                                                     style={
-                                                         'fontSize': '14px',
-                                                         'color': '#374151',
-                                                         'margin': '0 0 12px 0',
-                                                         'lineHeight': '1.6'
-                                                     }
-                                                 ),
-
-                                                 html.Div(className='label-with-info', children=[
-                                                     html.Span('Subcomponents', style={
-                                                         'fontWeight': '500',
-                                                         'fontSize': '14px'
-                                                     }
-                                                    )
-                                                 ]
-                                                 ),
-                                                 html.Div(children=[
-                                                     # 1. Crime Prevention
-                                                     html.Div([
-                                                         html.Button(
-                                                             content.get('components_breakdown.society_values.subcomponents.crime_prevention.button_text', 'Crime Prevention'),
-                                                             id='society-crime-btn',
-                                                             n_clicks=0,
-                                                             className='collapse-toggle'
-                                                         ),
-                                                         html.Div(
-                                                             id='society-crime',
-                                                             style={'display': 'none'},
-                                                             children=[
-                                                                 html.P(
-                                                                     content.get('components_breakdown.society_values.subcomponents.crime_prevention.explanation', ''),
-                                                                     style={
-                                                                         'fontSize': '13px',
-                                                                         'color': '#6b7280'
-                                                                     }
-                                                                 )
-                                                             ]
-                                                         )
-                                                     ]),
-                                                     # 2. Court Appearance Effects
-                                                     html.Div([
-                                                         html.Button(
-                                                             content.get('components_breakdown.society_values.subcomponents.court_appearance.button_text', 'Court Appearance Effects'),
-                                                             id='society-court-btn',
-                                                             n_clicks=0,
-                                                             className='collapse-toggle'
-                                                         ),
-                                                         html.Div(
-                                                             id='society-court',
-                                                             style={'display': 'none'},
-                                                             children=[
-                                                                 html.P(
-                                                                     content.get('components_breakdown.society_values.subcomponents.court_appearance.explanation', ''),
-                                                                     style={
-                                                                         'fontSize': '13px',
-                                                                         'color': '#6b7280'
-                                                                     }
-                                                                 )
-                                                             ]
-                                                         )
-                                                     ]),
-
-                                                     # 3. Community Spillovers
-                                                     html.Div([
-                                                         html.Button(
-                                                             content.get('components_breakdown.society_values.subcomponents.community_spillovers.button_text', 'Community and Economic Spillovers'),
-                                                             id='society-spill-btn',
-                                                             n_clicks=0,
-                                                             className='collapse-toggle'
-                                                         ),
-                                                         html.Div(
-                                                             id='society-spill',
-                                                             style={'display': 'none'},
-                                                             children=[
-                                                                 html.P(
-                                                                     content.get('components_breakdown.society_values.subcomponents.community_spillovers.explanation', ''),
-                                                                     style={
-                                                                         'fontSize': '13px',
-                                                                         'color': '#6b7280'
-                                                                     }
-                                                                 )
-                                                             ]
-                                                         )
-                                                     ])
-                                                 ])
-                                             ]
-                                         ),
-
-                                         # Government Cost
-                                         html.Div(
-                                             id='government-cost-section',
-                                             style={
-                                                 'background': 'white',
-                                                 'padding': '20px',
-                                                 'borderRadius': '8px',
-                                                 'borderLeft': '4px solid #dc2626'
-                                             },
-                                             children=[
-                                                 html.H5('Government Cost', style={
-                                                     'fontSize': '15px',
-                                                     'fontWeight': '600',
-                                                     'color': '#dc2626',
-                                                     'margin': '0 0 12px 0'
-                                                 }),
-
-                                                 html.P(
-                                                     'Government Cost reflects all public spending required to run the detention system. This includes daily '
-                                                     'operations, staffing, healthcare, facilities, court processing, and administrative overhead. It represents '
-                                                     'the fiscal cost taxpayers bear to support the current level of detention.',
-                                                     style={
-                                                         'fontSize': '14px',
-                                                         'color': '#374151',
-                                                         'margin': '0 0 12px 0',
-                                                         'lineHeight': '1.6'
-                                                     }
-                                                 ),
-
-                                                 html.Div(className='label-with-info', children=[
-                                                     html.Span('Subcomponents', style={
-                                                         'fontWeight': '500',
-                                                         'fontSize': '14px'
-                                                     }
-                                                     )
-                                                 ]
-                                                ),
-
-                                                 html.Div(children=[
-                                                     # Operational Cost
-                                                     html.Div([
-                                                         html.Button(
-                                                             content.get('components_breakdown.government_cost.subcomponents.operational.button_text', 'Operational Costs'),
-                                                             id='gov-op-btn',
-                                                             n_clicks=0,
-                                                             className='collapse-toggle'
-                                                         ),
-                                                         html.Div(
-                                                             id='gov-op',
-                                                             style={'display': 'none'},
-                                                             children=[
-                                                                 html.P(
-                                                                     content.get('components_breakdown.government_cost.subcomponents.operational.explanation', ''),
-                                                                     style={
-                                                                         'fontSize': '13px',
-                                                                         'color': '#6b7280'
-                                                                     }
-                                                                 )
-                                                             ]
-                                                         )
-                                                     ]),
-
-                                                     # Crime Increase Costs
-                                                     html.Div([
-                                                         html.Button(
-                                                             content.get('components_breakdown.government_cost.subcomponents.crime_increase.button_text', 'Costs associated with Crime Effect: Increase'),
-                                                             id='gov-crime-increase-btn',
-                                                             n_clicks=0,
-                                                             className='collapse-toggle'
-                                                         ),
-                                                         html.Div(
-                                                             id='gov-crime-increase',
-                                                             style={'display': 'none'},
-                                                             children=[
-                                                                 html.P(
-                                                                     content.get('components_breakdown.government_cost.subcomponents.crime_increase.explanation', ''),
-                                                                     style={
-                                                                         'fontSize': '13px',
-                                                                         'color': '#6b7280'
-                                                                     }
-                                                                 )
-                                                             ]
-                                                         )
-                                                     ]),
-
-                                                     # Crime Decrease Costs
-                                                     html.Div([
-                                                         html.Button(
-                                                             content.get('components_breakdown.government_cost.subcomponents.crime_decrease.button_text', 'Costs associated with Crime Effect: Decrease'),
-                                                             id='gov-crime-decrease-btn',
-                                                             n_clicks=0,
-                                                             className='collapse-toggle'
-                                                         ),
-                                                         html.Div(
-                                                             id='gov-crime-decrease',
-                                                             style={'display': 'none'},
-                                                             children=[
-                                                                 html.P(
-                                                                     content.get('components_breakdown.government_cost.subcomponents.crime_decrease.explanation', ''),
-                                                                     style={
-                                                                         'fontSize': '13px',
-                                                                         'color': '#6b7280'
-                                                                     }
-                                                                 )
-                                                             ]
-                                                         )
-                                                     ]),
-                                                 ])
-                                             ]
-                                         )
-                                     ]
-                                 )
-                             ])
+                                # Disclaimer section
+                                html.Div(style={
+                                    'marginBottom': '0',
+                                    'backgroundColor': '#f9fafb',
+                                    'padding': '20px',
+                                    'borderRadius': '8px',
+                                    'borderLeft': '4px solid #3b82f6'
+                                }, children=[
+                                    html.H3('Disclaimer', style={
+                                        'fontSize': '18px',
+                                        'fontWeight': '600',
+                                        'color': '#374151',
+                                        'marginTop': '0',
+                                        'marginBottom': '12px'
+                                    }),
+                                    html.P(
+                                        'The views and findings presented in this tool are those of the authors and do not necessarily reflect '
+                                        'the official positions or policies of Cook County government, funding organizations, or affiliated institutions. '
+                                        'All estimates should be interpreted as analytical tools to inform discussion rather than definitive policy prescriptions.',
+                                        style={
+                                            'fontSize': '14px',
+                                            'color': '#4b5563',
+                                            'lineHeight': '1.8',
+                                            'margin': '0',
+                                            'fontStyle': 'italic'
+                                        }
+                                    )
+                                ])
+                            ])
+                        ])
+                    ])
                 ])
              ])
         ]
     )
-])
 
 # =============================================================================
 # CALLBACKS MODULE
@@ -1278,7 +1781,6 @@ def _toggle_style(n_clicks, style):
     if not style or style.get('display') == 'none':
         return {'display': 'block'}
     return {'display': 'none'}
-
 
 def _convert_dropdown_to_params(fel_rate_sel, n_detainees_sel, n_society_sel, los_days_sel):
     """
@@ -2123,6 +2625,35 @@ def register_callbacks(app):
         scenario_comparison_fig = _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2)
 
         return kpi_card, benchmark_card, interpretation_card, numerator_fig, denominator_fig, sub_fig, param_comparison_fig, scenario_comparison_fig
+
+    # -------------------------------------------------------------------------
+    # Tab Navigation Callbacks
+    # -------------------------------------------------------------------------
+
+    @app.callback(
+        Output('main-tabs', 'value'),
+        [Input('link-to-overview', 'n_clicks'),
+         Input('link-to-scenarios', 'n_clicks'),
+         Input('link-to-benchmarking', 'n_clicks')],
+        prevent_initial_call=True
+    )
+    def navigate_tabs(overview_clicks, scenarios_clicks, benchmarking_clicks):
+        """Handle navigation from landing page cards to respective tabs."""
+        ctx = dash.callback_context
+
+        if not ctx.triggered:
+            return dash.no_update
+
+        button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
+        if button_id == 'link-to-overview':
+            return 'tab-overview'
+        elif button_id == 'link-to-scenarios':
+            return 'tab-scenarios'
+        elif button_id == 'link-to-benchmarking':
+            return 'tab-benchmarking'
+
+        return dash.no_update
 
     # -------------------------------------------------------------------------
     # Download CSV Callback
