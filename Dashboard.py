@@ -768,20 +768,50 @@ app.layout = html.Div(className='main-container', children=[
                                         )
                                     ])
                                 ])
+                            ])
+                        ])
+                    ]),
+
+                    # Tab 1: Overview - KPI, Main Chart, Interpretation, Benchmarks
+                    dcc.Tab(label=content.get('tabs.overview', 'Overview'), value='tab-overview', style={
+                        'padding': '12px 24px',
+                        'fontWeight': '500',
+                        'fontSize': '14px'
+                    }, selected_style={
+                        'padding': '12px 24px',
+                        'fontWeight': '600',
+                        'fontSize': '14px',
+                        'borderTop': '3px solid #3b82f6',
+                        'backgroundColor': 'white'
+                    }, children=[
+                        html.Div(style={'padding': '24px 0'}, children=[
+                            # Overview Tab Description Placeholder
+                            html.Div(className='chart-container', style={
+                                'background': '#fef3c7',
+                                'borderLeft': '4px solid #f59e0b',
+                                'marginBottom': '24px'
+                            }, children=[
+                                html.H3('Placeholder: Overview Tab Introduction', style={
+                                    'fontSize': '18px',
+                                    'fontWeight': '600',
+                                    'color': '#92400e',
+                                    'marginTop': '0',
+                                    'marginBottom': '12px'
+                                }),
+                                html.P(
+                                    'Placeholder content: This section will provide an introduction to the Overview tab, '
+                                    'explaining how to use the parameter controls below to customize your MVPF analysis.',
+                                    style={
+                                        'fontSize': '14px',
+                                        'color': '#92400e',
+                                        'lineHeight': '1.6',
+                                        'margin': '0'
+                                    }
+                                )
                             ]),
 
-                            # Analysis Parameters Section
-                            html.H2('Analysis Parameters', style={
-                                'fontSize': '24px',
-                                'fontWeight': '600',
-                                'color': '#1e293b',
-                                'marginTop': '48px',
-                                'marginBottom': '24px',
-                                'textAlign': 'center'
-                            }),
-
                             # Parameter Jumbotrons Grid
-                            html.Div(className='jumbotron-grid', children=[
+                            html.Div(className='jumbotron-grid', style={'marginBottom': '24px'}, children=[
                                 # Jumbotron 1: Felony Rate
                                 html.Div(className='jumbotron', children=[
                                     html.Div(className='jumbotron-icon', style={'background': '#dbeafe'}, children=[
@@ -848,7 +878,7 @@ app.layout = html.Div(className='main-container', children=[
                             ]),
 
                             # Scenario Selection Section
-                            html.Div(className='jumbotron', style={'marginTop': '24px', 'marginBottom': '24px'}, children=[
+                            html.Div(className='jumbotron', style={'marginTop': '0', 'marginBottom': '24px'}, children=[
                                 html.H4('Scenario Selection', style={
                                     'fontSize': '18px',
                                     'fontWeight': '600',
@@ -893,7 +923,7 @@ app.layout = html.Div(className='main-container', children=[
                             html.Div(className='calculate-section', style={
                                 'display': 'flex',
                                 'justifyContent': 'center',
-                                'marginBottom': '24px'
+                                'marginBottom': '32px'
                             }, children=[
                                 html.Button(
                                     'Calculate MVPF',
@@ -912,33 +942,37 @@ app.layout = html.Div(className='main-container', children=[
                                         'boxShadow': '0 4px 6px rgba(37, 99, 235, 0.25)'
                                     }
                                 )
-                            ])
-                        ])
-                    ]),
-
-                    # Tab 1: Overview - KPI, Main Chart, Interpretation, Benchmarks
-                    dcc.Tab(label=content.get('tabs.overview', 'Overview'), value='tab-overview', style={
-                        'padding': '12px 24px',
-                        'fontWeight': '500',
-                        'fontSize': '14px'
-                    }, selected_style={
-                        'padding': '12px 24px',
-                        'fontWeight': '600',
-                        'fontSize': '14px',
-                        'borderTop': '3px solid #3b82f6',
-                        'backgroundColor': 'white'
-                    }, children=[
-                        html.Div(style={'padding': '24px 0'}, children=[
-                            # Top Row: KPI and Interpretation Cards
-                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '24px', 'marginBottom': '24px'}, children=[
-                                # KPI Card
-                                html.Div(id='kpi-card'),
-
-                                # Interpretation Card
-                                html.Div(id='interpretation-card')
                             ]),
 
-                            # Bottom Row: Numerator and Denominator Charts (Full Width)
+                            # KPI Card (Full Width with embedded interpretation)
+                            html.Div(id='kpi-card', style={'marginBottom': '24px'}),
+
+                            # MVPF Calculation Purpose Placeholder
+                            html.Div(className='chart-container', style={
+                                'background': '#f0f9ff',
+                                'borderLeft': '4px solid #3b82f6',
+                                'marginBottom': '24px'
+                            }, children=[
+                                html.H3('Placeholder: Purpose of MVPF Calculation', style={
+                                    'fontSize': '18px',
+                                    'fontWeight': '600',
+                                    'color': '#1e3a8a',
+                                    'marginTop': '0',
+                                    'marginBottom': '12px'
+                                }),
+                                html.P(
+                                    'Placeholder content: This section will explain the purpose and methodology of the MVPF calculation, '
+                                    'providing context for interpreting the results shown above and the detailed breakdowns below.',
+                                    style={
+                                        'fontSize': '14px',
+                                        'color': '#1e40af',
+                                        'lineHeight': '1.6',
+                                        'margin': '0'
+                                    }
+                                )
+                            ]),
+
+                            # Charts Row: Numerator and Denominator Charts
                             html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '24px'}, children=[
                                 # Numerator Chart (Detainee + Society Values)
                                 html.Div(className='chart-container', children=[
@@ -1022,11 +1056,6 @@ app.layout = html.Div(className='main-container', children=[
                                 html.Div(className='chart-container', style={'flex': '1'}, children=[
                                     dcc.Graph(id='parameter-comparison-chart')
                                 ])
-                            ]),
-
-                            # Subcomponents Chart
-                            html.Div(className='chart-container', children=[
-                                dcc.Graph(id='subcomponents-chart')
                             ])
                         ])
                     ]),
@@ -1608,148 +1637,94 @@ app.layout = html.Div(className='main-container', children=[
                                 ])
                             ])
                         ])
-                    ]),
-
-                    # Tab 6: Acknowledgements
-                    dcc.Tab(label='Acknowledgements', value='tab-acknowledgements', style={
-                        'padding': '12px 24px',
-                        'fontWeight': '500',
-                        'fontSize': '14px'
-                    }, selected_style={
-                        'padding': '12px 24px',
-                        'fontWeight': '600',
-                        'fontSize': '14px',
-                        'borderTop': '3px solid #3b82f6',
-                        'backgroundColor': 'white'
-                    }, children=[
-                        html.Div(style={'padding': '24px 0', 'maxWidth': '900px', 'margin': '0 auto'}, children=[
-                            html.Div(className='chart-container', children=[
-                                html.H2('Acknowledgements', style={
-                                    'fontSize': '28px',
-                                    'fontWeight': 'bold',
-                                    'color': '#1e293b',
-                                    'marginTop': '0',
-                                    'marginBottom': '24px'
-                                }),
-
-                                # Development section
-                                html.Div(style={'marginBottom': '32px'}, children=[
-                                    html.H3('Development Team', style={
-                                        'fontSize': '20px',
-                                        'fontWeight': '600',
-                                        'color': '#374151',
-                                        'marginTop': '0',
-                                        'marginBottom': '12px'
-                                    }),
-                                    html.P(
-                                        'This data tool was developed to support evidence-based policymaking and research on criminal justice reform. '
-                                        'We gratefully acknowledge the contributions of researchers, data scientists, and policy experts who made this work possible.',
-                                        style={
-                                            'fontSize': '15px',
-                                            'color': '#4b5563',
-                                            'lineHeight': '1.8',
-                                            'margin': '0'
-                                        }
-                                    )
-                                ]),
-
-                                # Research Foundations section
-                                html.Div(style={'marginBottom': '32px'}, children=[
-                                    html.H3('Research Foundations', style={
-                                        'fontSize': '20px',
-                                        'fontWeight': '600',
-                                        'color': '#374151',
-                                        'marginTop': '0',
-                                        'marginBottom': '12px'
-                                    }),
-                                    html.P(
-                                        'This tool builds upon the MVPF framework developed by Hendren and Sprung-Keyser and applies it to '
-                                        'the context of pretrial detention. We acknowledge the foundational research in criminal justice, '
-                                        'welfare economics, and public policy that informs our methodology.',
-                                        style={
-                                            'fontSize': '15px',
-                                            'color': '#4b5563',
-                                            'lineHeight': '1.8',
-                                            'margin': '0'
-                                        }
-                                    )
-                                ]),
-
-                                # Data and Technical Support section
-                                html.Div(style={'marginBottom': '32px'}, children=[
-                                    html.H3('Data and Technical Support', style={
-                                        'fontSize': '20px',
-                                        'fontWeight': '600',
-                                        'color': '#374151',
-                                        'marginTop': '0',
-                                        'marginBottom': '12px'
-                                    }),
-                                    html.P(
-                                        'We thank Cook County government agencies for providing access to administrative data and operational information. '
-                                        'This project also benefited from open-source software tools and libraries that enable interactive data visualization and analysis.',
-                                        style={
-                                            'fontSize': '15px',
-                                            'color': '#4b5563',
-                                            'lineHeight': '1.8',
-                                            'margin': '0'
-                                        }
-                                    )
-                                ]),
-
-                                # Funding and Support section
-                                html.Div(style={'marginBottom': '32px'}, children=[
-                                    html.H3('Funding and Support', style={
-                                        'fontSize': '20px',
-                                        'fontWeight': '600',
-                                        'color': '#374151',
-                                        'marginTop': '0',
-                                        'marginBottom': '12px'
-                                    }),
-                                    html.P(
-                                        'This work was supported by organizations committed to advancing evidence-based criminal justice reform. '
-                                        'We are grateful for their financial support and commitment to rigorous policy analysis.',
-                                        style={
-                                            'fontSize': '15px',
-                                            'color': '#4b5563',
-                                            'lineHeight': '1.8',
-                                            'margin': '0'
-                                        }
-                                    )
-                                ]),
-
-                                # Disclaimer section
-                                html.Div(style={
-                                    'marginBottom': '0',
-                                    'backgroundColor': '#f9fafb',
-                                    'padding': '20px',
-                                    'borderRadius': '8px',
-                                    'borderLeft': '4px solid #3b82f6'
-                                }, children=[
-                                    html.H3('Disclaimer', style={
-                                        'fontSize': '18px',
-                                        'fontWeight': '600',
-                                        'color': '#374151',
-                                        'marginTop': '0',
-                                        'marginBottom': '12px'
-                                    }),
-                                    html.P(
-                                        'The views and findings presented in this tool are those of the authors and do not necessarily reflect '
-                                        'the official positions or policies of Cook County government, funding organizations, or affiliated institutions. '
-                                        'All estimates should be interpreted as analytical tools to inform discussion rather than definitive policy prescriptions.',
-                                        style={
-                                            'fontSize': '14px',
-                                            'color': '#4b5563',
-                                            'lineHeight': '1.8',
-                                            'margin': '0',
-                                            'fontStyle': 'italic'
-                                        }
-                                    )
-                                ])
-                            ])
-                        ])
                     ])
                 ])
-             ])
+             ]),
+
+        # Acknowledgements Section (Outside Tabs)
+        html.Div(style={
+            'marginTop': '48px',
+            'paddingTop': '48px',
+            'borderTop': '2px solid #e5e7eb'
+        }, children=[
+            html.H2('Acknowledgements', style={
+                'fontSize': '14px',
+                'fontWeight': 'bold',
+                'color': '#1e293b',
+                'marginTop': '0',
+                'marginBottom': '24px'
+            }),
+
+            # Development section
+            html.Div(style={'marginBottom': '32px'}, children=[
+
+                html.P(
+                    'This data tool was developed by Diag Davenport et. al at the University of California, Berkeley, to support evidence-based policymaking and research on criminal justice reform. '
+                    'We gratefully acknowledge the contributions of researchers, data scientists, and policy experts who made this work possible.',
+                    style={
+                        'fontSize': '12px',
+                        'color': '#4b5563',
+                        'lineHeight': '1.8',
+                        'margin': '0'
+                    }
+                ),
+
+
+                html.P(
+                    'This tool builds upon the MVPF framework applies it to '
+                    'the context of pretrial detention. We acknowledge the foundational research in criminal justice, '
+                    'welfare economics, and public policy that informs our methodology.',
+                    style={
+                        'fontSize': '12px',
+                        'color': '#4b5563',
+                        'lineHeight': '1.8',
+                        'margin': '0'
+                    }
+                ),
+
+
+                html.P(
+                    'We thank Cook County government agencies for providing access to administrative data and operational information. '
+                    'This project also benefited from open-source software tools and libraries that enable interactive data visualization and analysis.',
+                    style={
+                        'fontSize': '12px',
+                        'color': '#4b5563',
+                        'lineHeight': '1.8',
+                        'margin': '0'
+                    }
+                )
+            ]),
+
+
+            # Disclaimer section
+            html.Div(style={
+                'marginBottom': '0',
+                'backgroundColor': '#f9fafb',
+                'padding': '20px',
+                'borderRadius': '8px',
+                'borderLeft': '4px solid #3b82f6'
+            }, children=[
+                html.H3('Disclaimer', style={
+                    'fontSize': '12px',
+                    'fontWeight': '600',
+                    'color': '#374151',
+                    'marginTop': '0',
+                    'marginBottom': '12px'
+                }),
+                html.P(
+                    'The views and findings presented in this tool are those of the authors and do not necessarily reflect '
+                    'the official positions or policies of Cook County government, funding organizations, or affiliated institutions. '
+                    'All estimates should be interpreted as analytical tools to inform discussion rather than definitive policy prescriptions.',
+                    style={
+                        'fontSize': '12px',
+                        'color': '#4b5563',
+                        'lineHeight': '1.8',
+                        'margin': '0',
+                        'fontStyle': 'italic'
+                    }
+                )
+            ])
+        ])
         ]
     )
 
@@ -1910,19 +1885,63 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
             html.Span('ratio', className='kpi-ratio')
         ]),
 
-        html.Div(className='kpi-interpretation', children=[
-            html.Span(label, className='kpi-badge', style={
-                'backgroundColor': badge_color,
-                'color': badge_text_color,
-                'display': 'inline-block',
-                'marginBottom': '12px'
-            }),
+        html.Div(className='kpi-interpretation', style={
+            'marginTop': '24px',
+            'padding': '20px',
+            'background': '#f0f9ff',
+            'borderRadius': '8px',
+            'border': '1px solid #bfdbfe'
+        }, children=[
+            html.Div(style={'marginBottom': '12px'}, children=[
+                html.Span(label, className='kpi-badge', style={
+                    'backgroundColor': badge_color,
+                    'color': badge_text_color,
+                    'display': 'inline-block',
+                    'padding': '6px 14px',
+                    'borderRadius': '9999px',
+                    'fontSize': '14px',
+                    'fontWeight': '600'
+                })
+            ]),
 
             html.P(
                 'This indicates the program delivers more value than its cost.' if mvpf > 1
                 else 'Consider reviewing program efficiency.',
-                style={'marginTop': '8px', 'marginBottom': '16px'}
+                style={
+                    'marginTop': '0',
+                    'marginBottom': '16px',
+                    'color': '#1e3a8a',
+                    'fontSize': '14px',
+                    'lineHeight': '1.6',
+                    'fontWeight': '500'
+                }
             ),
+
+            html.Div(style={'marginTop': '16px', 'paddingTop': '16px', 'borderTop': '1px solid #bfdbfe'}, children=[
+                html.H4('How to Interpret', style={
+                    'fontSize': '14px',
+                    'fontWeight': '600',
+                    'color': '#1e3a8a',
+                    'marginTop': '0',
+                    'marginBottom': '12px'
+                }),
+                html.Ul(
+                    style={
+                        'margin': '0',
+                        'paddingLeft': '20px',
+                        'color': '#1e40af',
+                        'fontSize': '13px',
+                        'lineHeight': '1.8'
+                    },
+                    children=[
+                        html.Li([html.Strong('MVPF ≥ 2.5:'), ' Very high social return on investment']),
+                        html.Li([html.Strong('MVPF > 1:'), ' Program delivers more value than it costs']),
+                        html.Li([html.Strong('MVPF = 1:'), ' Program value equals its cost']),
+                        html.Li([html.Strong('MVPF < 1:'), ' Program costs more than the value it provides']),
+                        html.Li([html.Strong('MVPF < 0:'), ' Indicates program delivers net harm'])
+                    ]
+                )
+            ])
         ]),
 
         # Calculation row - moved above components
@@ -1933,8 +1952,8 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
             ], style={'margin': '0'})
         ]),
 
-        # Vertical component sections
-        html.Div(style={'display': 'flex', 'flexDirection': 'column', 'gap': '16px'}, children=[
+        # Component sections in 3-column grid
+        html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': '16px'}, children=[
             # Detainee Values Component
             html.Div(className='kpi-component', children=[
                 html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'alignItems': 'flex-start'}, children=[
@@ -2578,10 +2597,8 @@ def register_callbacks(app):
     @app.callback(
         [Output('kpi-card', 'children'),
          Output('benchmark-card', 'children'),
-         Output('interpretation-card', 'children'),
          Output('numerator-chart', 'figure'),
          Output('denominator-chart', 'figure'),
-         Output('subcomponents-chart', 'figure'),
          Output('parameter-comparison-chart', 'figure'),
          Output('scenario-comparison-chart', 'figure')],
         [Input('btn-calculate', 'n_clicks')],
@@ -2616,15 +2633,13 @@ def register_callbacks(app):
 
         # Build components
         kpi_card = _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params)
-        interpretation_card = _build_interpretation_card()
         benchmark_card = _build_benchmark_card(mvpf)
         numerator_fig = _build_numerator_chart(result)
         denominator_fig = _build_denominator_chart(result)
-        sub_fig = _build_subcomponents_chart(result)
         param_comparison_fig = _build_parameter_comparison_chart(scenario, det_p1, det_p2, soc_p1, soc_p2)
         scenario_comparison_fig = _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2)
 
-        return kpi_card, benchmark_card, interpretation_card, numerator_fig, denominator_fig, sub_fig, param_comparison_fig, scenario_comparison_fig
+        return kpi_card, benchmark_card, numerator_fig, denominator_fig, param_comparison_fig, scenario_comparison_fig
 
     # -------------------------------------------------------------------------
     # Tab Navigation Callbacks

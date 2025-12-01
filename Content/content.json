@@ -221,5 +221,23 @@
         }
       }
     }
+  },
+  "placeholders": {
+    "overview_intro": {
+      "title": "Placeholder: Overview Tab Introduction",
+      "content": "This section will provide an introduction to the Overview tab, explaining how to use the parameter controls below to customize your MVPF analysis."
+    },
+    "mvpf_purpose": {
+      "title": "Placeholder: Purpose of MVPF Calculation",
+      "content": "This section will explain the purpose and methodology of the MVPF calculation, including how the baseline values are derived and what they represent in the context of Cook County Jail operations."
+    },
+    "scenarios_intro": {
+      "title": "Placeholder for Tab 2 Description",
+      "content": "Overview of the Scenario Analysis tab, explaining what users can explore and learn from the visualizations below."
+    },
+    "scenarios_explanation": {
+      "title": "Placeholder for Alternative Scenarios Description",
+      "content": "Explanation of the different scenarios available (baseline, conservative, reduced crime, etc.) and how they differ from each other in terms of assumptions and parameters."
+    }
   }
 }
