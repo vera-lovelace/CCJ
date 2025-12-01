@@ -99,8 +99,7 @@ class SubcomponentRegistry:
 
             'det_rel_harm': [
                 'los_days',  # Longer stays → more harm during detention
-                # Note: RHV value ($295,275/day) is already a daily aggregate total,
-                # NOT per-detainee. Don't multiply by n_detainees.
+                'n_detainees_mult'  # Detainee population multiplier (0.8, 1.0, 1.2)
             ],
 
             # ==================== SOCIETY VALUES ====================

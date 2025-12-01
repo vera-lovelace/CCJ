@@ -171,6 +171,17 @@ class ParameterRegistry:
                     'average': 1.0,
                     'high': 1.4
                 }
+            ),
+
+            'n_detainees_base': ParameterDefinition(
+                key='n_detainees_base',
+                name='Number of Detainees (Base)',
+                description='Actual base number of detainees',
+                default_value=n_detainees['value'],
+                min_value=n_detainees['value'],
+                max_value=n_detainees['value'],
+                dashboard_enabled=False,
+                is_multiplier=False
             )
         }
 
@@ -209,7 +220,7 @@ class ParameterRegistry:
                 )
 
         # Add defaults for non-dashboard parameters
-        for key in ['crime_weight_mult', 'recidivism_mult']:
+        for key in ['crime_weight_mult', 'recidivism_mult', 'n_detainees_base']:
             if key not in result:
                 result[key] = self.params[key].default_value
 

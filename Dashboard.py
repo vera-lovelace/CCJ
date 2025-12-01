@@ -36,6 +36,7 @@ param_registry = ParameterRegistry(data_dir='Data')
 fel_rate_param = param_registry.params['fel_rate']
 los_days_param = param_registry.params['los_days']
 n_detainees_param = param_registry.params['n_detainees_mult']
+n_detainees_base_param = param_registry.params['n_detainees_base']
 n_society_param = param_registry.params['n_society_mult']
 
 # Build dropdown options from CSV weights
@@ -834,7 +835,7 @@ app.layout = html.Div(className='main-container', children=[
                                         html.Span('#', style={'color': '#d97706', 'fontWeight': '700'})
                                     ]),
                                     html.H4(content.get('controls.detainee_population.title', 'Detainee Population'), className='jumbotron-title'),
-                                    html.P(f"{n_detainees_param.base_value:,.0f}", className='jumbotron-value'),
+                                    html.P(id='detainee-population-value', children=f"{n_detainees_param.base_value:,.0f}", className='jumbotron-value'),
                                     html.P(content.get('controls.detainee_population.tooltip', n_detainees_param.description), className='jumbotron-description'),
                                     dcc.Dropdown(
                                         id='detainee-param2',
@@ -1079,7 +1080,7 @@ app.layout = html.Div(className='main-container', children=[
                     ]),
 
                     # Tab 4: Descriptions
-                    dcc.Tab(label='About this tool', value='tab-descriptions', style={
+                    dcc.Tab(label='MVPF Explained', value='tab-descriptions', style={
                         'padding': '12px 24px',
                         'fontWeight': '500',
                         'fontSize': '14px'
@@ -1556,55 +1557,8 @@ app.layout = html.Div(className='main-container', children=[
                                                  ]
                                              )
                                          ])
-                            ])
-                        ])
-                    ]),
-
-                    # Tab 5: About this Data Tool
-                    dcc.Tab(label='About this Data Tool', value='tab-about', style={
-                        'padding': '12px 24px',
-                        'fontWeight': '500',
-                        'fontSize': '14px'
-                    }, selected_style={
-                        'padding': '12px 24px',
-                        'fontWeight': '600',
-                        'fontSize': '14px',
-                        'borderTop': '3px solid #3b82f6',
-                        'backgroundColor': 'white'
-                    }, children=[
-                        html.Div(style={'padding': '24px 0', 'maxWidth': '900px', 'margin': '0 auto'}, children=[
-                            html.Div(className='chart-container', children=[
-                                html.H2('About this Data Tool', style={
-                                    'fontSize': '28px',
-                                    'fontWeight': 'bold',
-                                    'color': '#1e293b',
-                                    'marginTop': '0',
-                                    'marginBottom': '24px'
-                                }),
-
-
-
-                                # How to Use section
-                                html.Div(style={'marginBottom': '32px'}, children=[
-                                    html.H3('How to Use This Tool', style={
-                                        'fontSize': '20px',
-                                        'fontWeight': '600',
-                                        'color': '#374151',
-                                        'marginTop': '0',
-                                        'marginBottom': '12px'
-                                    }),
-                                    html.Ol(style={'fontSize': '15px', 'color': '#4b5563', 'lineHeight': '1.8'}, children=[
-                                        html.Li('Start on the Home tab to set your analysis parameters (felony rate, population size, length of stay)'),
-                                        html.Li('Select a scenario that reflects the policy context you want to analyze'),
-                                        html.Li('Click "Calculate MVPF" to generate results'),
-                                        html.Li('Explore the Overview tab to see the MVPF score and component breakdowns'),
-                                        html.Li('Use Scenario Analysis to compare different policy approaches'),
-                                        html.Li('Review Comparative Benchmarking to contextualize results against other government programs'),
-                                        html.Li('Consult the Descriptions tab for detailed explanations of each component')
-                                    ])
-                                ]),
-
-                                # Limitations section
+                            ]),
+                            # Limitations section
                                 html.Div(style={'marginBottom': '0'}, children=[
                                     html.H3('Limitations and Considerations', style={
                                         'fontSize': '20px',
@@ -1640,6 +1594,39 @@ app.layout = html.Div(className='main-container', children=[
                                         }
                                     )
                                 ])
+                        ])
+                    ]),
+
+                    # Tab 5: About this Data Tool
+                    dcc.Tab(label='About', value='tab-about', style={
+                        'padding': '12px 24px',
+                        'fontWeight': '500',
+                        'fontSize': '14px'
+                    }, selected_style={
+                        'padding': '12px 24px',
+                        'fontWeight': '600',
+                        'fontSize': '14px',
+                        'borderTop': '3px solid #3b82f6',
+                        'backgroundColor': 'white'
+                    }, children=[
+                        html.Div(style={'padding': '24px 0', 'maxWidth': '900px', 'margin': '0 auto'}, children=[
+                            html.Div(className='chart-container', children=[
+                                html.H2('About Cook County Jail', style={
+                                    'fontSize': '28px',
+                                    'fontWeight': 'bold',
+                                    'color': '#1e293b',
+                                    'marginTop': '0',
+                                    'marginBottom': '24px'
+                                }),
+                                html.H2('Contact', style={
+                                    'fontSize': '28px',
+                                    'fontWeight': 'bold',
+                                    'color': '#1e293b',
+                                    'marginTop': '0',
+                                    'marginBottom': '24px'
+                                }),
+
+
                             ])
                         ])
                     ])
@@ -1790,6 +1777,7 @@ def _convert_dropdown_to_params(fel_rate_sel, n_detainees_sel, n_society_sel, lo
         'fel_rate': fel_rate_val,
         'los_days': los_days_val,
         'n_detainees_mult': n_det_mult,
+        'n_detainees_base': n_detainees_base_param.default_value,
         'n_society_mult': n_soc_mult,
         'crime_weight_mult': 1.0,
         'recidivism_mult': 1.0
@@ -2595,6 +2583,20 @@ def register_callbacks(app):
             'margin': '0',
             'lineHeight': '1.6'
         })
+
+    # -------------------------------------------------------------------------
+    # Detainee Population Display Update Callback
+    # -------------------------------------------------------------------------
+
+    @app.callback(
+        Output('detainee-population-value', 'children'),
+        Input('detainee-param2', 'value')
+    )
+    def update_detainee_display(selection):
+        """Update displayed detainee population based on dropdown selection."""
+        multiplier = n_detainees_param.dropdown_map.get(selection, 1.0)
+        calculated_value = n_detainees_param.base_value * multiplier
+        return f"{calculated_value:,.0f}"
 
     # -------------------------------------------------------------------------
     # Main Dashboard Update Callback
