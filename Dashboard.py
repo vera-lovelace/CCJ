@@ -1079,7 +1079,7 @@ app.layout = html.Div(className='main-container', children=[
                     ]),
 
                     # Tab 4: Descriptions
-                    dcc.Tab(label='Descriptions', value='tab-descriptions', style={
+                    dcc.Tab(label='About this tool', value='tab-descriptions', style={
                         'padding': '12px 24px',
                         'fontWeight': '500',
                         'fontSize': '14px'
@@ -1100,6 +1100,77 @@ app.layout = html.Div(className='main-container', children=[
                                     'marginBottom': '16px',
                                     'marginTop': '0'
                                 }),
+
+                                # Purpose section
+                                html.Div(style={'marginBottom': '32px'}, children=[
+                                    html.H3('Purpose', style={
+                                        'fontSize': '20px',
+                                        'fontWeight': '600',
+                                        'color': '#374151',
+                                        'marginTop': '0',
+                                        'marginBottom': '12px'
+                                    }),
+                                    html.P(
+                                        'This interactive dashboard provides a comprehensive analysis of the Marginal Value of Public Funds (MVPF) '
+                                        'for Cook County Jail operations. It enables policymakers, researchers, and stakeholders to evaluate the '
+                                        'social welfare impacts of detention policies through a systematic, data-driven framework.',
+                                        style={
+                                            'fontSize': '15px',
+                                            'color': '#4b5563',
+                                            'lineHeight': '1.8',
+                                            'margin': '0'
+                                        }
+                                    )
+                                ]),
+
+# Methodology section
+                                html.Div(style={'marginBottom': '32px'}, children=[
+                                    html.H3('Methodology', style={
+                                        'fontSize': '20px',
+                                        'fontWeight': '600',
+                                        'color': '#374151',
+                                        'marginTop': '0',
+                                        'marginBottom': '12px'
+                                    }),
+                                    html.P(
+                                        'The MVPF framework calculates the ratio of social benefits (measured through willingness-to-pay) '
+                                        'to government costs. This tool incorporates three main components:',
+                                        style={
+                                            'fontSize': '15px',
+                                            'color': '#4b5563',
+                                            'lineHeight': '1.8',
+                                            'marginBottom': '12px'
+                                        }
+                                    ),
+                                    html.Ul(style={'fontSize': '15px', 'color': '#4b5563', 'lineHeight': '1.8'}, children=[
+                                        html.Li('Detainee Values: Quantifying the harm imposed on individuals through detention'),
+                                        html.Li('Society Values: Measuring external impacts on public safety and community wellbeing'),
+                                        html.Li('Government Costs: Calculating the full fiscal burden of detention operations')
+                                    ])
+                                ]),
+
+                                # Data Sources section
+                                html.Div(style={'marginBottom': '32px'}, children=[
+                                    html.H3('Data Sources', style={
+                                        'fontSize': '20px',
+                                        'fontWeight': '600',
+                                        'color': '#374151',
+                                        'marginTop': '0',
+                                        'marginBottom': '12px'
+                                    }),
+                                    html.P(
+                                        'This tool draws from multiple peer-reviewed research studies, government reports, and administrative data sources '
+                                        'to ensure accuracy and reliability. Parameter values are based on empirical estimates from criminal justice research '
+                                        'and can be adjusted to reflect different scenarios and assumptions.',
+                                        style={
+                                            'fontSize': '15px',
+                                            'color': '#4b5563',
+                                            'lineHeight': '1.8',
+                                            'margin': '0'
+                                        }
+                                    )
+                                ]),
+
                                 html.Div(
                                     style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '24px'},
                                     children=[
@@ -1478,8 +1549,10 @@ app.layout = html.Div(className='main-container', children=[
                                                                      )
                                                                  ]),
                                                              ])
-                                                         ]
-                                                     )
+                                                         ],
+
+                                                     ),
+
                                                  ]
                                              )
                                          ])
@@ -1509,75 +1582,7 @@ app.layout = html.Div(className='main-container', children=[
                                     'marginBottom': '24px'
                                 }),
 
-                                # Purpose section
-                                html.Div(style={'marginBottom': '32px'}, children=[
-                                    html.H3('Purpose', style={
-                                        'fontSize': '20px',
-                                        'fontWeight': '600',
-                                        'color': '#374151',
-                                        'marginTop': '0',
-                                        'marginBottom': '12px'
-                                    }),
-                                    html.P(
-                                        'This interactive dashboard provides a comprehensive analysis of the Marginal Value of Public Funds (MVPF) '
-                                        'for Cook County Jail operations. It enables policymakers, researchers, and stakeholders to evaluate the '
-                                        'social welfare impacts of detention policies through a systematic, data-driven framework.',
-                                        style={
-                                            'fontSize': '15px',
-                                            'color': '#4b5563',
-                                            'lineHeight': '1.8',
-                                            'margin': '0'
-                                        }
-                                    )
-                                ]),
 
-                                # Methodology section
-                                html.Div(style={'marginBottom': '32px'}, children=[
-                                    html.H3('Methodology', style={
-                                        'fontSize': '20px',
-                                        'fontWeight': '600',
-                                        'color': '#374151',
-                                        'marginTop': '0',
-                                        'marginBottom': '12px'
-                                    }),
-                                    html.P(
-                                        'The MVPF framework calculates the ratio of social benefits (measured through willingness-to-pay) '
-                                        'to government costs. This tool incorporates three main components:',
-                                        style={
-                                            'fontSize': '15px',
-                                            'color': '#4b5563',
-                                            'lineHeight': '1.8',
-                                            'marginBottom': '12px'
-                                        }
-                                    ),
-                                    html.Ul(style={'fontSize': '15px', 'color': '#4b5563', 'lineHeight': '1.8'}, children=[
-                                        html.Li('Detainee Values: Quantifying the harm imposed on individuals through detention'),
-                                        html.Li('Society Values: Measuring external impacts on public safety and community wellbeing'),
-                                        html.Li('Government Costs: Calculating the full fiscal burden of detention operations')
-                                    ])
-                                ]),
-
-                                # Data Sources section
-                                html.Div(style={'marginBottom': '32px'}, children=[
-                                    html.H3('Data Sources', style={
-                                        'fontSize': '20px',
-                                        'fontWeight': '600',
-                                        'color': '#374151',
-                                        'marginTop': '0',
-                                        'marginBottom': '12px'
-                                    }),
-                                    html.P(
-                                        'This tool draws from multiple peer-reviewed research studies, government reports, and administrative data sources '
-                                        'to ensure accuracy and reliability. Parameter values are based on empirical estimates from criminal justice research '
-                                        'and can be adjusted to reflect different scenarios and assumptions.',
-                                        style={
-                                            'fontSize': '15px',
-                                            'color': '#4b5563',
-                                            'lineHeight': '1.8',
-                                            'margin': '0'
-                                        }
-                                    )
-                                ]),
 
                                 # How to Use section
                                 html.Div(style={'marginBottom': '32px'}, children=[
@@ -1944,12 +1949,13 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
             ])
         ]),
 
-        # Calculation row - moved above components
-        html.Div(className='kpi-calculation', style={'marginTop': '0', 'marginBottom': '24px', 'paddingTop': '0', 'borderTop': 'none'}, children=[
+        # Calculation row -  above components
+        html.Div(className='kpi-calculation', style={'marginTop': '12px', 'marginBottom': '24px', 'paddingTop': '0', 'borderTop': 'none'}, children=[
             html.P([
                 html.Strong('Calculation: '),
                 f"MVPF = (${int(result['detainee_values']):,} + ${int(result['society_values']):,}) / ${int(result['govt_cost']):,} = {mvpf:.4f}"
-            ], style={'margin': '0'})
+            ], style={'margin': '0',
+                      'fontSize': '20px',})
         ]),
 
         # Component sections in 3-column grid
