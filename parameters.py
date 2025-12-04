@@ -157,19 +157,20 @@ class ParameterRegistry:
                 }
             ),
 
-            'recidivism_mult': ParameterDefinition(
-                key='recidivism_mult',
-                name='Recidivism Rate Impact',
-                description='Impact of recidivism on long-term outcomes',
-                default_value=1.0,
-                min_value=0.6,
-                max_value=1.4,
-                dashboard_enabled=False,
+            'crime_effect': ParameterDefinition(
+                key='crime_effect',
+                name='Crime Effect',
+                description='Crime impact multiplier on detention outcomes',
+                default_value=0,
+                min_value=-1.04,
+                max_value=1.14,
+                dashboard_enabled=True,
                 is_multiplier=True,
                 dropdown_map={
-                    'low': 0.6,
-                    'average': 1.0,
-                    'high': 1.4
+                    'large_decrease': -1.04,
+                    'no_effect': 0,
+                    'moderate_increase': 1.05,
+                    'large_increase': 1.14
                 }
             ),
 
@@ -204,7 +205,7 @@ class ParameterRegistry:
         input_mapping = {
             'fel_rate': 'fel_rate',
             'n_detainees': 'n_detainees_mult',
-            'n_society': 'n_society_mult',
+            'crime_effect': 'crime_effect',
             'los_days': 'los_days',
 
         }
@@ -220,7 +221,7 @@ class ParameterRegistry:
                 )
 
         # Add defaults for non-dashboard parameters
-        for key in ['crime_weight_mult', 'recidivism_mult', 'n_detainees_base']:
+        for key in ['crime_weight_mult', 'crime_effect', 'n_detainees_base']:
             if key not in result:
                 result[key] = self.params[key].default_value
 
@@ -294,8 +295,8 @@ class ParameterEffectsRegistry:
 
             'det_rel_harm': [
                 'los_days',  # Longer stays → more harm accumulates (RHV)
-                # Note: RHV value ($295,275/day) is already a daily aggregate total,
-                # NOT per-detainee. Don't multiply by n_detainees.
+                'n_detainees_mult',  # Scales total across population
+                # RHV value ($295,275/day) is per-day per-detainee, scaled by population
             ],
 
             # ==================== SOCIETY VALUES ====================
@@ -395,7 +396,7 @@ class ParameterPresets:
                 'n_detainees_mult': 1.0,
                 'n_society_mult': 1.0,
                 'crime_weight_mult': 1.0,
-                'recidivism_mult': 1.0,
+                'crime_effect': 0,  # No crime effect
             }
         },
 
@@ -408,7 +409,7 @@ class ParameterPresets:
                 'n_detainees_mult': 1.2,
                 'n_society_mult': 1.0,
                 'crime_weight_mult': 1.5,
-                'recidivism_mult': 1.3,
+                'crime_effect': 14,  # Large increase in crime
             }
         },
 
@@ -421,7 +422,7 @@ class ParameterPresets:
                 'n_detainees_mult': 0.8,
                 'n_society_mult': 1.0,
                 'crime_weight_mult': 1.0,
-                'recidivism_mult': 0.8,
+                'crime_effect': -4,  # Large decrease in crime
             }
         },
 
@@ -434,7 +435,7 @@ class ParameterPresets:
                 'n_detainees_mult': 1.1,
                 'n_society_mult': 0.9,
                 'crime_weight_mult': 0.7,
-                'recidivism_mult': 1.2,
+                'crime_effect': 5,  # Moderate increase in crime
             }
         }
     }
@@ -490,7 +491,7 @@ class ParameterValidator:
 
         # Other parameters
         'crime_weight_mult': (0.2, 3.0),
-        'recidivism_mult': (0.4, 2.0),
+        'crime_effect': (-4, 14),
     }
 
     @classmethod
@@ -593,16 +594,6 @@ class ParameterSensitivityAnalyzer:
         df = df.sort_values('sensitivity', ascending=False)
 
         return df
-
-#if __name__ == '__main__':
-#Usage:
- #   analyzer = ParameterSensitivityAnalyzer(MVPFCalculator)
- #   sensitivity_df = analyzer.run_sensitivity(base_params)
-
- #   print("Parameter Sensitivity Rankings:")
- #   for _, row in sensitivity_df.iterrows():
- #       print(f"{row['parameter']:20s} | Sensitivity: {row['sensitivity']:.3f}")
-
 
 
 

@@ -55,7 +55,7 @@ def convert_dashboard_params(detainee_param1, detainee_param2,
         'community_size_mult': maps['community'].get(society_param1, 1.0),
         'length_of_stay_mult': maps['los'].get(society_param2, 1.0),
         'crime_weight_mult': 1.0,
-        'recidivism_mult': 1.0,
+        'crime_effect': 0,
     }
 
 

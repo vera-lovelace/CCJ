@@ -819,13 +819,20 @@ app.layout = html.Div(className='main-container', children=[
                                         html.Span('%%', style={'color': '#2563eb'})
                                     ]),
                                     html.H4(content.get('controls.felony_rate.title', 'Felony Rate'), className='jumbotron-title'),
-                                    html.P(f"{fel_rate_param.default_value:.0%}", className='jumbotron-value'),
+                                    html.P(id='felony-rate-value', children=f"{fel_rate_param.default_value:.0%}", className='jumbotron-value'),
                                     html.P(content.get('controls.felony_rate.tooltip', fel_rate_param.description), className='jumbotron-description'),
-                                    dcc.Dropdown(
+                                    dcc.Slider(
                                         id='detainee-param1',
-                                        options=FEL_RATE_OPTIONS,
-                                        value='average',
-                                        clearable=False
+                                        min=0.5,
+                                        max=1.0,
+                                        value=0.7,
+                                        marks={
+                                            0.5: {'label': '50%', 'style': {'fontSize': '11px'}},
+                                            0.7: {'label': '70%', 'style': {'fontSize': '11px'}},
+                                            1.0: {'label': '100%', 'style': {'fontSize': '11px'}}
+                                        },
+                                        step=0.01,
+                                        tooltip={'placement': 'bottom', 'always_visible': False}
                                     )
                                 ]),
 
@@ -837,27 +844,77 @@ app.layout = html.Div(className='main-container', children=[
                                     html.H4(content.get('controls.detainee_population.title', 'Detainee Population'), className='jumbotron-title'),
                                     html.P(id='detainee-population-value', children=f"{n_detainees_param.base_value:,.0f}", className='jumbotron-value'),
                                     html.P(content.get('controls.detainee_population.tooltip', n_detainees_param.description), className='jumbotron-description'),
-                                    dcc.Dropdown(
+
+                                    # Baseline Population Input
+                                    html.Div(style={'marginBottom': '16px'}, children=[
+                                        html.Label('Baseline Population:', style={
+                                            'fontSize': '12px',
+                                            'fontWeight': '500',
+                                            'color': '#374151',
+                                            'marginBottom': '4px',
+                                            'display': 'block'
+                                        }),
+                                        dcc.Input(
+                                            id='detainee-baseline-input',
+                                            type='number',
+                                            value=n_detainees_param.base_value,
+                                            min=0,
+                                            step=100,
+                                            style={
+                                                'width': '100%',
+                                                'padding': '8px',
+                                                'fontSize': '14px',
+                                                'border': '1px solid #d1d5db',
+                                                'borderRadius': '6px',
+                                                'boxSizing': 'border-box'
+                                            }
+                                        )
+                                    ]),
+
+                                    # Population Multiplier Slider
+                                    html.Label('Population Multiplier:', style={
+                                        'fontSize': '12px',
+                                        'fontWeight': '500',
+                                        'color': '#374151',
+                                        'marginBottom': '8px',
+                                        'display': 'block'
+                                    }),
+                                    dcc.Slider(
                                         id='detainee-param2',
-                                        options=N_DETAINEES_OPTIONS,
-                                        value='average',
-                                        clearable=False
+                                        min=0.8,
+                                        max=1.2,
+                                        value=1.0,
+                                        marks={
+                                            0.8: {'label': '80%', 'style': {'fontSize': '11px'}},
+                                            1.0: {'label': '100%', 'style': {'fontSize': '11px'}},
+                                            1.2: {'label': '120%', 'style': {'fontSize': '11px'}}
+                                        },
+                                        step=0.01,
+                                        tooltip={'placement': 'bottom', 'always_visible': False}
                                     )
                                 ]),
 
-                                # Jumbotron 3: Community Size
+                                # Jumbotron 3: Crime Effect
                                 html.Div(className='jumbotron', children=[
-                                    html.Div(className='jumbotron-icon', style={'background': '#dcfce7'}, children=[
-                                        html.Span('#', style={'color': '#16a34a', 'fontWeight': '700'})
+                                    html.Div(className='jumbotron-icon', style={'background': '#fef2f2'}, children=[
+                                        html.Span('⚠️', style={'color': '#dc2626'})
                                     ]),
-                                    html.H4(content.get('controls.community_size.title', 'Community Size'), className='jumbotron-title'),
-                                    html.P(f"{n_society_param.base_value:,.0f}", className='jumbotron-value'),
-                                    html.P(content.get('controls.community_size.tooltip', n_society_param.description), className='jumbotron-description'),
-                                    dcc.Dropdown(
-                                        id='society-param1',
-                                        options=N_SOCIETY_OPTIONS,
-                                        value='average',
-                                        clearable=False
+                                    html.H4('Crime Effect', className='jumbotron-title'),
+                                    html.P(id='crime-effect-value', children='0', className='jumbotron-value'),
+                                    html.P('Crime impact multiplier on detention outcomes', className='jumbotron-description'),
+                                    dcc.Slider(
+                                        id='crime-effect-slider',
+                                        min=-4,
+                                        max=14,
+                                        value=0,
+                                        marks={
+                                            -4: {'label': '-4 (Large Decrease)', 'style': {'fontSize': '11px'}},
+                                            0: {'label': '0 (No Effect)', 'style': {'fontSize': '11px'}},
+                                            5: {'label': '5 (Moderate Increase)', 'style': {'fontSize': '11px'}},
+                                            14: {'label': '14 (Large Increase)', 'style': {'fontSize': '11px'}}
+                                        },
+                                        step=None,
+                                        tooltip={'placement': 'bottom', 'always_visible': False}
                                     )
                                 ]),
 
@@ -867,13 +924,20 @@ app.layout = html.Div(className='main-container', children=[
                                         html.Span('D', style={'color': '#dc2626', 'fontWeight': '700'})
                                     ]),
                                     html.H4(content.get('controls.length_of_stay.title', 'Length of Stay'), className='jumbotron-title'),
-                                    html.P(f"{los_days_param.default_value:.0f} days", className='jumbotron-value'),
+                                    html.P(id='los-days-value', children=f"{los_days_param.default_value:.0f} days", className='jumbotron-value'),
                                     html.P(content.get('controls.length_of_stay.tooltip', los_days_param.description), className='jumbotron-description'),
-                                    dcc.Dropdown(
+                                    dcc.Slider(
                                         id='society-param2',
-                                        options=LOS_DAYS_OPTIONS,
-                                        value='average',
-                                        clearable=False
+                                        min=60,
+                                        max=203,
+                                        value=70,
+                                        marks={
+                                            60: {'label': '60', 'style': {'fontSize': '11px'}},
+                                            70: {'label': '70', 'style': {'fontSize': '11px'}},
+                                            203: {'label': '203', 'style': {'fontSize': '11px'}}
+                                        },
+                                        step=1,
+                                        tooltip={'placement': 'bottom', 'always_visible': False}
                                     )
                                 ])
                             ]),
@@ -887,6 +951,40 @@ app.layout = html.Div(className='main-container', children=[
                                     'marginTop': '0',
                                     'marginBottom': '12px'
                                 }),
+
+                                # Scenario Jumbotrons Grid
+                                html.Div(className='jumbotron-grid', style={'marginBottom': '24px'}, children=[
+                                    # Jumbotron 1: Baseline Scenario
+                                    html.Div(className='jumbotron', children=[
+                                        html.Div(className='jumbotron-icon', style={'background': '#dbeafe'}, children=[
+                                            html.Span('📊', style={'color': '#2563eb'})
+                                        ]),
+                                        html.H4('Baseline - Current Operations', className='jumbotron-title', style={'fontWeight': '700'}),
+                                        html.P('Normative Effect: [Placeholder]', className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#2563eb'}),
+                                        html.P('Short description placeholder: Represents the current state of operations with existing policies and practices.', className='jumbotron-description')
+                                    ]),
+
+                                    # Jumbotron 2: Most Conservative Scenario
+                                    html.Div(className='jumbotron', children=[
+                                        html.Div(className='jumbotron-icon', style={'background': '#fef3c7'}, children=[
+                                            html.Span('🛡️', style={'color': '#d97706'})
+                                        ]),
+                                        html.H4('Conservative Approach', className='jumbotron-title', style={'fontWeight': '700'}),
+                                        html.P('Normative Effect: [Placeholder]', className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#d97706'}),
+                                        html.P('Short description placeholder: A cautious approach emphasizing risk mitigation and traditional methods.', className='jumbotron-description')
+                                    ]),
+
+                                    # Jumbotron 3: Least Conservative Scenario
+                                    html.Div(className='jumbotron', children=[
+                                        html.Div(className='jumbotron-icon', style={'background': '#dcfce7'}, children=[
+                                            html.Span('🚀', style={'color': '#16a34a'})
+                                        ]),
+                                        html.H4('Least Conservative Approach', className='jumbotron-title', style={'fontWeight': '700'}),
+                                        html.P('Normative Effect: [Placeholder]', className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#16a34a'}),
+                                        html.P('Short description placeholder: A progressive approach with more aggressive reform implementation.', className='jumbotron-description')
+                                    ])
+                                ]),
+
                                 html.Label('Select Scenario to calculate the MVPF:', style={
                                     'fontSize': '14px',
                                     'fontWeight': '500',
@@ -1043,6 +1141,38 @@ app.layout = html.Div(className='main-container', children=[
                                     'margin': '0',
                                     'lineHeight': '1.6'
                                 })
+                            ]),
+
+                            # Sensitivity Analysis Section Header
+                            html.H3('Sensitivity Analysis', style={
+                                'fontSize': '24px',
+                                'fontWeight': '600',
+                                'color': '#1e293b',
+                                'marginTop': '0',
+                                'marginBottom': '8px'
+                            }),
+                            html.P('Examine how each parameter affects MVPF values across baseline, most conservative, and least conservative scenarios.', style={
+                                'fontSize': '14px',
+                                'color': '#6b7280',
+                                'marginBottom': '24px'
+                            }),
+
+                            # Sensitivity Analysis Graphs (2x2 Grid)
+                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '24px', 'marginBottom': '48px'}, children=[
+                                # Row 1
+                                html.Div(className='chart-container', children=[
+                                    dcc.Graph(id='sensitivity-felony-rate')
+                                ]),
+                                html.Div(className='chart-container', children=[
+                                    dcc.Graph(id='sensitivity-detainee-population')
+                                ]),
+                                # Row 2
+                                html.Div(className='chart-container', children=[
+                                    dcc.Graph(id='sensitivity-crime-effect')
+                                ]),
+                                html.Div(className='chart-container', children=[
+                                    dcc.Graph(id='sensitivity-length-of-stay')
+                                ])
                             ]),
 
                             # Side-by-side charts: Scenario Comparison and Parameter Sensitivity
@@ -1749,42 +1879,43 @@ def _toggle_style(n_clicks, style):
         return {'display': 'block'}
     return {'display': 'none'}
 
-def _convert_dropdown_to_params(fel_rate_sel, n_detainees_sel, n_society_sel, los_days_sel):
+def _convert_dropdown_to_params(fel_rate_sel, n_detainees_sel, n_society_sel, los_days_sel, n_detainees_base=None):
     """
-    Convert dashboard dropdown selections to parameter values using the registry.
+    Convert dashboard slider values to parameter values.
 
     Parameters:
     -----------
-    fel_rate_sel : str
-        Felony rate selection ('below', 'average', 'above')
-    n_detainees_sel : str
-        Detainee population selection ('below', 'average', 'above')
-    n_society_sel : str
-        Community size selection ('below', 'average', 'above')
-    los_days_sel : str
-        Length of stay selection ('below', 'average', 'above')
+    fel_rate_sel : float
+        Felony rate value (0.5 to 1.0)
+    n_detainees_sel : float
+        Detainee population multiplier (0.8 to 1.2)
+    n_society_sel : float
+        Community size multiplier (0.8 to 1.2)
+    los_days_sel : float
+        Length of stay in days (60 to 203)
+    n_detainees_base : float, optional
+        Baseline detainee population. If None, uses default value.
 
     Returns:
     --------
     dict : Parameter values for calculator
     """
-    fel_rate_val = fel_rate_param.dropdown_map.get(fel_rate_sel, fel_rate_param.default_value)
-    los_days_val = los_days_param.dropdown_map.get(los_days_sel, los_days_param.default_value)
-    n_det_mult = n_detainees_param.dropdown_map.get(n_detainees_sel, 1.0)
-    n_soc_mult = n_society_param.dropdown_map.get(n_society_sel, 1.0)
+    # Use provided baseline or fall back to default
+    baseline = n_detainees_base if n_detainees_base is not None else n_detainees_base_param.default_value
 
+    # Sliders now return numeric values directly
     return {
-        'fel_rate': fel_rate_val,
-        'los_days': los_days_val,
-        'n_detainees_mult': n_det_mult,
-        'n_detainees_base': n_detainees_base_param.default_value,
-        'n_society_mult': n_soc_mult,
+        'fel_rate': fel_rate_sel,
+        'los_days': los_days_sel,
+        'n_detainees_mult': n_detainees_sel,
+        'n_detainees_base': baseline,
+        'n_society_mult': n_society_sel,
         'crime_weight_mult': 1.0,
-        'recidivism_mult': 1.0
+        'crime_effect': 0
     }
 
 
-def _calculate_mvpf(scenario, detainee_param1, detainee_param2, society_param1, society_param2):
+def _calculate_mvpf(scenario, detainee_param1, detainee_param2, society_param1, society_param2, detainee_baseline=None):
     """
     Calculate MVPF using the modular MVPFCalculator class.
 
@@ -1792,14 +1923,16 @@ def _calculate_mvpf(scenario, detainee_param1, detainee_param2, society_param1, 
     -----------
     scenario : str
         Scenario name (e.g., 'baseline', 'most conservative', etc.)
-    detainee_param1 : str
-        Felony rate selection ('below', 'average', 'above')
-    detainee_param2 : str
-        Detainee population selection ('below', 'average', 'above')
-    society_param1 : str
-        Community size selection ('below', 'average', 'above')
-    society_param2 : str
-        Length of stay selection ('below', 'average', 'above')
+    detainee_param1 : float
+        Felony rate value (0.5 to 1.0)
+    detainee_param2 : float
+        Detainee population multiplier (0.8 to 1.2)
+    society_param1 : float
+        Community size multiplier (0.8 to 1.2)
+    society_param2 : float
+        Length of stay in days (60 to 203)
+    detainee_baseline : float, optional
+        Baseline detainee population. If None, uses default value.
 
     Returns:
     --------
@@ -1809,7 +1942,8 @@ def _calculate_mvpf(scenario, detainee_param1, detainee_param2, society_param1, 
         fel_rate_sel=detainee_param1,
         n_detainees_sel=detainee_param2,
         n_society_sel=society_param1,
-        los_days_sel=society_param2
+        los_days_sel=society_param2,
+        n_detainees_base=detainee_baseline
     )
 
     result = calculator.calculate(scenario, params)
@@ -2256,7 +2390,7 @@ def _build_denominator_chart(result):
     return fig
 
 
-def _build_parameter_comparison_chart(scenario, base_det_p1, base_det_p2, base_soc_p1, base_soc_p2):
+def _build_parameter_comparison_chart(scenario, base_det_p1, base_det_p2, base_soc_p1, base_soc_p2, detainee_baseline=None):
     """Build the parameter comparison chart showing MVPF sensitivity to parameter changes."""
     # Calculate MVPFs for each parameter variation
     param_variations = {
@@ -2266,24 +2400,46 @@ def _build_parameter_comparison_chart(scenario, base_det_p1, base_det_p2, base_s
         'Length of Stay': []
     }
 
+    # Define parameter value mappings
+    fel_rate_values = {
+        'below': fel_rate_param.dropdown_map['below'],
+        'average': fel_rate_param.dropdown_map['average'],
+        'above': fel_rate_param.dropdown_map['above']
+    }
+    n_detainees_values = {
+        'below': n_detainees_param.dropdown_map['below'],
+        'average': n_detainees_param.dropdown_map['average'],
+        'above': n_detainees_param.dropdown_map['above']
+    }
+    n_society_values = {
+        'below': n_society_param.dropdown_map['below'],
+        'average': n_society_param.dropdown_map['average'],
+        'above': n_society_param.dropdown_map['above']
+    }
+    los_days_values = {
+        'below': los_days_param.dropdown_map['below'],
+        'average': los_days_param.dropdown_map['average'],
+        'above': los_days_param.dropdown_map['above']
+    }
+
     # Vary Felony Rate (detainee_param1)
     for variation in ['below', 'average', 'above']:
-        result = _calculate_mvpf(scenario, variation, base_det_p2, base_soc_p1, base_soc_p2)
+        result = _calculate_mvpf(scenario, fel_rate_values[variation], base_det_p2, base_soc_p1, base_soc_p2, detainee_baseline=detainee_baseline)
         param_variations['Felony Rate'].append(result['mvpf'])
 
     # Vary Detainee Population (detainee_param2)
     for variation in ['below', 'average', 'above']:
-        result = _calculate_mvpf(scenario, base_det_p1, variation, base_soc_p1, base_soc_p2)
+        result = _calculate_mvpf(scenario, base_det_p1, n_detainees_values[variation], base_soc_p1, base_soc_p2, detainee_baseline=detainee_baseline)
         param_variations['Detainee Population'].append(result['mvpf'])
 
     # Vary Community Size (society_param1)
     for variation in ['below', 'average', 'above']:
-        result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, variation, base_soc_p2)
+        result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, n_society_values[variation], base_soc_p2, detainee_baseline=detainee_baseline)
         param_variations['Community Size'].append(result['mvpf'])
 
     # Vary Length of Stay (society_param2)
     for variation in ['below', 'average', 'above']:
-        result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, base_soc_p1, variation)
+        result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, base_soc_p1, los_days_values[variation], detainee_baseline=detainee_baseline)
         param_variations['Length of Stay'].append(result['mvpf'])
 
     # Create grouped bar chart
@@ -2330,7 +2486,7 @@ def _build_parameter_comparison_chart(scenario, base_det_p1, base_det_p2, base_s
     return fig
 
 
-def _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2):
+def _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2, detainee_baseline=None):
     """Build the scenario comparison chart showing MVPF for all scenarios on y-axis."""
     scenarios = [
         'baseline',
@@ -2357,7 +2513,7 @@ def _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2):
     # Calculate MVPF for each scenario
     mvpf_values = []
     for scenario in scenarios:
-        result = _calculate_mvpf(scenario, det_p1, det_p2, soc_p1, soc_p2)
+        result = _calculate_mvpf(scenario, det_p1, det_p2, soc_p1, soc_p2, detainee_baseline=detainee_baseline)
         mvpf_values.append(result['mvpf'])
 
     # Color bars based on MVPF value (green for good, yellow for fair, red for poor)
@@ -2413,6 +2569,97 @@ def _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2):
     # Add vertical line at x=1 (break-even)
     fig.add_vline(x=1, line_dash="dash", line_color="#f59e0b", line_width=1,
                   annotation_text="Break-even", annotation_position="top")
+
+    return fig
+
+
+def _build_sensitivity_analysis_chart(parameter_name, param_values, base_det_p1, base_det_p2, base_soc_p1, base_soc_p2):
+    """
+    Build a sensitivity analysis chart showing how one parameter affects MVPF for baseline,
+    least conservative, and most conservative scenarios.
+
+    Parameters:
+    -----------
+    parameter_name : str
+        Name of the parameter being varied ('Felony Rate', 'Detainee Population', 'Community Size', 'Length of Stay')
+    param_values : dict
+        Dictionary mapping 'below', 'average', 'above' to actual parameter values
+    base_det_p1, base_det_p2, base_soc_p1, base_soc_p2 : float
+        Base parameter values to use when not varying the parameter
+
+    Returns:
+    --------
+    plotly.graph_objs.Figure
+    """
+    scenarios = ['baseline', 'most conservative', 'least conservative']
+    scenario_labels = {
+        'baseline': 'Baseline',
+        'most conservative': 'Most Conservative',
+        'least conservative': 'Least Conservative'
+    }
+    scenario_colors = {
+        'baseline': '#2563eb',  # Blue
+        'most conservative': '#d97706',  # Orange
+        'least conservative': '#16a34a'  # Green
+    }
+
+    variations = ['below', 'average', 'above']
+
+    fig = go.Figure()
+
+    for scenario in scenarios:
+        mvpf_values = []
+
+        for variation in variations:
+            # Determine which parameter to vary based on parameter_name
+            if parameter_name == 'Felony Rate':
+                result = _calculate_mvpf(scenario, param_values[variation], base_det_p2, base_soc_p1, base_soc_p2)
+            elif parameter_name == 'Detainee Population':
+                result = _calculate_mvpf(scenario, base_det_p1, param_values[variation], base_soc_p1, base_soc_p2)
+            elif parameter_name == 'Community Size':
+                result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, param_values[variation], base_soc_p2)
+            elif parameter_name == 'Length of Stay':
+                result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, base_soc_p1, param_values[variation])
+            else:
+                result = {'mvpf': 0}
+
+            mvpf_values.append(result['mvpf'])
+
+        fig.add_trace(go.Scatter(
+            x=variations,
+            y=mvpf_values,
+            mode='lines+markers',
+            name=scenario_labels[scenario],
+            line=dict(color=scenario_colors[scenario], width=3),
+            marker=dict(size=8, color=scenario_colors[scenario]),
+            text=[f"{v:.2f}" for v in mvpf_values],
+            textposition='top center',
+            textfont=dict(size=10)
+        ))
+
+    fig.update_layout(
+        title=f'Sensitivity to {parameter_name}',
+        xaxis_title=parameter_name,
+        yaxis_title='MVPF',
+        paper_bgcolor='white',
+        plot_bgcolor='#f9fafb',
+        font=dict(family='system-ui', size=11),
+        margin=dict(t=50, b=60, l=60, r=40),
+        legend=dict(
+            orientation='h',
+            yanchor='bottom',
+            y=1.02,
+            xanchor='right',
+            x=1,
+            bgcolor='rgba(255,255,255,0.8)'
+        ),
+        height=300,
+        hovermode='x unified'
+    )
+
+    # Add horizontal line at y=1 (break-even)
+    fig.add_hline(y=1, line_dash="dash", line_color="#f59e0b", line_width=1,
+                  annotation_text="Break-even", annotation_position="right")
 
     return fig
 
@@ -2585,18 +2832,35 @@ def register_callbacks(app):
         })
 
     # -------------------------------------------------------------------------
-    # Detainee Population Display Update Callback
+    # Slider Value Display Update Callbacks
     # -------------------------------------------------------------------------
 
     @app.callback(
-        Output('detainee-population-value', 'children'),
-        Input('detainee-param2', 'value')
+        Output('felony-rate-value', 'children'),
+        Input('detainee-param1', 'value')
     )
-    def update_detainee_display(selection):
-        """Update displayed detainee population based on dropdown selection."""
-        multiplier = n_detainees_param.dropdown_map.get(selection, 1.0)
-        calculated_value = n_detainees_param.base_value * multiplier
+    def update_felony_rate_display(value):
+        """Update displayed felony rate based on slider value."""
+        return f"{value:.0%}"
+
+    @app.callback(
+        Output('detainee-population-value', 'children'),
+        [Input('detainee-param2', 'value'),
+         Input('detainee-baseline-input', 'value')]
+    )
+    def update_detainee_display(multiplier, baseline):
+        """Update displayed detainee population based on baseline and multiplier."""
+        baseline_value = baseline if baseline is not None else n_detainees_param.base_value
+        calculated_value = baseline_value * multiplier
         return f"{calculated_value:,.0f}"
+
+    @app.callback(
+        Output('los-days-value', 'children'),
+        Input('society-param2', 'value')
+    )
+    def update_los_days_display(value):
+        """Update displayed length of stay based on slider value."""
+        return f"{value:.0f} days"
 
     # -------------------------------------------------------------------------
     # Main Dashboard Update Callback
@@ -2613,20 +2877,30 @@ def register_callbacks(app):
         [State('scenario-selector', 'value'),
          State('detainee-param1', 'value'),
          State('detainee-param2', 'value'),
-         State('society-param1', 'value'),
+         State('detainee-baseline-input', 'value'),
          State('society-param2', 'value')]
     )
-    def update_dashboard(n_clicks, scenario, det_p1, det_p2, soc_p1, soc_p2):
+    def update_dashboard(n_clicks, scenario, det_p1, det_p2, det_baseline, soc_p2):
         """Main callback to update all dashboard components."""
+        # Convert string parameters from State to floats
+        det_p1 = float(det_p1) if det_p1 is not None else 0.7
+        det_p2 = float(det_p2) if det_p2 is not None else 1.0
+        det_baseline = float(det_baseline) if det_baseline is not None else n_detainees_base_param.default_value
+        soc_p2 = float(soc_p2) if soc_p2 is not None else 70
+
+        # Use default value for community size multiplier
+        soc_p1 = 1.0
+
         # Get params for display in KPI card
         params = _convert_dropdown_to_params(
             fel_rate_sel=det_p1,
             n_detainees_sel=det_p2,
             n_society_sel=soc_p1,
-            los_days_sel=soc_p2
+            los_days_sel=soc_p2,
+            n_detainees_base=det_baseline
         )
 
-        result = _calculate_mvpf(scenario, det_p1, det_p2, soc_p1, soc_p2)
+        result = _calculate_mvpf(scenario, det_p1, det_p2, soc_p1, soc_p2, detainee_baseline=det_baseline)
         mvpf = result['mvpf']
 
         # Determine badge color and label
@@ -2644,10 +2918,78 @@ def register_callbacks(app):
         benchmark_card = _build_benchmark_card(mvpf)
         numerator_fig = _build_numerator_chart(result)
         denominator_fig = _build_denominator_chart(result)
-        param_comparison_fig = _build_parameter_comparison_chart(scenario, det_p1, det_p2, soc_p1, soc_p2)
-        scenario_comparison_fig = _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2)
+        param_comparison_fig = _build_parameter_comparison_chart(scenario, det_p1, det_p2, soc_p1, soc_p2, det_baseline)
+        scenario_comparison_fig = _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2, det_baseline)
 
         return kpi_card, benchmark_card, numerator_fig, denominator_fig, param_comparison_fig, scenario_comparison_fig
+
+    # -------------------------------------------------------------------------
+    # Sensitivity Analysis Callback for Tab 3
+    # -------------------------------------------------------------------------
+
+    @app.callback(
+        [Output('sensitivity-felony-rate', 'figure'),
+         Output('sensitivity-detainee-population', 'figure'),
+         Output('sensitivity-crime-effect', 'figure'),
+         Output('sensitivity-length-of-stay', 'figure')],
+        [Input('btn-calculate', 'n_clicks')],
+        [State('detainee-param1', 'value'),
+         State('detainee-param2', 'value'),
+         State('society-param2', 'value')]
+    )
+    def update_sensitivity_analysis(n_clicks, det_p1, det_p2, soc_p2):
+        """Update sensitivity analysis graphs for baseline, most conservative, and least conservative scenarios."""
+        # Convert string parameters from State to floats
+        det_p1 = float(det_p1) if det_p1 is not None else 0.7
+        det_p2 = float(det_p2) if det_p2 is not None else 1.0
+        soc_p2 = float(soc_p2) if soc_p2 is not None else 70
+
+        # Use default value for community size multiplier
+        soc_p1 = 1.0
+
+        # Define parameter value mappings for each parameter
+        fel_rate_values = {
+            'below': fel_rate_param.dropdown_map['below'],
+            'average': fel_rate_param.dropdown_map['average'],
+            'above': fel_rate_param.dropdown_map['above']
+        }
+
+        n_detainees_values = {
+            'below': n_detainees_param.dropdown_map['below'],
+            'average': n_detainees_param.dropdown_map['average'],
+            'above': n_detainees_param.dropdown_map['above']
+        }
+
+        crime_effect_values = {
+            'below': -4,
+            'average': 0,
+            'above': 14
+        }
+
+        los_days_values = {
+            'below': los_days_param.dropdown_map['below'],
+            'average': los_days_param.dropdown_map['average'],
+            'above': los_days_param.dropdown_map['above']
+        }
+
+        # Build all 4 sensitivity analysis charts
+        felony_rate_fig = _build_sensitivity_analysis_chart(
+            'Felony Rate', fel_rate_values, det_p1, det_p2, soc_p1, soc_p2
+        )
+
+        detainee_pop_fig = _build_sensitivity_analysis_chart(
+            'Detainee Population', n_detainees_values, det_p1, det_p2, soc_p1, soc_p2
+        )
+
+        crime_effect_fig = _build_sensitivity_analysis_chart(
+            'Crime Effect', crime_effect_values, det_p1, det_p2, soc_p1, soc_p2
+        )
+
+        length_of_stay_fig = _build_sensitivity_analysis_chart(
+            'Length of Stay', los_days_values, det_p1, det_p2, soc_p1, soc_p2
+        )
+
+        return felony_rate_fig, detainee_pop_fig, crime_effect_fig, length_of_stay_fig
 
     # -------------------------------------------------------------------------
     # Tab Navigation Callbacks
@@ -2688,14 +3030,21 @@ def register_callbacks(app):
         [State('scenario-selector', 'value'),
          State('detainee-param1', 'value'),
          State('detainee-param2', 'value'),
-         State('society-param1', 'value'),
          State('society-param2', 'value')],
         prevent_initial_call=True
     )
-    def download_csv(n_clicks, scenario, det_p1, det_p2, soc_p1, soc_p2):
+    def download_csv(n_clicks, scenario, det_p1, det_p2, soc_p2):
         """Generate and download CSV file with current MVPF results."""
         if n_clicks is None or n_clicks == 0:
             return None
+
+        # Convert string parameters from State to floats
+        det_p1 = float(det_p1) if det_p1 is not None else 0.7
+        det_p2 = float(det_p2) if det_p2 is not None else 1.0
+        soc_p2 = float(soc_p2) if soc_p2 is not None else 70
+
+        # Use default value for community size multiplier
+        soc_p1 = 1.0
 
         params = _convert_dropdown_to_params(
             fel_rate_sel=det_p1,

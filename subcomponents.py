@@ -99,7 +99,7 @@ class SubcomponentRegistry:
 
             'det_rel_harm': [
                 'los_days',  # Longer stays → more harm during detention
-                'n_detainees_mult'  # Detainee population multiplier (0.8, 1.0, 1.2)
+                'n_detainees_mult'  # Scale by detainee population (base × multiplier)
             ],
 
             # ==================== SOCIETY VALUES ====================
