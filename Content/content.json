@@ -224,15 +224,18 @@
   },
   "placeholders": {
     "overview_intro": {
-      "title": "Placeholder: Overview Tab Introduction",
-      "content": "testing changes."
+      "title": "Overview Tab Introduction",
+      "paragraph1": "This dashboard lets you explore how different assumptions change the Marginal Value of Public Funds (MVPF) for pretrial detention in Cook County Jail. The MVPF compares the total harms and benefits created by detention to the public cost of operating the jail. You can adjust several inputs that determine the number of people detained, the composition of cases, and the avergae length of stay. These inputs reshape the numerator and denominator of the MVPF and let you test how sensitive the results are to policy or system changes.",
+      "paragraph2": "Each scenario shows an MVPF for pretrial detention that compares harms and benefits to the public cost of running Cook County Jail in 2018. In every scenario, the numerator is built from two types of components: \n • harms to detainees, valued in dollars per day in custody \n • effects on society, such as changes in court appearance or crime outcomes",
+      "paragraph3":"The denominator is always the 2018 operating cost of the jail, scaled by the population and length of stay choices you set above, plus any costs or savings associated with crime outcomes.",
+      "paragraph4":"The scenarios below offer three different normative stances on how to value detention. They differ only in how detainee harm is measured and whether spillover harms to the detainee’s community are included. By default, the crime effect parameter is set to zero in every scenario. If you turn on a nonzero crime effect, it will change both the numerator (through assumed social costs or benefits of crime) and the denominator (through changes in government spending on policing, courts, and incarceration). Use these scenarios and parameters to see how alternative value judgments and crime assumptions shift the MVPF and what that implies about the social return of pretrial detention under different assumptions."
     },
     "mvpf_purpose": {
-      "title": "Placeholder: Purpose of MVPF Calculation",
+      "title": "How the MVPF for Cook County Jail was calculated?",
       "content": "This section will explain the purpose and methodology of the MVPF calculation, including how the baseline values are derived and what they represent in the context of Cook County Jail operations."
     },
     "scenarios_intro": {
-      "title": "Placeholder for Tab 2 Description",
+      "title": "Sensitivity analysis",
       "content": "Overview of the Scenario Analysis tab, explaining what users can explore and learn from the visualizations below."
     },
     "scenarios_explanation": {
