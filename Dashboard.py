@@ -567,7 +567,7 @@ app.layout = html.Div(className='main-container', children=[
                     }, children=[
                         html.Div(style={'padding': '48px 24px', 'maxWidth': '900px', 'margin': '0 auto'}, children=[
                             # Title
-                            html.H1('Welcome to the MVPF Analysis Dashboard', style={
+                            html.H1(content.get('landing.welcome_title', 'Welcome to the MVPF Analysis Dashboard'), style={
                                 'fontSize': '36px',
                                 'fontWeight': 'bold',
                                 'color': '#1e293b',
@@ -792,7 +792,7 @@ app.layout = html.Div(className='main-container', children=[
                                 'borderLeft': '4px solid #f59e0b',
                                 'marginBottom': '24px'
                             }, children=[
-                                html.H3('Placeholder: Overview Tab Introduction', style={
+                                html.H3(content.get('placeholders.overview_intro.title', 'Placeholder: Overview Tab Introduction'), style={
                                     'fontSize': '18px',
                                     'fontWeight': '600',
                                     'color': '#92400e',
@@ -800,8 +800,7 @@ app.layout = html.Div(className='main-container', children=[
                                     'marginBottom': '12px'
                                 }),
                                 html.P(
-                                    'Placeholder content: This section will provide an introduction to the Overview tab, '
-                                    'explaining how to use the parameter controls below to customize your MVPF analysis.',
+                                    content.get('placeholders.overview_intro.content', 'This section will provide an introduction to the Overview tab, explaining how to use the parameter controls below to customize your MVPF analysis.'),
                                     style={
                                         'fontSize': '14px',
                                         'color': '#92400e',
@@ -899,9 +898,9 @@ app.layout = html.Div(className='main-container', children=[
                                     html.Div(className='jumbotron-icon', style={'background': '#fef2f2'}, children=[
                                         html.Span('⚠️', style={'color': '#dc2626'})
                                     ]),
-                                    html.H4('Crime Effect', className='jumbotron-title'),
+                                    html.H4(content.get('controls.crime_effect.title', 'Crime Effect'), className='jumbotron-title'),
                                     html.P(id='crime-effect-value', children='0', className='jumbotron-value'),
-                                    html.P('Crime impact multiplier on detention outcomes', className='jumbotron-description'),
+                                    html.P(content.get('controls.crime_effect.description', 'Crime impact multiplier on detention outcomes'), className='jumbotron-description'),
                                     dcc.Slider(
                                         id='crime-effect-slider',
                                         min=-4,
@@ -944,7 +943,7 @@ app.layout = html.Div(className='main-container', children=[
 
                             # Scenario Selection Section
                             html.Div(className='jumbotron', style={'marginTop': '0', 'marginBottom': '24px'}, children=[
-                                html.H4('Scenario Selection', style={
+                                html.H4(content.get('controls.scenario_selection.title', 'Scenario Selection'), style={
                                     'fontSize': '18px',
                                     'fontWeight': '600',
                                     'color': '#374151',
@@ -959,9 +958,9 @@ app.layout = html.Div(className='main-container', children=[
                                         html.Div(className='jumbotron-icon', style={'background': '#dbeafe'}, children=[
                                             html.Span('📊', style={'color': '#2563eb'})
                                         ]),
-                                        html.H4('Baseline - Current Operations', className='jumbotron-title', style={'fontWeight': '700'}),
-                                        html.P('Focus on individual harm plus potential criminogenic effects', className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#2563eb'}),
-                                        html.P('This scenario uses our preferred baseline specification for valuing pretrial detention. Harm to detainees is measured using the Relative Harm Valuation scale, which produces a relatively large negative value per day in custody based on an indirect survey of the general population. We do not add any spillover harms to the detainee’s community as we consider  those may already be captured by the RHV measure. This combination relies on components that are strongly supported in the literature and keeps additional assumptions to a minimum.', className='jumbotron-description')
+                                        html.H4(content.get('scenarios.cards.baseline.title', 'Baseline - Current Operations'), className='jumbotron-title', style={'fontWeight': '700'}),
+                                        html.P(content.get('scenarios.cards.baseline.value', 'Focus on individual harm plus potential criminogenic effects'), className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#2563eb'}),
+                                        html.P(content.get('scenarios.cards.baseline.description', 'Choose this if you think detention may worsen public safety'), className='jumbotron-description')
                                     ]),
 
                                     # Jumbotron 2: Most Conservative Scenario
@@ -969,9 +968,9 @@ app.layout = html.Div(className='main-container', children=[
                                         html.Div(className='jumbotron-icon', style={'background': '#fef3c7'}, children=[
                                             html.Span('🛡️', style={'color': '#d97706'})
                                         ]),
-                                        html.H4('Less Negative Detainee Value - Conservative', className='jumbotron-title', style={'fontWeight': '700'}),
-                                        html.P('Focus on conservative valuation of individual harms', className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#d97706'}),
-                                        html.P('In this scenario, harm to detainees is valued using a smaller, survey-based  estimate instead of the larger Relative Harm Valuation scale. The WTP measure treats each day in jail as roughly 300 times less negative than the RHV scale, so the harm attributed to detention is much smaller in magnitude. As a result, the numerator becomes less negative and the MVPF for detention moves closer to zero.', className='jumbotron-description')
+                                        html.H4(content.get('scenarios.cards.most_conservative.title', 'Less Negative Detainee Value - Conservative'), className='jumbotron-title', style={'fontWeight': '700'}),
+                                        html.P(content.get('scenarios.cards.most_conservative.value', 'Focus on conservative valuation of individual harms'), className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#d97706'}),
+                                        html.P(content.get('scenarios.cards.most_conservative.description', 'Choose this if you believe detainee harm should be valued using smaller, survey-based estimates'), className='jumbotron-description')
                                     ]),
 
                                     # Jumbotron 3: Least Conservative Scenario
@@ -979,14 +978,13 @@ app.layout = html.Div(className='main-container', children=[
                                         html.Div(className='jumbotron-icon', style={'background': '#dcfce7'}, children=[
                                             html.Span('🚀', style={'color': '#16a34a'})
                                         ]),
-                                        html.H4('Least Conservative (lowest MVPF)', className='jumbotron-title', style={'fontWeight': '700'}),
-                                        html.P('Focus on broad social harms and criminogenic effects', className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#16a34a'}),
-                                        html.P('This scenario uses the same detainee value as the baseline set up (RHV) and adds another value to the numerator that captures some of the potential spillover effects of detention on the community of the detainee that are not already captured by the detainee value. This addition makes the numerator, and the overall MVPF, more negative.'
-                                               '', className='jumbotron-description')
+                                        html.H4(content.get('scenarios.cards.least_conservative.title', 'Least Conservative (lowest MVPF)'), className='jumbotron-title', style={'fontWeight': '700'}),
+                                        html.P(content.get('scenarios.cards.least_conservative.value', 'Focus on broad social harms and criminogenic effects'), className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#16a34a'}),
+                                        html.P(content.get('scenarios.cards.least_conservative.description', 'Choose this if you think detention harms both individuals and communities and may increase crime'), className='jumbotron-description')
                                     ])
                                 ]),
 
-                                html.Label('Select Scenario to calculate the MVPF:', style={
+                                html.Label(content.get('controls.scenario_selector.label', 'Select Scenario to calculate the MVPF:'), style={
                                     'fontSize': '14px',
                                     'fontWeight': '500',
                                     'color': '#374151',
@@ -1053,7 +1051,7 @@ app.layout = html.Div(className='main-container', children=[
                                 'borderLeft': '4px solid #3b82f6',
                                 'marginBottom': '24px'
                             }, children=[
-                                html.H3('Placeholder: Purpose of MVPF Calculation', style={
+                                html.H3(content.get('placeholders.mvpf_purpose.title', 'Placeholder: Purpose of MVPF Calculation'), style={
                                     'fontSize': '18px',
                                     'fontWeight': '600',
                                     'color': '#1e3a8a',
@@ -1061,8 +1059,7 @@ app.layout = html.Div(className='main-container', children=[
                                     'marginBottom': '12px'
                                 }),
                                 html.P(
-                                    'Placeholder content: This section will explain the purpose and methodology of the MVPF calculation, '
-                                    'providing context for interpreting the results shown above and the detailed breakdowns below.',
+                                    content.get('placeholders.mvpf_purpose.content', 'This section will explain the purpose and methodology of the MVPF calculation, providing context for interpreting the results shown above and the detailed breakdowns below.'),
                                     style={
                                         'fontSize': '14px',
                                         'color': '#1e40af',
@@ -1108,13 +1105,13 @@ app.layout = html.Div(className='main-container', children=[
                                 'marginBottom': '24px',
                                 'borderLeft': '4px solid #3b82f6'
                             }, children=[
-                                html.H3('Placeholder for Tab 2 Description', style={
+                                html.H3(content.get('placeholders.scenarios_intro.title', 'Placeholder for Tab 2 Description'), style={
                                     'fontSize': '18px',
                                     'fontWeight': '600',
                                     'color': '#374151',
                                     'margin': '0 0 8px 0'
                                 }),
-                                html.P('Placeholder for: Overview of the Scenario Analysis tab, explaining what users can explore and learn from the visualizations below.', style={
+                                html.P(content.get('placeholders.scenarios_intro.content', 'Placeholder for: Overview of the Scenario Analysis tab, explaining what users can explore and learn from the visualizations below.'), style={
                                     'fontSize': '14px',
                                     'color': '#6b7280',
                                     'margin': '0',
@@ -1130,13 +1127,13 @@ app.layout = html.Div(className='main-container', children=[
                                 'marginBottom': '24px',
                                 'borderLeft': '4px solid #f59e0b'
                             }, children=[
-                                html.H3('Placeholder for Alternative Scenarios Description', style={
+                                html.H3(content.get('placeholders.alt_scenarios.title', 'Placeholder for Alternative Scenarios Description'), style={
                                     'fontSize': '18px',
                                     'fontWeight': '600',
                                     'color': '#374151',
                                     'margin': '0 0 8px 0'
                                 }),
-                                html.P('Placeholder for: Explanation of the different scenarios available (baseline, conservative, reduced crime, etc.) and how they differ from each other in terms of assumptions and parameters.', style={
+                                html.P(content.get('placeholders.alt_scenarios.content', 'Placeholder for: Explanation of the different scenarios available (baseline, conservative, reduced crime, etc.) and how they differ from each other in terms of assumptions and parameters.'), style={
                                     'fontSize': '14px',
                                     'color': '#92400e',
                                     'margin': '0',
@@ -1235,7 +1232,7 @@ app.layout = html.Div(className='main-container', children=[
 
                                 # Purpose section
                                 html.Div(style={'marginBottom': '32px'}, children=[
-                                    html.H3('Purpose', style={
+                                    html.H3(content.get('understanding.purpose.title', 'Purpose'), style={
                                         'fontSize': '20px',
                                         'fontWeight': '600',
                                         'color': '#374151',
@@ -1243,9 +1240,10 @@ app.layout = html.Div(className='main-container', children=[
                                         'marginBottom': '12px'
                                     }),
                                     html.P(
+                                        content.get('understanding.purpose.description',
                                         'This interactive dashboard provides a comprehensive analysis of the Marginal Value of Public Funds (MVPF) '
                                         'for Cook County Jail operations. It enables policymakers, researchers, and stakeholders to evaluate the '
-                                        'social welfare impacts of detention policies through a systematic, data-driven framework.',
+                                        'social welfare impacts of detention policies through a systematic, data-driven framework.'),
                                         style={
                                             'fontSize': '15px',
                                             'color': '#4b5563',
@@ -1257,7 +1255,7 @@ app.layout = html.Div(className='main-container', children=[
 
 # Methodology section
                                 html.Div(style={'marginBottom': '32px'}, children=[
-                                    html.H3('Methodology', style={
+                                    html.H3(content.get('understanding.methodology.title', 'Methodology'), style={
                                         'fontSize': '20px',
                                         'fontWeight': '600',
                                         'color': '#374151',
@@ -1265,8 +1263,9 @@ app.layout = html.Div(className='main-container', children=[
                                         'marginBottom': '12px'
                                     }),
                                     html.P(
+                                        content.get('understanding.methodology.description',
                                         'The MVPF framework calculates the ratio of social benefits (measured through willingness-to-pay) '
-                                        'to government costs. This tool incorporates three main components:',
+                                        'to government costs. This tool incorporates three main components:'),
                                         style={
                                             'fontSize': '15px',
                                             'color': '#4b5563',
@@ -1275,15 +1274,15 @@ app.layout = html.Div(className='main-container', children=[
                                         }
                                     ),
                                     html.Ul(style={'fontSize': '15px', 'color': '#4b5563', 'lineHeight': '1.8'}, children=[
-                                        html.Li('Detainee Values: Quantifying the harm imposed on individuals through detention'),
-                                        html.Li('Society Values: Measuring external impacts on public safety and community wellbeing'),
-                                        html.Li('Government Costs: Calculating the full fiscal burden of detention operations')
+                                        html.Li(content.get('understanding.methodology.component1', 'Detainee Values: Quantifying the harm imposed on individuals through detention')),
+                                        html.Li(content.get('understanding.methodology.component2', 'Society Values: Measuring external impacts on public safety and community wellbeing')),
+                                        html.Li(content.get('understanding.methodology.component3', 'Government Costs: Calculating the full fiscal burden of detention operations'))
                                     ])
                                 ]),
 
                                 # Data Sources section
                                 html.Div(style={'marginBottom': '32px'}, children=[
-                                    html.H3('Data Sources', style={
+                                    html.H3(content.get('understanding.data_sources.title', 'Data Sources'), style={
                                         'fontSize': '20px',
                                         'fontWeight': '600',
                                         'color': '#374151',
@@ -1291,9 +1290,10 @@ app.layout = html.Div(className='main-container', children=[
                                         'marginBottom': '12px'
                                     }),
                                     html.P(
+                                        content.get('understanding.data_sources.description',
                                         'This tool draws from multiple peer-reviewed research studies, government reports, and administrative data sources '
                                         'to ensure accuracy and reliability. Parameter values are based on empirical estimates from criminal justice research '
-                                        'and can be adjusted to reflect different scenarios and assumptions.',
+                                        'and can be adjusted to reflect different scenarios and assumptions.'),
                                         style={
                                             'fontSize': '15px',
                                             'color': '#4b5563',
@@ -1365,7 +1365,7 @@ app.layout = html.Div(className='main-container', children=[
                                 # Components breakdown
                                 html.Div(style={'marginTop': '24px', 'paddingTop': '24px', 'borderTop': '1px solid #e5e7eb'},
                                          children=[
-                                             html.H4('Components Breakdown', style={
+                                             html.H4(content.get('components_breakdown.title', 'Components Breakdown'), style={
                                                  'fontSize': '16px',
                                                  'fontWeight': '600',
                                                  'color': '#374151',
@@ -1385,7 +1385,7 @@ app.layout = html.Div(className='main-container', children=[
                                                              'borderLeft': '4px solid #2563eb'
                                                          },
                                                          children=[
-                                                             html.H5('Detainee Values', style={
+                                                             html.H5(content.get('components_breakdown.detainee_values.title', 'Detainee Values'), style={
                                                                  'fontSize': '15px',
                                                                  'fontWeight': '600',
                                                                  'color': '#2563eb',
@@ -1393,10 +1393,11 @@ app.layout = html.Div(className='main-container', children=[
                                                              }),
 
                                                              html.P(
+                                                                 content.get('components_breakdown.detainee_values.description',
                                                                  'Detainee Values capture the total harm detention imposes on people who are jailed. '
                                                                  'We measure this using a willingness-to-pay lens, estimating how much a person would trade '
                                                                  'to avoid being detained. This reflects short-term harms, disruptions to work and family life, '
-                                                                 'and long-term effects on health, income, and stability.',
+                                                                 'and long-term effects on health, income, and stability.'),
                                                                  style={
                                                                      'fontSize': '14px',
                                                                      'color': '#374151',
@@ -1407,7 +1408,7 @@ app.layout = html.Div(className='main-container', children=[
 
                                                              # Subcomponents header
                                                              html.Div(className='label-with-info', children=[
-                                                                 html.Span('Subcomponents', style={
+                                                                 html.Span(content.get('components_breakdown.detainee_values.subcomponents_label', 'Subcomponents'), style={
                                                                      'fontWeight': '500',
                                                                      'fontSize': '14px'
                                                                     })
@@ -1474,7 +1475,7 @@ app.layout = html.Div(className='main-container', children=[
                                                              'borderLeft': '4px solid #16a34a'
                                                          },
                                                          children=[
-                                                             html.H5('Society Values', style={
+                                                             html.H5(content.get('components_breakdown.society_values.title', 'Society Values'), style={
                                                                  'fontSize': '15px',
                                                                  'fontWeight': '600',
                                                                  'color': '#16a34a',
@@ -1482,9 +1483,10 @@ app.layout = html.Div(className='main-container', children=[
                                                              }),
 
                                                              html.P(
+                                                                 content.get('components_breakdown.society_values.description',
                                                                  'Society Values measure how detention affects external factors like public safety, victimization risk, and community wellbeing. '
                                                                  'These values summarize the effects felt by people outside the jail and convert those effects into a '
-                                                                 'common dollar scale for comparison.',
+                                                                 'common dollar scale for comparison.'),
                                                                  style={
                                                                      'fontSize': '14px',
                                                                      'color': '#374151',
@@ -1494,7 +1496,7 @@ app.layout = html.Div(className='main-container', children=[
                                                              ),
 
                                                              html.Div(className='label-with-info', children=[
-                                                                 html.Span('Subcomponents', style={
+                                                                 html.Span(content.get('components_breakdown.society_values.subcomponents_label', 'Subcomponents'), style={
                                                                      'fontWeight': '500',
                                                                      'fontSize': '14px'
                                                                  }
@@ -1583,7 +1585,7 @@ app.layout = html.Div(className='main-container', children=[
                                                              'borderLeft': '4px solid #dc2626'
                                                          },
                                                          children=[
-                                                             html.H5('Government Cost', style={
+                                                             html.H5(content.get('components_breakdown.government_cost.title', 'Government Cost'), style={
                                                                  'fontSize': '15px',
                                                                  'fontWeight': '600',
                                                                  'color': '#dc2626',
@@ -1591,9 +1593,10 @@ app.layout = html.Div(className='main-container', children=[
                                                              }),
 
                                                              html.P(
+                                                                 content.get('components_breakdown.government_cost.description',
                                                                  'Government Cost reflects all public spending required to run the detention system. This includes daily '
                                                                  'operations, staffing, healthcare, facilities, court processing, and administrative overhead. It represents '
-                                                                 'the fiscal cost taxpayers bear to support the current level of detention.',
+                                                                 'the fiscal cost taxpayers bear to support the current level of detention.'),
                                                                  style={
                                                                      'fontSize': '14px',
                                                                      'color': '#374151',
@@ -1603,7 +1606,7 @@ app.layout = html.Div(className='main-container', children=[
                                                              ),
 
                                                              html.Div(className='label-with-info', children=[
-                                                                 html.Span('Subcomponents', style={
+                                                                 html.Span(content.get('components_breakdown.government_cost.subcomponents_label', 'Subcomponents'), style={
                                                                      'fontWeight': '500',
                                                                      'fontSize': '14px'
                                                                  }
