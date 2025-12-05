@@ -959,9 +959,9 @@ app.layout = html.Div(className='main-container', children=[
                                         html.Div(className='jumbotron-icon', style={'background': '#dbeafe'}, children=[
                                             html.Span('📊', style={'color': '#2563eb'})
                                         ]),
-                                        html.H4('Baseline - Current Operations', className='jumbotron-title', style={'fontWeight': '700'}),
-                                        html.P('Normative Effect: [Placeholder]', className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#2563eb'}),
-                                        html.P('Short description placeholder: Represents the current state of operations with existing policies and practices.', className='jumbotron-description')
+                                        html.H4('Baseline', className='jumbotron-title', style={'fontWeight': '700'}),
+                                        html.P('Focus on evidence-first minimal assumptions', className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#2563eb'}),
+                                        html.P('This scenario uses our preferred baseline specification for valuing pretrial detention. Harm to detainees is measured using the Relative Harm Valuation scale, which produces a relatively large negative value per day in custody based on an indirect survey of the general population. We do not add any spillover harms to the detainee’s community as we consider  those may already be captured by the RHV measure. This combination relies on components that are strongly supported in the literature and keeps additional assumptions to a minimum.', className='jumbotron-description')
                                     ]),
 
                                     # Jumbotron 2: Most Conservative Scenario
@@ -970,8 +970,8 @@ app.layout = html.Div(className='main-container', children=[
                                             html.Span('🛡️', style={'color': '#d97706'})
                                         ]),
                                         html.H4('Conservative Approach', className='jumbotron-title', style={'fontWeight': '700'}),
-                                        html.P('Normative Effect: [Placeholder]', className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#d97706'}),
-                                        html.P('Short description placeholder: A cautious approach emphasizing risk mitigation and traditional methods.', className='jumbotron-description')
+                                        html.P('Focus on conservative valuation of detainee harms', className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#d97706'}),
+                                        html.P('In this scenario, harm to detainees is valued using a smaller, survey-based “Willingness to Pay for Freedom” estimate instead of the larger Relative Harm Valuation scale. The WTP measure treats each day in jail as roughly 300 times less negative than the RHV scale, so the harm attributed to detention is much smaller in magnitude. As a result, the numerator becomes less negative and the MVPF for detention moves closer to zero.', className='jumbotron-description')
                                     ]),
 
                                     # Jumbotron 3: Least Conservative Scenario
@@ -980,8 +980,8 @@ app.layout = html.Div(className='main-container', children=[
                                             html.Span('🚀', style={'color': '#16a34a'})
                                         ]),
                                         html.H4('Least Conservative Approach', className='jumbotron-title', style={'fontWeight': '700'}),
-                                        html.P('Normative Effect: [Placeholder]', className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#16a34a'}),
-                                        html.P('Short description placeholder: A progressive approach with more aggressive reform implementation.', className='jumbotron-description')
+                                        html.P('Focus on broad inclusion and valuation of detainee harms', className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#16a34a'}),
+                                        html.P('This scenario adds a value to the numerator that captures some of the potential spillover effects of detention on the community of the detainee that are not already captured by the detainee value. This addition makes the numerator, and the overall MVPF, more negative. ', className='jumbotron-description')
                                     ])
                                 ]),
 
