@@ -981,7 +981,7 @@ app.layout = html.Div(className='main-container', children=[
                                         ]),
                                         html.H4('Least Conservative (lowest MVPF)', className='jumbotron-title', style={'fontWeight': '700'}),
                                         html.P('Focus on broad social harms and criminogenic effects', className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#16a34a'}),
-                                        html.P('This scenario adds a value to the numerator that captures some of the potential spillover effects of detention on the community of the detainee that are not already captured by the detainee value. This addition makes the numerator, and the overall MVPF, more negative.'
+                                        html.P('This scenario uses the same detainee value as the baseline set up (RHV) and adds another value to the numerator that captures some of the potential spillover effects of detention on the community of the detainee that are not already captured by the detainee value. This addition makes the numerator, and the overall MVPF, more negative.'
                                                '', className='jumbotron-description')
                                     ])
                                 ]),
