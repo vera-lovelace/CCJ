@@ -908,10 +908,10 @@ app.layout = html.Div(className='main-container', children=[
                                         max=14,
                                         value=0,
                                         marks={
-                                            -4: {'label': '-4 (Large Decrease)', 'style': {'fontSize': '11px'}},
-                                            0: {'label': '0 (No Effect)', 'style': {'fontSize': '11px'}},
-                                            5: {'label': '5 (Moderate Increase)', 'style': {'fontSize': '11px'}},
-                                            14: {'label': '14 (Large Increase)', 'style': {'fontSize': '11px'}}
+                                            -4: {'label': '-4 (Large Decrease)', 'style': {'fontSize': '8px'}},
+                                            0: {'label': '0 (No Effect)', 'style': {'fontSize': '8px'}},
+                                            5: {'label': '5 (Moderate Increase)', 'style': {'fontSize': '8px'}},
+                                            14: {'label': '14 (Large Increase)', 'style': {'fontSize': '8px'}}
                                         },
                                         step=None,
                                         tooltip={'placement': 'bottom', 'always_visible': False}
@@ -960,8 +960,8 @@ app.layout = html.Div(className='main-container', children=[
                                             html.Span('📊', style={'color': '#2563eb'})
                                         ]),
                                         html.H4('Baseline - Current Operations', className='jumbotron-title', style={'fontWeight': '700'}),
-                                        html.P('Normative Effect: [Placeholder]', className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#2563eb'}),
-                                        html.P('Short description placeholder: Represents the current state of operations with existing policies and practices.', className='jumbotron-description')
+                                        html.P('Focus on individual harm plus potential criminogenic effects', className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#2563eb'}),
+                                        html.P('Choose this if you think detention may worsen public safety', className='jumbotron-description')
                                     ]),
 
                                     # Jumbotron 2: Most Conservative Scenario
@@ -969,9 +969,9 @@ app.layout = html.Div(className='main-container', children=[
                                         html.Div(className='jumbotron-icon', style={'background': '#fef3c7'}, children=[
                                             html.Span('🛡️', style={'color': '#d97706'})
                                         ]),
-                                        html.H4('Conservative Approach', className='jumbotron-title', style={'fontWeight': '700'}),
-                                        html.P('Normative Effect: [Placeholder]', className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#d97706'}),
-                                        html.P('Short description placeholder: A cautious approach emphasizing risk mitigation and traditional methods.', className='jumbotron-description')
+                                        html.H4('Less Negative Detainee Value - Conservative', className='jumbotron-title', style={'fontWeight': '700'}),
+                                        html.P('Focus on conservative valuation of individual harms', className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#d97706'}),
+                                        html.P('Choose this if you believe detainee harm should be valued using smaller, survey-based estimates', className='jumbotron-description')
                                     ]),
 
                                     # Jumbotron 3: Least Conservative Scenario
@@ -979,9 +979,9 @@ app.layout = html.Div(className='main-container', children=[
                                         html.Div(className='jumbotron-icon', style={'background': '#dcfce7'}, children=[
                                             html.Span('🚀', style={'color': '#16a34a'})
                                         ]),
-                                        html.H4('Least Conservative Approach', className='jumbotron-title', style={'fontWeight': '700'}),
-                                        html.P('Normative Effect: [Placeholder]', className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#16a34a'}),
-                                        html.P('Short description placeholder: A progressive approach with more aggressive reform implementation.', className='jumbotron-description')
+                                        html.H4('Least Conservative (lowest MVPF)', className='jumbotron-title', style={'fontWeight': '700'}),
+                                        html.P('Focus on broad social harms and criminogenic effects', className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#16a34a'}),
+                                        html.P('Choose this if you think detention harms both individuals and communities and may increase crime', className='jumbotron-description')
                                     ])
                                 ]),
 
