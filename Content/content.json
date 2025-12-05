@@ -225,7 +225,7 @@
   "placeholders": {
     "overview_intro": {
       "title": "Placeholder: Overview Tab Introduction",
-      "content": "This section will provide an introduction to the Overview tab, explaining how to use the parameter controls below to customize your MVPF analysis."
+      "content": "testing changes."
     },
     "mvpf_purpose": {
       "title": "Placeholder: Purpose of MVPF Calculation",
@@ -239,5 +239,6 @@
       "title": "Placeholder for Alternative Scenarios Description",
       "content": "Explanation of the different scenarios available (baseline, conservative, reduced crime, etc.) and how they differ from each other in terms of assumptions and parameters."
     }
-  }
+  },
+  "scenario_intro_p1": "The three scenarios differ only in how we value harm to detainees (a larger Relative Harm Valuation scale versus a smaller survey-based \"Willingness to Pay for Freedom\") and whether we add an extra negative term for spillover harms to the detainee’s community. In all scenarios, the crime effect components are set to zero by default; they only change if you adjust that parameter elsewhere in the dashboard."
 }
