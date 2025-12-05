@@ -4,7 +4,7 @@ soc_crime_prevention,society_values,Incapacitation and deterrance crime effects 
 soc_spillover,society_values,Wrongful death damages Social cost of detainment (focusing on economic impact submeasure),dollars per detainee,negative,2023,294728,100000,300000
 soc_victimization,society_values,Acute Cost of crime - HAVEN framework (victims),dollar per victim,negative,2024,875000,10000,875000
 det_wtp_freedom,detainee_values,WTP for Freedom,dollars per day,negative,2022,11,,
-det_rel_harm,detainee_values,Relative Harm Valuation (RHV),dollars per day,negative,2021,295275,,295275.00
+det_rel_harm,detainee_values,Relative Harm Valuation (RHV),dollars per day,negative,2021,4218,,295275.00
 gov_health,govt_cost,Spike in Public Health Spending post-release,dollar per detainee,positive,2018,300,200,400
 gov_operations,govt_cost,Total Funding for CCJ (2018),dollars per year,positive,2018,448677628,448677628,
 n_detainees,Weight,n Detainees,people,N/A,2018,33945,,
