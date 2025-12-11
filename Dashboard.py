@@ -576,37 +576,81 @@ app.layout = html.Div(className='main-container', children=[
                             }),
 
                             # Information Tile
-                            html.Div(style={
-                                'background': 'white',
-                                'padding': '20px',
-                                'borderRadius': '8px',
-                                'marginBottom': '32px',
-                                'border': '1px solid #e5e7eb'
-                            }, children=[
-                                html.H3(content.get('info_tile.heading', 'About MVPF'), style={
-                                    'fontSize': '16px',
-                                    'fontWeight': '600',
-                                    'color': '#374151',
-                                    'marginTop': '0',
-                                    'marginBottom': '8px'
-                                }),
-                                html.P(content.get('info_tile.description', 'The MVPF measures the ratio of beneficiaries willingness to pay to the net cost to the government'), style={
-                                    'fontSize': '14px',
-                                    'color': '#6b7280',
-                                    'lineHeight': '1.6',
-                                    'margin': '0 0 12px 0'
-                                }),
-                                html.P([
-                                    html.Strong(content.get('info_tile.formula_label', 'Formula:'), style={'color': '#374151'}),
-                                    html.Br(),
-                                    content.get('info_tile.formula', 'MVPF = (Detainee + Society) / Government Cost')
-                                ], style={
-                                    'fontSize': '14px',
-                                    'color': '#6b7280',
-                                    'lineHeight': '1.6',
-                                    'margin': '0'
-                                })
-                            ]),
+                            html.Div(
+                                style={
+                                    'background': 'white',
+                                    'padding': '20px',
+                                    'borderRadius': '8px',
+                                    'marginBottom': '32px',
+                                    'border': '1px solid #e5e7eb'
+                                },
+                                children=[
+                                    html.H3(
+                                        content.get('info_tile.heading', 'About MVPF'),
+                                        style={
+                                            'fontSize': '16px',
+                                            'fontWeight': '600',
+                                            'color': '#374151',
+                                            'marginTop': '0',
+                                            'marginBottom': '8px'
+                                        }
+                                    ),
+
+                                    html.P(
+                                        content.get(
+                                            'info_tile.description',
+                                            'The MVPF measures the ratio of beneficiaries willingness to pay to the net cost to the government'
+                                        ),
+                                        style={
+                                            'fontSize': '14px',
+                                            'color': '#6b7280',
+                                            'lineHeight': '1.6',
+                                            'margin': '0 0 12px 0'
+                                        }
+                                    ),
+
+                                    html.P(
+                                        [
+                                            html.Strong(
+                                                content.get('info_tile.formula_label', 'Formula:'),
+                                                style={'color': '#374151'}
+                                            ),
+                                            html.Br(),
+                                            content.get(
+                                                'info_tile.formula',
+                                                'MVPF = (Detainee + Society) / Government Cost'
+                                            )
+                                        ],
+                                        style={
+                                            'fontSize': '14px',
+                                            'color': '#6b7280',
+                                            'lineHeight': '1.6',
+                                            'margin': '0 0 16px 0'
+                                        }
+                                    ),
+
+                                    # New section: application label + text
+                                    html.P(
+                                        [
+                                            html.Strong(
+                                                content.get('info_tile.application_label', 'Our application of MVPF'),
+                                                style={'color': '#374151'}
+                                            ),
+                                            html.Br(),
+                                            content.get(
+                                                'info_tile.application',
+                                                'How we apply MVPF to Cook County Jail.'
+                                            )
+                                        ],
+                                        style={
+                                            'fontSize': '14px',
+                                            'color': '#6b7280',
+                                            'lineHeight': '1.6',
+                                            'margin': '0'
+                                        }
+                                    ),
+                                ]
+                            ),
 
                             # Description
                             html.Div(style={
