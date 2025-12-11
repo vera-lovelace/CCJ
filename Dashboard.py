@@ -1736,6 +1736,250 @@ app.layout = html.Div(className='main-container', children=[
                                              )
                                          ])
                             ]),
+
+                            # Parameters section
+                            html.Div(className='chart-container', style={'background': '#f8fafc', 'marginTop': '32px'}, children=[
+                                html.H3('Analysis Parameters', style={
+                                    'fontSize': '20px',
+                                    'fontWeight': '600',
+                                    'color': '#1e293b',
+                                    'marginBottom': '16px',
+                                    'marginTop': '0'
+                                }),
+                                html.P('The MVPF calculation depends on four key parameters that you can adjust in the Overview tab:', style={
+                                    'fontSize': '15px',
+                                    'color': '#4b5563',
+                                    'marginBottom': '20px'
+                                }),
+                                html.Div(
+                                    style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '16px'},
+                                    children=[
+                                        # Felony Rate
+                                        html.Div(
+                                            id='parameter-felony-rate',
+                                            className='jumbotron',
+                                            style={
+                                                'background': 'white',
+                                                'padding': '20px',
+                                                'borderRadius': '8px',
+                                                'borderLeft': '4px solid #3b82f6'
+                                            },
+                                            children=[
+                                                html.H4(content.get('parameters.felony_rate.title', 'Felony Rate'), style={
+                                                    'fontSize': '16px',
+                                                    'fontWeight': '600',
+                                                    'color': '#3b82f6',
+                                                    'margin': '0 0 12px 0'
+                                                }),
+                                                html.P(
+                                                    content.get('parameters.felony_rate.description', 'The proportion of detainees charged with at least one felony offense.'),
+                                                    style={
+                                                        'fontSize': '14px',
+                                                        'color': '#374151',
+                                                        'lineHeight': '1.6',
+                                                        'margin': '0'
+                                                    }
+                                                )
+                                            ]
+                                        ),
+
+                                        # Detainee Population
+                                        html.Div(
+                                            id='parameter-detainee-population',
+                                            className='jumbotron',
+                                            style={
+                                                'background': 'white',
+                                                'padding': '20px',
+                                                'borderRadius': '8px',
+                                                'borderLeft': '4px solid #10b981'
+                                            },
+                                            children=[
+                                                html.H4(content.get('parameters.detainee_population.title', 'Detainee Population'), style={
+                                                    'fontSize': '16px',
+                                                    'fontWeight': '600',
+                                                    'color': '#10b981',
+                                                    'margin': '0 0 12px 0'
+                                                }),
+                                                html.P(
+                                                    content.get('parameters.detainee_population.description', 'The number of individuals detained at Cook County Jail over the course of a year.'),
+                                                    style={
+                                                        'fontSize': '14px',
+                                                        'color': '#374151',
+                                                        'lineHeight': '1.6',
+                                                        'margin': '0'
+                                                    }
+                                                )
+                                            ]
+                                        ),
+
+                                        # Length of Stay
+                                        html.Div(
+                                            id='parameter-length-of-stay',
+                                            className='jumbotron',
+                                            style={
+                                                'background': 'white',
+                                                'padding': '20px',
+                                                'borderRadius': '8px',
+                                                'borderLeft': '4px solid #f59e0b'
+                                            },
+                                            children=[
+                                                html.H4(content.get('parameters.length_of_stay.title', 'Length of Stay'), style={
+                                                    'fontSize': '16px',
+                                                    'fontWeight': '600',
+                                                    'color': '#f59e0b',
+                                                    'margin': '0 0 12px 0'
+                                                }),
+                                                html.P(
+                                                    content.get('parameters.length_of_stay.description', 'The average number of days individuals are detained in Cook County Jail.'),
+                                                    style={
+                                                        'fontSize': '14px',
+                                                        'color': '#374151',
+                                                        'lineHeight': '1.6',
+                                                        'margin': '0'
+                                                    }
+                                                )
+                                            ]
+                                        ),
+
+                                        # Crime Effect
+                                        html.Div(
+                                            id='parameter-crime-effect',
+                                            className='jumbotron',
+                                            style={
+                                                'background': 'white',
+                                                'padding': '20px',
+                                                'borderRadius': '8px',
+                                                'borderLeft': '4px solid #ef4444'
+                                            },
+                                            children=[
+                                                html.H4(content.get('parameters.crime_effect.title', 'Crime Effect'), style={
+                                                    'fontSize': '16px',
+                                                    'fontWeight': '600',
+                                                    'color': '#ef4444',
+                                                    'margin': '0 0 12px 0'
+                                                }),
+                                                html.P(
+                                                    content.get('parameters.crime_effect.description', 'The multiplier applied to crime-related impacts of detention on public safety.'),
+                                                    style={
+                                                        'fontSize': '14px',
+                                                        'color': '#374151',
+                                                        'lineHeight': '1.6',
+                                                        'margin': '0'
+                                                    }
+                                                )
+                                            ]
+                                        )
+                                    ]
+                                )
+                            ]),
+
+                            # Scenarios section
+                            html.Div(className='chart-container', style={'background': '#f8fafc', 'marginTop': '32px'}, children=[
+                                html.H3('Scenario Comparisons', style={
+                                    'fontSize': '20px',
+                                    'fontWeight': '600',
+                                    'color': '#1e293b',
+                                    'marginBottom': '16px',
+                                    'marginTop': '0'
+                                }),
+                                html.P('Three normative scenarios offer different perspectives on how to value detention impacts:', style={
+                                    'fontSize': '15px',
+                                    'color': '#4b5563',
+                                    'marginBottom': '20px'
+                                }),
+                                html.Div(
+                                    style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': '16px'},
+                                    children=[
+                                        # Baseline Scenario
+                                        html.Div(
+                                            id='scenario-baseline',
+                                            className='jumbotron',
+                                            style={
+                                                'background': 'white',
+                                                'padding': '20px',
+                                                'borderRadius': '8px',
+                                                'borderLeft': '4px solid #2563eb'
+                                            },
+                                            children=[
+                                                html.H4(content.get('scenarios_explained.baseline.title', 'Baseline Scenario'), style={
+                                                    'fontSize': '16px',
+                                                    'fontWeight': '600',
+                                                    'color': '#2563eb',
+                                                    'margin': '0 0 12px 0'
+                                                }),
+                                                html.P(
+                                                    content.get('scenarios_explained.baseline.description', 'Focuses on individual harm to detainees plus potential criminogenic effects of detention.'),
+                                                    style={
+                                                        'fontSize': '14px',
+                                                        'color': '#374151',
+                                                        'lineHeight': '1.6',
+                                                        'margin': '0'
+                                                    }
+                                                )
+                                            ]
+                                        ),
+
+                                        # Most Conservative Scenario
+                                        html.Div(
+                                            id='scenario-most-conservative',
+                                            className='jumbotron',
+                                            style={
+                                                'background': 'white',
+                                                'padding': '20px',
+                                                'borderRadius': '8px',
+                                                'borderLeft': '4px solid #d97706'
+                                            },
+                                            children=[
+                                                html.H4(content.get('scenarios_explained.most_conservative.title', 'Conservative Scenario'), style={
+                                                    'fontSize': '16px',
+                                                    'fontWeight': '600',
+                                                    'color': '#d97706',
+                                                    'margin': '0 0 12px 0'
+                                                }),
+                                                html.P(
+                                                    content.get('scenarios_explained.most_conservative.description', 'Uses smaller survey-based estimates to value detainee harm, producing less negative MVPF values.'),
+                                                    style={
+                                                        'fontSize': '14px',
+                                                        'color': '#374151',
+                                                        'lineHeight': '1.6',
+                                                        'margin': '0'
+                                                    }
+                                                )
+                                            ]
+                                        ),
+
+                                        # Least Conservative Scenario
+                                        html.Div(
+                                            id='scenario-least-conservative',
+                                            className='jumbotron',
+                                            style={
+                                                'background': 'white',
+                                                'padding': '20px',
+                                                'borderRadius': '8px',
+                                                'borderLeft': '4px solid #16a34a'
+                                            },
+                                            children=[
+                                                html.H4(content.get('scenarios_explained.least_conservative.title', 'Least Conservative Scenario'), style={
+                                                    'fontSize': '16px',
+                                                    'fontWeight': '600',
+                                                    'color': '#16a34a',
+                                                    'margin': '0 0 12px 0'
+                                                }),
+                                                html.P(
+                                                    content.get('scenarios_explained.least_conservative.description', 'Includes broad social harms to communities and families, plus criminogenic effects of detention.'),
+                                                    style={
+                                                        'fontSize': '14px',
+                                                        'color': '#374151',
+                                                        'lineHeight': '1.6',
+                                                        'margin': '0'
+                                                    }
+                                                )
+                                            ]
+                                        )
+                                    ]
+                                )
+                            ]),
+
                             # Limitations section
                                 html.Div(style={'marginBottom': '0'}, children=[
                                     html.H3('Limitations and Considerations', style={
