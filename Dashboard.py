@@ -66,6 +66,7 @@ N_SOCIETY_OPTIONS = [
 
 # Initialize the Dash app
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
+server = app.server
 
 # Custom CSS for styling
 app.index_string = '''
@@ -86,19 +87,6 @@ app.index_string = '''
                 max-width: 1280px;
                 margin: 0 auto;
                 padding: 24px;
-            }
-            .header {
-                margin-bottom: 24px;
-            }
-            .header h1 {
-                font-size: 30px;
-                font-weight: bold;
-                color: #1e293b;
-                margin: 0 0 8px 0;
-            }
-            .header p {
-                color: #64748b;
-                margin: 0;
             }
             .sidebar {
                 background: white;
@@ -500,6 +488,100 @@ app.index_string = '''
                 box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2) !important;
                 transform: translateY(-4px);
             }
+            /* Left Sidebar Navigation */
+            .app-container {
+                display: flex;
+                min-height: 100vh;
+                background: linear-gradient(to bottom right, #f8fafc, #f1f5f9);
+            }
+            .left-sidebar {
+                width: 240px;
+                background: white;
+                box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                overflow-y: auto;
+                z-index: 1000;
+                padding: 24px 0;
+            }
+            .sidebar-header {
+                padding: 0 20px 20px 20px;
+                border-bottom: 1px solid #e5e7eb;
+                margin-bottom: 20px;
+            }
+            .sidebar-header h2 {
+                font-size: 18px;
+                font-weight: 700;
+                color: #1e293b;
+                margin: 0 0 4px 0;
+            }
+            .sidebar-header p {
+                font-size: 12px;
+                color: #64748b;
+                margin: 0;
+            }
+            .nav-menu {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+            .nav-item {
+                margin: 0;
+            }
+            .nav-button {
+                display: flex;
+                align-items: center;
+                width: 100%;
+                padding: 12px 20px;
+                border: none;
+                background: transparent;
+                color: #64748b;
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s;
+                text-align: left;
+                gap: 12px;
+            }
+            .nav-button:hover {
+                background: #f8fafc;
+                color: #2563eb;
+            }
+            .nav-button.active {
+                background: #eff6ff;
+                color: #2563eb;
+                border-right: 3px solid #2563eb;
+                font-weight: 600;
+            }
+            .nav-icon {
+                font-size: 18px;
+                width: 24px;
+                text-align: center;
+            }
+            .main-content {
+                margin-left: 240px;
+                flex: 1;
+                padding: 24px;
+                max-width: calc(100% - 240px);
+            }
+            @media (max-width: 768px) {
+                .left-sidebar {
+                    width: 200px;
+                }
+                .main-content {
+                    margin-left: 200px;
+                    max-width: calc(100% - 200px);
+                }
+            }
+            /* Hide the horizontal tabs navigation bar */
+            .custom-tabs-container .tabs__container {
+                display: none !important;
+            }
+            .custom-tabs > div:first-child {
+                display: none !important;
+            }
         </style>
     </head>
     <body>
@@ -514,17 +596,50 @@ app.index_string = '''
 '''
 
 # Layout
-app.layout = html.Div(className='main-container', children=[
-    # Header
-    html.Div(className='header', children=[
-        html.H1(content.get('header.title', 'MVPF Analysis Dashboard')),
-        html.P(content.get('header.subtitle', 'Marginal Value of Public Funds Calculation'))
+app.layout = html.Div(className='app-container', children=[
+    # Store component for active tab tracking
+    dcc.Store(id='active-tab-store', data='tab-landing'),
+
+    # Left Sidebar Navigation
+    html.Div(className='left-sidebar', children=[
+        html.Div(className='sidebar-header', children=[
+            html.H2(content.get('header.title', 'MVPF Analysis Dashboard'), style={
+                'fontSize': '18px',
+                'fontWeight': '700',
+                'color': '#1e293b',
+                'margin': '0 0 8px 0'
+            }),
+            html.P(content.get('header.subtitle', 'Marginal Value of Public Funds Calculation'), style={
+                'fontSize': '12px',
+                'color': '#64748b',
+                'margin': '0 0 16px 0',
+                'lineHeight': '1.4'
+            })
+        ]),
+        html.Nav(className='nav-menu', children=[
+            html.Div(className='nav-item', children=[
+                html.Button('Home', id='nav-home', n_clicks=0, className='nav-button active')
+            ]),
+            html.Div(className='nav-item', children=[
+                html.Button(content.get('tabs.overview', 'Overview'), id='nav-overview', n_clicks=0, className='nav-button')
+            ]),
+            html.Div(className='nav-item', children=[
+                html.Button(content.get('tabs.scenarios', 'Scenario Analysis'), id='nav-scenarios', n_clicks=0, className='nav-button')
+            ]),
+            html.Div(className='nav-item', children=[
+                html.Button('Comparative Benchmarking', id='nav-benchmarking', n_clicks=0, className='nav-button')
+            ]),
+            html.Div(className='nav-item', children=[
+                html.Button('MVPF Explained', id='nav-descriptions', n_clicks=0, className='nav-button')
+            ]),
+            html.Div(className='nav-item', children=[
+                html.Button('About', id='nav-about', n_clicks=0, className='nav-button')
+            ])
+        ])
     ]),
 
-    # Main Content
-
-
-    html.Div(children=[
+    # Main Content Area
+    html.Div(className='main-content', children=[
                 # Download section
                 html.Div(className='download-section', style={
                     'display': 'flex',
@@ -551,8 +666,8 @@ app.layout = html.Div(className='main-container', children=[
                     dcc.Download(id='download-dataframe-csv')
                 ]),
 
-                # Tabs Container
-                dcc.Tabs(id='main-tabs', value='tab-landing', children=[
+                # Tabs Container (headers hidden, controlled by sidebar)
+                dcc.Tabs(id='main-tabs', value='tab-landing', parent_className='custom-tabs-container', className='custom-tabs', children=[
                     # Tab 0: Landing Page
                     dcc.Tab(label='Home', value='tab-landing', style={
                         'padding': '12px 24px',
@@ -995,70 +1110,59 @@ app.layout = html.Div(className='main-container', children=[
                                     'marginBottom': '12px'
                                 }),
 
-                                # Scenario Jumbotrons Grid
+                                # Hidden store for selected scenario
+                                dcc.Store(id='scenario-selector', data='baseline'),
+
+                                # Scenario Jumbotrons Grid (now clickable)
                                 html.Div(className='jumbotron-grid', style={'marginBottom': '24px'}, children=[
                                     # Jumbotron 1: Baseline Scenario
-                                    html.Div(className='jumbotron', children=[
-                                        html.Div(className='jumbotron-icon', style={'background': '#dbeafe'}, children=[
-                                            html.Span('📊', style={'color': '#2563eb'})
-                                        ]),
-                                        html.H4(content.get('scenarios.cards.baseline.title', 'Baseline - Current Operations'), className='jumbotron-title', style={'fontWeight': '700'}),
-                                        html.P(content.get('scenarios.cards.baseline.value', 'Focus on individual harm plus potential criminogenic effects'), className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#2563eb'}),
-                                        html.P(content.get('scenarios.cards.baseline.description', 'Choose this if you think detention may worsen public safety'), className='jumbotron-description')
-                                    ]),
+                                    html.Button(
+                                        id='scenario-btn-baseline',
+                                        n_clicks=0,
+                                        className='jumbotron scenario-card',
+                                        style={'border': '3px solid #2563eb', 'cursor': 'pointer'},
+                                        children=[
+                                            html.Div(className='jumbotron-icon', style={'background': '#dbeafe'}, children=[
+                                                html.Span('📊', style={'color': '#2563eb'})
+                                            ]),
+                                            html.H4(content.get('scenarios.cards.baseline.title', 'Baseline - Current Operations'), className='jumbotron-title', style={'fontWeight': '700'}),
+                                            html.P(content.get('scenarios.cards.baseline.value', 'Focus on individual harm plus potential criminogenic effects'), className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#2563eb'}),
+                                            html.P(content.get('scenarios.cards.baseline.description', 'Choose this if you think detention may worsen public safety'), className='jumbotron-description')
+                                        ]
+                                    ),
 
                                     # Jumbotron 2: Most Conservative Scenario
-                                    html.Div(className='jumbotron', children=[
-                                        html.Div(className='jumbotron-icon', style={'background': '#fef3c7'}, children=[
-                                            html.Span('🛡️', style={'color': '#d97706'})
-                                        ]),
-                                        html.H4(content.get('scenarios.cards.most_conservative.title', 'Less Negative Detainee Value - Conservative'), className='jumbotron-title', style={'fontWeight': '700'}),
-                                        html.P(content.get('scenarios.cards.most_conservative.value', 'Focus on conservative valuation of individual harms'), className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#d97706'}),
-                                        html.P(content.get('scenarios.cards.most_conservative.description', 'Choose this if you believe detainee harm should be valued using smaller, survey-based estimates'), className='jumbotron-description')
-                                    ]),
+                                    html.Button(
+                                        id='scenario-btn-most-conservative',
+                                        n_clicks=0,
+                                        className='jumbotron scenario-card',
+                                        style={'border': '2px solid #e5e7eb', 'cursor': 'pointer'},
+                                        children=[
+                                            html.Div(className='jumbotron-icon', style={'background': '#fef3c7'}, children=[
+                                                html.Span('🛡️', style={'color': '#d97706'})
+                                            ]),
+                                            html.H4(content.get('scenarios.cards.most_conservative.title', 'Less Negative Detainee Value - Conservative'), className='jumbotron-title', style={'fontWeight': '700'}),
+                                            html.P(content.get('scenarios.cards.most_conservative.value', 'Focus on conservative valuation of individual harms'), className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#d97706'}),
+                                            html.P(content.get('scenarios.cards.most_conservative.description', 'Choose this if you believe detainee harm should be valued using smaller, survey-based estimates'), className='jumbotron-description')
+                                        ]
+                                    ),
 
                                     # Jumbotron 3: Least Conservative Scenario
-                                    html.Div(className='jumbotron', children=[
-                                        html.Div(className='jumbotron-icon', style={'background': '#dcfce7'}, children=[
-                                            html.Span('🚀', style={'color': '#16a34a'})
-                                        ]),
-                                        html.H4(content.get('scenarios.cards.least_conservative.title', 'Least Conservative (lowest MVPF)'), className='jumbotron-title', style={'fontWeight': '700'}),
-                                        html.P(content.get('scenarios.cards.least_conservative.value', 'Focus on broad social harms and criminogenic effects'), className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#16a34a'}),
-                                        html.P(content.get('scenarios.cards.least_conservative.description', 'Choose this if you think detention harms both individuals and communities and may increase crime'), className='jumbotron-description')
-                                    ])
-                                ]),
-
-                                html.Label(content.get('controls.scenario_selector.label', 'Select Scenario to calculate the MVPF:'), style={
-                                    'fontSize': '14px',
-                                    'fontWeight': '500',
-                                    'color': '#374151',
-                                    'marginBottom': '8px',
-                                    'display': 'block'
-                                }),
-                                dcc.Dropdown(
-                                    id='scenario-selector',
-                                    options=[
-                                        {'label': content.get('scenarios.options.baseline', 'Baseline - Current Operations'), 'value': 'baseline'},
-                                        {'label': content.get('scenarios.options.most_conservative', 'Conservative Approach'), 'value': 'most conservative'},
-                                        {'label': content.get('scenarios.options.least_conservative', 'Least Conservative Approach'), 'value': 'least conservative'},
-                                        {'label': content.get('scenarios.options.reduced_crime', 'Reduced Crime Scenario'), 'value': 'reduced_crime'},
-                                        {'label': content.get('scenarios.options.increased_crime', 'Increased Crime Scenario'), 'value': 'increased_crime'},
-                                        {'label': content.get('scenarios.options.diversion_program', 'Pre-Trial Diversion Program'), 'value': 'diversion_program'},
-                                        {'label': content.get('scenarios.options.bail_reform', 'Bail Reform Scenario'), 'value': 'bail_reform'},
-                                        {'label': content.get('scenarios.options.capacity_expansion', 'Facility Capacity Expansion'), 'value': 'capacity_expansion'}
-                                    ],
-                                    value='baseline',
-                                    clearable=False,
-                                    style={'marginBottom': '16px'}
-                                ),
-                                # Scenario Description
-                                html.Div(id='scenario-description', style={
-                                    'backgroundColor': '#f9fafb',
-                                    'padding': '16px',
-                                    'borderRadius': '8px',
-                                    'borderLeft': '4px solid #3b82f6',
-                                    'marginTop': '16px'
-                                })
+                                    html.Button(
+                                        id='scenario-btn-least-conservative',
+                                        n_clicks=0,
+                                        className='jumbotron scenario-card',
+                                        style={'border': '2px solid #e5e7eb', 'cursor': 'pointer'},
+                                        children=[
+                                            html.Div(className='jumbotron-icon', style={'background': '#dcfce7'}, children=[
+                                                html.Span('🚀', style={'color': '#16a34a'})
+                                            ]),
+                                            html.H4(content.get('scenarios.cards.least_conservative.title', 'Least Conservative (lowest MVPF)'), className='jumbotron-title', style={'fontWeight': '700'}),
+                                            html.P(content.get('scenarios.cards.least_conservative.value', 'Focus on broad social harms and criminogenic effects'), className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#16a34a'}),
+                                            html.P(content.get('scenarios.cards.least_conservative.description', 'Choose this if you think detention harms both individuals and communities and may increase crime'), className='jumbotron-description')
+                                        ]
+                                    )
+                                ])
                             ]),
 
                             # Calculate Button Section
@@ -2052,15 +2156,14 @@ app.layout = html.Div(className='main-container', children=[
                             ])
                         ])
                     ])
-                ])
-             ]),
+                ]),
 
-        # Acknowledgements Section (Outside Tabs)
-        html.Div(style={
-            'marginTop': '48px',
-            'paddingTop': '48px',
-            'borderTop': '2px solid #e5e7eb'
-        }, children=[
+                # Acknowledgements Section (Inside main-content, at bottom)
+                html.Div(style={
+                    'marginTop': '48px',
+                    'paddingTop': '48px',
+                    'borderTop': '2px solid #e5e7eb'
+                }, children=[
             html.H2('Acknowledgements', style={
                 'fontSize': '14px',
                 'fontWeight': 'bold',
@@ -2139,8 +2242,10 @@ app.layout = html.Div(className='main-container', children=[
                 )
             ])
         ])
-        ]
-    )
+    ])
+])
+
+
 
 # =============================================================================
 # CALLBACKS MODULE
@@ -2153,12 +2258,7 @@ def _get_scenario_description(scenario):
     descriptions = {
         'baseline': 'Represents current operations at Cook County Jail with standard parameters. This scenario serves as the reference point for comparison.',
         'most conservative': 'Uses conservative estimates for all parameters, minimizing potential benefits and maximizing costs. Provides a lower-bound estimate of MVPF.',
-        'least conservative': 'Uses optimistic estimates that maximize potential benefits and minimize costs. Provides an upper-bound estimate of MVPF.',
-        'reduced_crime': 'Models a scenario where crime rates decrease, resulting in lower detention demand and associated costs.',
-        'increased_crime': 'Models a scenario where crime rates increase, resulting in higher detention demand and associated costs.',
-        'diversion_program': 'Simulates the impact of implementing pre-trial diversion programs that reduce jail population through alternative interventions.',
-        'bail_reform': 'Models the effects of bail reform policies that reduce pretrial detention for low-risk individuals.',
-        'capacity_expansion': 'Analyzes the impact of expanding facility capacity to accommodate more detainees.'
+        'least conservative': 'Uses optimistic estimates that maximize potential benefits and minimize costs. Provides an upper-bound estimate of MVPF.'
     }
     return descriptions.get(scenario, 'No description available for this scenario.')
 
@@ -2171,7 +2271,7 @@ def _toggle_style(n_clicks, style):
         return {'display': 'block'}
     return {'display': 'none'}
 
-def _convert_dropdown_to_params(fel_rate_sel, n_detainees_sel, n_society_sel, los_days_sel, n_detainees_base=None):
+def _convert_dropdown_to_params(fel_rate_sel, n_detainees_sel, n_society_sel, los_days_sel, n_detainees_base=None, crime_effect=0):
     """
     Convert dashboard slider values to parameter values.
 
@@ -2187,6 +2287,8 @@ def _convert_dropdown_to_params(fel_rate_sel, n_detainees_sel, n_society_sel, lo
         Length of stay in days (60 to 203)
     n_detainees_base : float, optional
         Baseline detainee population. If None, uses default value.
+    crime_effect : float, optional
+        Crime effect multiplier (-4 to 14). Defaults to 0 (no effect).
 
     Returns:
     --------
@@ -2203,11 +2305,11 @@ def _convert_dropdown_to_params(fel_rate_sel, n_detainees_sel, n_society_sel, lo
         'n_detainees_base': baseline,
         'n_society_mult': n_society_sel,
         'crime_weight_mult': 1.0,
-        'crime_effect': 0
+        'crime_effect': crime_effect
     }
 
 
-def _calculate_mvpf(scenario, detainee_param1, detainee_param2, society_param1, society_param2, detainee_baseline=None):
+def _calculate_mvpf(scenario, detainee_param1, detainee_param2, society_param1, society_param2, detainee_baseline=None, crime_effect=0):
     """
     Calculate MVPF using the modular MVPFCalculator class.
 
@@ -2225,6 +2327,8 @@ def _calculate_mvpf(scenario, detainee_param1, detainee_param2, society_param1, 
         Length of stay in days (60 to 203)
     detainee_baseline : float, optional
         Baseline detainee population. If None, uses default value.
+    crime_effect : float, optional
+        Crime effect multiplier (-4 to 14). Defaults to 0 (no effect).
 
     Returns:
     --------
@@ -2235,7 +2339,8 @@ def _calculate_mvpf(scenario, detainee_param1, detainee_param2, society_param1, 
         n_detainees_sel=detainee_param2,
         n_society_sel=society_param1,
         los_days_sel=society_param2,
-        n_detainees_base=detainee_baseline
+        n_detainees_base=detainee_baseline,
+        crime_effect=crime_effect
     )
 
     result = calculator.calculate(scenario, params)
@@ -2682,7 +2787,7 @@ def _build_denominator_chart(result):
     return fig
 
 
-def _build_parameter_comparison_chart(scenario, base_det_p1, base_det_p2, base_soc_p1, base_soc_p2, detainee_baseline=None):
+def _build_parameter_comparison_chart(scenario, base_det_p1, base_det_p2, base_soc_p1, base_soc_p2, detainee_baseline=None, crime_effect=0):
     """Build the parameter comparison chart showing MVPF sensitivity to parameter changes."""
     # Calculate MVPFs for each parameter variation
     param_variations = {
@@ -2716,22 +2821,22 @@ def _build_parameter_comparison_chart(scenario, base_det_p1, base_det_p2, base_s
 
     # Vary Felony Rate (detainee_param1)
     for variation in ['below', 'average', 'above']:
-        result = _calculate_mvpf(scenario, fel_rate_values[variation], base_det_p2, base_soc_p1, base_soc_p2, detainee_baseline=detainee_baseline)
+        result = _calculate_mvpf(scenario, fel_rate_values[variation], base_det_p2, base_soc_p1, base_soc_p2, detainee_baseline=detainee_baseline, crime_effect=crime_effect)
         param_variations['Felony Rate'].append(result['mvpf'])
 
     # Vary Detainee Population (detainee_param2)
     for variation in ['below', 'average', 'above']:
-        result = _calculate_mvpf(scenario, base_det_p1, n_detainees_values[variation], base_soc_p1, base_soc_p2, detainee_baseline=detainee_baseline)
+        result = _calculate_mvpf(scenario, base_det_p1, n_detainees_values[variation], base_soc_p1, base_soc_p2, detainee_baseline=detainee_baseline, crime_effect=crime_effect)
         param_variations['Detainee Population'].append(result['mvpf'])
 
     # Vary Community Size (society_param1)
     for variation in ['below', 'average', 'above']:
-        result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, n_society_values[variation], base_soc_p2, detainee_baseline=detainee_baseline)
+        result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, n_society_values[variation], base_soc_p2, detainee_baseline=detainee_baseline, crime_effect=crime_effect)
         param_variations['Community Size'].append(result['mvpf'])
 
     # Vary Length of Stay (society_param2)
     for variation in ['below', 'average', 'above']:
-        result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, base_soc_p1, los_days_values[variation], detainee_baseline=detainee_baseline)
+        result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, base_soc_p1, los_days_values[variation], detainee_baseline=detainee_baseline, crime_effect=crime_effect)
         param_variations['Length of Stay'].append(result['mvpf'])
 
     # Create grouped bar chart
@@ -2778,34 +2883,24 @@ def _build_parameter_comparison_chart(scenario, base_det_p1, base_det_p2, base_s
     return fig
 
 
-def _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2, detainee_baseline=None):
+def _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2, detainee_baseline=None, crime_effect=0):
     """Build the scenario comparison chart showing MVPF for all scenarios on y-axis."""
     scenarios = [
         'baseline',
         'most conservative',
-        'least conservative',
-        'reduced_crime',
-        'increased_crime',
-        'diversion_program',
-        'bail_reform',
-        'capacity_expansion'
+        'least conservative'
     ]
 
     scenario_labels = {
         'baseline': 'Baseline',
         'most conservative': 'Conservative',
-        'least conservative': 'Least Conservative',
-        'reduced_crime': 'Reduced Crime',
-        'increased_crime': 'Increased Crime',
-        'diversion_program': 'Diversion Program',
-        'bail_reform': 'Bail Reform',
-        'capacity_expansion': 'Capacity Expansion'
+        'least conservative': 'Least Conservative'
     }
 
     # Calculate MVPF for each scenario
     mvpf_values = []
     for scenario in scenarios:
-        result = _calculate_mvpf(scenario, det_p1, det_p2, soc_p1, soc_p2, detainee_baseline=detainee_baseline)
+        result = _calculate_mvpf(scenario, det_p1, det_p2, soc_p1, soc_p2, detainee_baseline=detainee_baseline, crime_effect=crime_effect)
         mvpf_values.append(result['mvpf'])
 
     # Color bars based on MVPF value (green for good, yellow for fair, red for poor)
@@ -2865,7 +2960,7 @@ def _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2, detainee_ba
     return fig
 
 
-def _build_sensitivity_analysis_chart(parameter_name, param_values, base_det_p1, base_det_p2, base_soc_p1, base_soc_p2):
+def _build_sensitivity_analysis_chart(parameter_name, param_values, base_det_p1, base_det_p2, base_soc_p1, base_soc_p2, crime_effect=0):
     """
     Build a sensitivity analysis chart showing how one parameter affects MVPF for baseline,
     least conservative, and most conservative scenarios.
@@ -2878,6 +2973,8 @@ def _build_sensitivity_analysis_chart(parameter_name, param_values, base_det_p1,
         Dictionary mapping 'below', 'average', 'above' to actual parameter values
     base_det_p1, base_det_p2, base_soc_p1, base_soc_p2 : float
         Base parameter values to use when not varying the parameter
+    crime_effect : float, optional
+        Crime effect multiplier (-4 to 14). Defaults to 0 (no effect).
 
     Returns:
     --------
@@ -2905,13 +3002,13 @@ def _build_sensitivity_analysis_chart(parameter_name, param_values, base_det_p1,
         for variation in variations:
             # Determine which parameter to vary based on parameter_name
             if parameter_name == 'Felony Rate':
-                result = _calculate_mvpf(scenario, param_values[variation], base_det_p2, base_soc_p1, base_soc_p2)
+                result = _calculate_mvpf(scenario, param_values[variation], base_det_p2, base_soc_p1, base_soc_p2, crime_effect=crime_effect)
             elif parameter_name == 'Detainee Population':
-                result = _calculate_mvpf(scenario, base_det_p1, param_values[variation], base_soc_p1, base_soc_p2)
+                result = _calculate_mvpf(scenario, base_det_p1, param_values[variation], base_soc_p1, base_soc_p2, crime_effect=crime_effect)
             elif parameter_name == 'Community Size':
-                result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, param_values[variation], base_soc_p2)
+                result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, param_values[variation], base_soc_p2, crime_effect=crime_effect)
             elif parameter_name == 'Length of Stay':
-                result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, base_soc_p1, param_values[variation])
+                result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, base_soc_p1, param_values[variation], crime_effect=crime_effect)
             else:
                 result = {'mvpf': 0}
 
@@ -3106,22 +3203,42 @@ def register_callbacks(app):
         return _toggle_style(n_clicks, style)
 
     # -------------------------------------------------------------------------
-    # Scenario Description Callback
+    # Scenario Selection Callback (Jumbotron Buttons)
     # -------------------------------------------------------------------------
 
     @app.callback(
-        Output('scenario-description', 'children'),
-        Input('scenario-selector', 'value')
+        [Output('scenario-selector', 'data'),
+         Output('scenario-btn-baseline', 'style'),
+         Output('scenario-btn-most-conservative', 'style'),
+         Output('scenario-btn-least-conservative', 'style')],
+        [Input('scenario-btn-baseline', 'n_clicks'),
+         Input('scenario-btn-most-conservative', 'n_clicks'),
+         Input('scenario-btn-least-conservative', 'n_clicks')],
+        prevent_initial_call=True
     )
-    def update_scenario_description(scenario):
-        """Update the scenario description when dropdown changes."""
-        description = _get_scenario_description(scenario)
-        return html.P(description, style={
-            'fontSize': '14px',
-            'color': '#374151',
-            'margin': '0',
-            'lineHeight': '1.6'
-        })
+    def update_scenario_selection(baseline_clicks, conservative_clicks, least_clicks):
+        """Handle scenario button clicks and update styling."""
+        ctx = dash.callback_context
+
+        if not ctx.triggered:
+            return dash.no_update
+
+        button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
+        # Determine selected scenario based on button clicked
+        scenario_map = {
+            'scenario-btn-baseline': 'baseline',
+            'scenario-btn-most-conservative': 'most conservative',
+            'scenario-btn-least-conservative': 'least conservative'
+        }
+        selected_scenario = scenario_map.get(button_id, 'baseline')
+
+        # Define styles for selected and unselected states
+        baseline_style = {'border': '3px solid #2563eb', 'cursor': 'pointer'} if button_id == 'scenario-btn-baseline' else {'border': '2px solid #e5e7eb', 'cursor': 'pointer'}
+        conservative_style = {'border': '3px solid #d97706', 'cursor': 'pointer'} if button_id == 'scenario-btn-most-conservative' else {'border': '2px solid #e5e7eb', 'cursor': 'pointer'}
+        least_style = {'border': '3px solid #16a34a', 'cursor': 'pointer'} if button_id == 'scenario-btn-least-conservative' else {'border': '2px solid #e5e7eb', 'cursor': 'pointer'}
+
+        return selected_scenario, baseline_style, conservative_style, least_style
 
     # -------------------------------------------------------------------------
     # Slider Value Display Update Callbacks
@@ -3154,6 +3271,16 @@ def register_callbacks(app):
         """Update displayed length of stay based on slider value."""
         return f"{value:.0f} days"
 
+    @app.callback(
+        Output('crime-effect-value', 'children'),
+        Input('crime-effect-slider', 'value')
+    )
+    def update_crime_effect_display(value):
+        """Update displayed crime effect based on slider value."""
+        if value is None:
+            value = 0
+        return f"{value}"
+
     # -------------------------------------------------------------------------
     # Main Dashboard Update Callback
     # -------------------------------------------------------------------------
@@ -3166,19 +3293,21 @@ def register_callbacks(app):
          Output('parameter-comparison-chart', 'figure'),
          Output('scenario-comparison-chart', 'figure')],
         [Input('btn-calculate', 'n_clicks')],
-        [State('scenario-selector', 'value'),
+        [State('scenario-selector', 'data'),
          State('detainee-param1', 'value'),
          State('detainee-param2', 'value'),
          State('detainee-baseline-input', 'value'),
-         State('society-param2', 'value')]
+         State('society-param2', 'value'),
+         State('crime-effect-slider', 'value')]
     )
-    def update_dashboard(n_clicks, scenario, det_p1, det_p2, det_baseline, soc_p2):
+    def update_dashboard(n_clicks, scenario, det_p1, det_p2, det_baseline, soc_p2, crime_effect):
         """Main callback to update all dashboard components."""
         # Convert string parameters from State to floats
         det_p1 = float(det_p1) if det_p1 is not None else 0.7
         det_p2 = float(det_p2) if det_p2 is not None else 1.0
         det_baseline = float(det_baseline) if det_baseline is not None else n_detainees_base_param.default_value
         soc_p2 = float(soc_p2) if soc_p2 is not None else 70
+        crime_effect = float(crime_effect) if crime_effect is not None else 0
 
         # Use default value for community size multiplier
         soc_p1 = 1.0
@@ -3189,10 +3318,11 @@ def register_callbacks(app):
             n_detainees_sel=det_p2,
             n_society_sel=soc_p1,
             los_days_sel=soc_p2,
-            n_detainees_base=det_baseline
+            n_detainees_base=det_baseline,
+            crime_effect=crime_effect
         )
 
-        result = _calculate_mvpf(scenario, det_p1, det_p2, soc_p1, soc_p2, detainee_baseline=det_baseline)
+        result = _calculate_mvpf(scenario, det_p1, det_p2, soc_p1, soc_p2, detainee_baseline=det_baseline, crime_effect=crime_effect)
         mvpf = result['mvpf']
 
         # Determine badge color and label
@@ -3210,8 +3340,8 @@ def register_callbacks(app):
         benchmark_card = _build_benchmark_card(mvpf)
         numerator_fig = _build_numerator_chart(result)
         denominator_fig = _build_denominator_chart(result)
-        param_comparison_fig = _build_parameter_comparison_chart(scenario, det_p1, det_p2, soc_p1, soc_p2, det_baseline)
-        scenario_comparison_fig = _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2, det_baseline)
+        param_comparison_fig = _build_parameter_comparison_chart(scenario, det_p1, det_p2, soc_p1, soc_p2, det_baseline, crime_effect)
+        scenario_comparison_fig = _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2, det_baseline, crime_effect)
 
         return kpi_card, benchmark_card, numerator_fig, denominator_fig, param_comparison_fig, scenario_comparison_fig
 
@@ -3227,14 +3357,16 @@ def register_callbacks(app):
         [Input('btn-calculate', 'n_clicks')],
         [State('detainee-param1', 'value'),
          State('detainee-param2', 'value'),
-         State('society-param2', 'value')]
+         State('society-param2', 'value'),
+         State('crime-effect-slider', 'value')]
     )
-    def update_sensitivity_analysis(n_clicks, det_p1, det_p2, soc_p2):
+    def update_sensitivity_analysis(n_clicks, det_p1, det_p2, soc_p2, crime_effect):
         """Update sensitivity analysis graphs for baseline, most conservative, and least conservative scenarios."""
         # Convert string parameters from State to floats
         det_p1 = float(det_p1) if det_p1 is not None else 0.7
         det_p2 = float(det_p2) if det_p2 is not None else 1.0
         soc_p2 = float(soc_p2) if soc_p2 is not None else 70
+        crime_effect = float(crime_effect) if crime_effect is not None else 0
 
         # Use default value for community size multiplier
         soc_p1 = 1.0
@@ -3265,37 +3397,52 @@ def register_callbacks(app):
         }
 
         # Build all 4 sensitivity analysis charts
+        # For non-crime-effect charts, use the current crime_effect slider value
         felony_rate_fig = _build_sensitivity_analysis_chart(
-            'Felony Rate', fel_rate_values, det_p1, det_p2, soc_p1, soc_p2
+            'Felony Rate', fel_rate_values, det_p1, det_p2, soc_p1, soc_p2, crime_effect=crime_effect
         )
 
         detainee_pop_fig = _build_sensitivity_analysis_chart(
-            'Detainee Population', n_detainees_values, det_p1, det_p2, soc_p1, soc_p2
+            'Detainee Population', n_detainees_values, det_p1, det_p2, soc_p1, soc_p2, crime_effect=crime_effect
         )
 
+        # For crime effect sensitivity, we vary crime_effect itself, so pass 0 as default
         crime_effect_fig = _build_sensitivity_analysis_chart(
-            'Crime Effect', crime_effect_values, det_p1, det_p2, soc_p1, soc_p2
+            'Crime Effect', crime_effect_values, det_p1, det_p2, soc_p1, soc_p2, crime_effect=0
         )
 
         length_of_stay_fig = _build_sensitivity_analysis_chart(
-            'Length of Stay', los_days_values, det_p1, det_p2, soc_p1, soc_p2
+            'Length of Stay', los_days_values, det_p1, det_p2, soc_p1, soc_p2, crime_effect=crime_effect
         )
 
         return felony_rate_fig, detainee_pop_fig, crime_effect_fig, length_of_stay_fig
 
     # -------------------------------------------------------------------------
-    # Tab Navigation Callbacks
+    # Tab Navigation Callbacks (Combined landing page cards + sidebar)
     # -------------------------------------------------------------------------
 
     @app.callback(
-        Output('main-tabs', 'value'),
-        [Input('link-to-overview', 'n_clicks'),
+        [Output('main-tabs', 'value'),
+         Output('nav-home', 'className'),
+         Output('nav-overview', 'className'),
+         Output('nav-scenarios', 'className'),
+         Output('nav-benchmarking', 'className'),
+         Output('nav-descriptions', 'className'),
+         Output('nav-about', 'className')],
+        [Input('nav-home', 'n_clicks'),
+         Input('nav-overview', 'n_clicks'),
+         Input('nav-scenarios', 'n_clicks'),
+         Input('nav-benchmarking', 'n_clicks'),
+         Input('nav-descriptions', 'n_clicks'),
+         Input('nav-about', 'n_clicks'),
+         Input('link-to-overview', 'n_clicks'),
          Input('link-to-scenarios', 'n_clicks'),
          Input('link-to-benchmarking', 'n_clicks')],
         prevent_initial_call=True
     )
-    def navigate_tabs(overview_clicks, scenarios_clicks, benchmarking_clicks):
-        """Handle navigation from landing page cards to respective tabs."""
+    def sidebar_navigation(home_clicks, overview_clicks, scenarios_clicks, benchmarking_clicks, descriptions_clicks, about_clicks,
+                          overview_card_clicks, scenarios_card_clicks, benchmarking_card_clicks):
+        """Handle navigation from left sidebar buttons and landing page cards."""
         ctx = dash.callback_context
 
         if not ctx.triggered:
@@ -3303,14 +3450,33 @@ def register_callbacks(app):
 
         button_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
-        if button_id == 'link-to-overview':
-            return 'tab-overview'
-        elif button_id == 'link-to-scenarios':
-            return 'tab-scenarios'
-        elif button_id == 'link-to-benchmarking':
-            return 'tab-benchmarking'
+        # Map button IDs to tab values (sidebar + landing page cards)
+        button_to_tab = {
+            'nav-home': 'tab-landing',
+            'nav-overview': 'tab-overview',
+            'nav-scenarios': 'tab-scenarios',
+            'nav-benchmarking': 'tab-benchmarking',
+            'nav-descriptions': 'tab-descriptions',
+            'nav-about': 'tab-about',
+            'link-to-overview': 'tab-overview',
+            'link-to-scenarios': 'tab-scenarios',
+            'link-to-benchmarking': 'tab-benchmarking'
+        }
 
-        return dash.no_update
+        # Get the tab value for the clicked button
+        tab_value = button_to_tab.get(button_id, 'tab-landing')
+
+        # Update button class names - add 'active' to the clicked button (only for sidebar)
+        nav_classes = [
+            'nav-button active' if button_id == 'nav-home' else 'nav-button',
+            'nav-button active' if (button_id == 'nav-overview' or button_id == 'link-to-overview') else 'nav-button',
+            'nav-button active' if (button_id == 'nav-scenarios' or button_id == 'link-to-scenarios') else 'nav-button',
+            'nav-button active' if (button_id == 'nav-benchmarking' or button_id == 'link-to-benchmarking') else 'nav-button',
+            'nav-button active' if button_id == 'nav-descriptions' else 'nav-button',
+            'nav-button active' if button_id == 'nav-about' else 'nav-button'
+        ]
+
+        return tab_value, *nav_classes
 
     # -------------------------------------------------------------------------
     # Download CSV Callback
@@ -3319,7 +3485,7 @@ def register_callbacks(app):
     @app.callback(
         Output('download-dataframe-csv', 'data'),
         Input('btn-download-csv', 'n_clicks'),
-        [State('scenario-selector', 'value'),
+        [State('scenario-selector', 'data'),
          State('detainee-param1', 'value'),
          State('detainee-param2', 'value'),
          State('society-param2', 'value')],

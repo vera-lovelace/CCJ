@@ -15,8 +15,8 @@
     "application": "In most MVPF work, people plug in causal estimates for how behavior changes at the intensive margin (for example, working a bit more or less when a benefit changes). For Cook County Jail, we do not have credible intensive-margin estimates for detention, and the policy questions we are interested in are about the extensive margin and the scale of the jail itself: who is detained at all, for how long, and what level of funding or even continued operation is justified. It uses the full annual costs of operating the jail and the full set of impacts on people who are detained to summarize those tradeoffs in an MVPF-style framework. This CCJ calculator is built to help you see how assumptions about extensive-margin harms and benefits feed into both the numerator and the denominator, using 2018 jail spending as the benchmark. For a fuller discussion of this choice and its limits, see the longer explanation [link to MVPF Explained]."
   },
   "tabs": {
-    "overview": "Baseline MVPF Calculation",
-    "scenarios": "Compare alternative MVPF calculations"
+    "overview": "Calculation",
+    "scenarios": "Compare alternative scenarios"
   },
   "download": {
     "button_text": "Download Current Calculations (CSV)"
@@ -57,12 +57,7 @@
     "options": {
       "baseline": "Baseline - Current Operations",
       "most_conservative": "Conservative Approach",
-      "least_conservative": "Least Conservative Approach",
-      "reduced_crime": "Reduced Crime Scenario",
-      "increased_crime": "Increased Crime Scenario",
-      "diversion_program": "Pre-Trial Diversion Program",
-      "bail_reform": "Bail Reform Scenario",
-      "capacity_expansion": "Facility Capacity Expansion"
+      "least_conservative": "Least Conservative Approach"
     },
     "cards": {
       "baseline": {
@@ -308,8 +303,8 @@
   },
   "placeholders": {
     "overview_intro": {
-      "title": "Overview Tab Introduction",
-      "content": "This dashboard lets you explore how different assumptions change the Marginal Value of Public Funds (MVPF) for pretrial detention in Cook County Jail. The MVPF compares the total harms and benefits created by detention to the public cost of operating the jail. You can adjust several inputs that determine the number of people detained, the composition of cases, and the average length of stay. These inputs reshape the numerator and denominator of the MVPF and let you test how sensitive the results are to policy or system changes.",
+      "title": "Understanding MVPF for Cook County Jail",
+      "content": "A comprehensive analysis of the marginal value of pre-trial detainment and its implications for public policy.",
       "paragraph1": "This dashboard lets you explore how different assumptions change the Marginal Value of Public Funds (MVPF) for pretrial detention in Cook County Jail. The MVPF compares the total harms and benefits created by detention to the public cost of operating the jail. You can adjust several inputs that determine the number of people detained, the composition of cases, and the avergae length of stay. These inputs reshape the numerator and denominator of the MVPF and let you test how sensitive the results are to policy or system changes.",
       "paragraph2": "Each scenario shows an MVPF for pretrial detention that compares harms and benefits to the public cost of running Cook County Jail in 2018. In every scenario, the numerator is built from two types of components: \n • harms to detainees, valued in dollars per day in custody \n • effects on society, such as changes in court appearance or crime outcomes",
       "paragraph3":"The denominator is always the 2018 operating cost of the jail, scaled by the population and length of stay choices you set above, plus any costs or savings associated with crime outcomes.",
@@ -317,7 +312,7 @@
     },
     "mvpf_purpose": {
       "title": "How the MVPF for Cook County Jail was calculated?",
-      "content": "This section will explain the purpose and methodology of the MVPF calculation, including how the baseline values are derived and what they represent in the context of Cook County Jail operations."
+      "content": "This section will explain the purpose and methodology of the MVPF calculation, including how the baseline values are derived and what they represent in the context of Cook County Jail operations. \n  The metric is calculated by dividing the willingness to pay for a policy by its net government cost. A higher MVPF indicates that beneficiaries value the policy more relative to its cost, making it a more efficient use of public resources."
     },
     "scenarios_intro": {
       "title": "Sensitivity analysis",

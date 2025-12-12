@@ -1,139 +1,39 @@
 {
   "baseline": {
-      "name": "Baseline - Current Operations",
-      "description": "All cost/benefit components with neutral parameters",
+      "name": "Baseline MVPF",
+      "description": "Focus on evidence-first minimal assumptions",
       "subcomponents": {
         "detainee_values": ["det_rel_harm"],
-        "society_values": ["soc_court"],
-        "govt_cost": ["gov_operations"]
+        "society_values": ["soc_court", "soc_crime_prevention"],
+        "govt_cost": ["gov_operations", "gov_crime_prevention"]
       },
       "default_parameters": "baseline",
       "tags": ["neutral"]
     },
+
   "most conservative": {
-      "name": "Conservative Approach",
-      "description": "Focus on government costs and limited societal benefits",
+      "name": "Most Conservative Approach",
+      "description": "Focus on conservative valuation of detainee harms",
       "subcomponents": {
         "detainee_values": ["det_wtp_freedom"],
-        "society_values": ["soc_court"],
-        "govt_cost": ["gov_operations"]
+        "society_values": ["soc_court", "soc_crime_prevention"],
+        "govt_cost": ["gov_operations", "gov_crime_prevention"]
       },
       "default_parameters": "baseline",
-      "parameter_overrides": {
-        "detainee_pop_mult": 1.0,
-        "gov_operations_mult": 1.0
-      },
       "tags": ["conservative"]
     },
 
   "least conservative": {
       "name": "Least Conservative Approach",
-      "description": "Emphasizing detainee and societal benefits",
+      "description": "Focus on broad inclusion and valuation of detainee harms",
       "subcomponents": {
         "detainee_values": ["det_rel_harm"],
-        "society_values": ["soc_court", "soc_spillover"],
-        "govt_cost": ["gov_operations"]
+        "society_values": ["soc_court", "soc_spillover", "soc_crime_prevention" ],
+        "govt_cost": ["gov_operations", "gov_crime_prevention"]
       },
       "default_parameters": "baseline",
-      "parameter_overrides": {
-        "detainee_pop_mult": 1.0,
-        "gov_operations_mult": 1.0
-      },
+
       "tags": ["least_conservative"]
-    },
-  "4": {
-      "name": "4",
-      "description": " ",
-      "subcomponents": {
-        "detainee_values": ["det_wtp_freedom"],
-        "society_values": ["soc_court", "soc_spillover"],
-        "govt_cost": ["gov_operations"]
-      },
-      "default_parameters": "baseline",
-      "parameter_overrides": {
-        "detainee_pop_mult": 1.3,
-        "soc_spillover_mult": 0.25
-      },
-      "tags": [ ]
-    },
-
-  "reduced_crime": {
-      "name": "Reduced Crime Scenario",
-      "description": "Increased societal benefits from crime reduction",
-      "subcomponents": {
-        "detainee_values": ["det_rel_harm"],
-        "society_values": ["soc_court", "soc_crime_prevention", "soc_spillover"],
-        "govt_cost": ["gov_operations", "gov_health"]
-      },
-      "default_parameters": "baseline",
-      "parameter_overrides": {
-        "detainee_pop_mult": 1.3,
-        "soc_spillover_mult": 0.25
-      },
-      "tags": [ ]
-    },
-
-  "increased_crime": {
-      "name": "Increased Crime Scenario",
-      "description": "Decreased societal benefits from facility capacity reductions",
-      "subcomponents": {
-        "detainee_values": ["det_rel_harm"],
-        "society_values": ["soc_victimization", "soc_spillover"],
-        "govt_cost": ["gov_operations", "gov_health"]
-      },
-      "default_parameters": "baseline",
-      "parameter_overrides": {
-        "detainee_pop_mult": 1.3,
-        "soc_spillover_mult": 0.25
-      },
-      "tags": [ ]
-    },
-
-  "diversion_program": {
-      "name": "Pre-Trial Diversion Program",
-      "description": "Reduced detention through diversion, focusing on community outcomes",
-      "subcomponents": {
-        "detainee_values": ["det_wtp_freedom"],
-        "society_values": ["soc_crime_prevention", "soc_spillover"],
-        "govt_cost": ["gov_operations"]
-      },
-      "default_parameters": "reform_optimistic",
-      "parameter_overrides": {
-        "detainee_pop_mult": 0.75,
-        "length_of_stay_mult": 0.5
-      },
-      "tags": ["reform", "diversion"]
-    },
-
-    "bail_reform": {
-      "name": "Bail Reform Scenario",
-      "description": "Reduced pre-trial detention via bail reform",
-      "subcomponents": {
-        "detainee_values": ["det_wtp_freedom", "det_rel_harm"],
-        "society_values": ["soc_crime_prevention", "soc_victimization"],
-        "govt_cost": ["gov_operations", "gov_health"]
-      },
-      "default_parameters": "baseline",
-      "parameter_overrides": {
-        "detainee_pop_mult": 0.8,
-        "length_of_stay_mult": 0.6
-      },
-      "tags": ["reform", "bail"]
-    },
-
-    "capacity_expansion": {
-      "name": "Facility Capacity Expansion",
-      "description": "Increased capacity to handle larger population",
-      "subcomponents": {
-        "detainee_values": ["det_wtp_freedom", "det_rel_harm"],
-        "society_values": ["soc_court", "soc_crime_prevention", "soc_victimization", "soc_spillover"],
-        "govt_cost": ["gov_operations", "gov_health"]
-      },
-      "default_parameters": "baseline",
-      "parameter_overrides": {
-        "detainee_pop_mult": 1.3,
-        "gov_operations_mult": 1.4
-      },
-      "tags": ["expansion", "capacity"]
     }
+
   }
