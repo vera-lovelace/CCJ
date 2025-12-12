@@ -167,7 +167,7 @@ class ParameterRegistry:
                 dashboard_enabled=True,
                 is_multiplier=True,
                 dropdown_map={
-                    'large_decrease': -1.04,
+                    'large_decrease': 0.96,
                     'no_effect': 0,
                     'moderate_increase': 1.05,
                     'large_increase': 1.14
@@ -306,8 +306,9 @@ class ParameterEffectsRegistry:
 
             'soc_crime_prevention': [
                 # Unit: "dollars per detainee" - value is $0 currently
+                # Special calculation: uses min/max weighted by fel_rate when crime_effect != 0
+                # fel_rate and crime_effect are handled specially in _calc_one, not as multipliers
                 'n_detainees_mult',  # Per detainee value × detainee population
-                'fel_rate',  # Felony rate affects crime prevention value
             ],
 
             'soc_victimization': [
@@ -329,6 +330,11 @@ class ParameterEffectsRegistry:
             'gov_health': [
                 'n_detainees_mult',  # More detainees → more health costs
                 'los_days',  # Longer stays → more health needs
+            ],
+
+            'gov_crime_prevention': [
+                'fel_rate',  # Felony vs misdemeanor rate affects cost
+                'n_detainees_mult',  # Scales with detainee population
             ],
         }
 

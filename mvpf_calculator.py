@@ -126,10 +126,67 @@ class MVPFCalculator:
         # Get row from dataframe
         row = self.values[self.values['row_var'] == row_var].iloc[0]
 
-        # Get base value
-        value = float(row['selected_value'])
+        # SPECIAL CASE: gov_crime_prevention uses weighted average of min/max based on fel_rate
+        if row_var == 'gov_crime_prevention':
+            # Get min (for misdemeanors) and max (for felonies)
+            min_val = float(row['min']) if pd.notna(row['min']) else 0
+            max_val = float(row['max']) if pd.notna(row['max']) else 0
 
-        # Apply sign
+            # Get felony rate and crime_effect from params
+            fel_rate = params.get('fel_rate', 0.7) if params else 0.7
+            crime_effect = params.get('crime_effect', 0) if params else 0
+
+            # Weighted average: min × (1 - fel_rate) + max × fel_rate
+            # This gives more weight to misdemeanor cost when fel_rate is low
+            # and more weight to felony cost when fel_rate is high
+            weighted_avg = min_val * (1 - fel_rate) + max_val * fel_rate
+
+            # Multiply by crime_effect
+            # When crime_effect = 0, value should be 0 (no crime effect cost)
+            value = weighted_avg * crime_effect
+
+        # SPECIAL CASE: soc_crime_prevention uses weighted average when crime_effect != 0
+        elif row_var == 'soc_crime_prevention':
+            # Get crime_effect from params
+            crime_effect = params.get('crime_effect', 0) if params else 0
+
+            if crime_effect != 0:
+                # Get min (for misdemeanors) and max (for felonies)
+                min_val = float(row['min']) if pd.notna(row['min']) else 0
+                max_val = float(row['max']) if pd.notna(row['max']) else 0
+
+                # Get felony rate from params (default to 0.7 if not provided)
+                fel_rate = params.get('fel_rate', 0.7) if params else 0.7
+
+                # Weighted average: min × (1 - fel_rate) + max × fel_rate
+                weighted_avg = min_val * (1 - fel_rate) + max_val * fel_rate
+
+                # Multiply by (-1) × crime_effect
+                # This is per detainee value, scaled by crime effect
+                # Positive crime_effect (crime increases) → negative society benefit
+                # Negative crime_effect (crime decreases) → positive society benefit
+                value = weighted_avg * (-1) * crime_effect
+
+                # Apply CPI adjustment now (before sign)
+                year = row['source_dollar_year']
+                if pd.notna(year):
+                    value = self.cpi.adjust(value, int(year))
+
+                # Apply parameter effects (n_detainees_mult)
+                if params:
+                    value *= self._get_multiplier(row_var, params)
+
+                # Return directly - sign already handled in calculation
+                return value
+            else:
+                # When crime_effect is 0, use selected_value (which is 0)
+                value = float(row['selected_value'])
+
+        else:
+            # Standard calculation: use selected_value
+            value = float(row['selected_value'])
+
+        # Apply sign (for non-special cases)
         sign = 1 if str(row['sign']).lower() == 'positive' else -1
         value = abs(value) * sign
 
