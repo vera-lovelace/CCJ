@@ -1,6 +1,14 @@
-dash==2.14.0
-plotly==5.18.0
-pandas==2.1.0
-gunicorn==21.2.0
+# Core web stack
+dash==2.18.2
+dash-bootstrap-components==1.6.0
+Flask==3.0.3
+gunicorn==23.0.0
+
+# Data and calculations
+pandas==2.3.3
+numpy==2.3.5
+
+# plotting and helpers
+plotly==5.24.1
+python-dateutil==2.9.0.post0
 jupyter==1.0.0
-numpy==1.24.0
