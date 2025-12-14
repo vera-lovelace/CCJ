@@ -203,7 +203,7 @@
     },
     "methodology": {
       "title": "Methodology",
-      "description": "The MVPF calculation combines three main components to provide a comprehensive view of detention's impact:",
+      "description": "The MVPF calculation combines the net value of detention on detainees and society and then divides by the public cost of detention to provide a comprehensive view of detention's impact:",
       "component1": "Detainee Values: Quantifying the harm imposed on individuals through detention",
       "component2": "Society Values: Measuring external impacts on public safety and community wellbeing",
       "component3": "Government Costs: Calculating the full fiscal burden of detention operations"

@@ -690,6 +690,29 @@ app.layout = html.Div(className='app-container', children=[
                                 'textAlign': 'center'
                             }),
 
+                            # Purpose section
+                            html.Div(style={'marginBottom': '32px'}, children=[
+                                html.H3(content.get('understanding.purpose.title', 'Purpose'), style={
+                                    'fontSize': '20px',
+                                    'fontWeight': '600',
+                                    'color': '#374151',
+                                    'marginTop': '0',
+                                    'marginBottom': '12px'
+                                }),
+                                html.P(
+                                    content.get('understanding.purpose.description',
+                                                'This interactive dashboard provides a comprehensive analysis of the Marginal Value of Public Funds (MVPF) '
+                                                'for Cook County Jail operations. It enables policymakers, researchers, and stakeholders to evaluate the '
+                                                'social welfare impacts of detention policies through a systematic, data-driven framework.'),
+                                    style={
+                                        'fontSize': '15px',
+                                        'color': '#4b5563',
+                                        'lineHeight': '1.8',
+                                        'margin': '0'
+                                    }
+                                )
+                            ]),
+
                             # Information Tile
                             html.Div(
                                 style={
@@ -1378,79 +1401,6 @@ app.layout = html.Div(className='app-container', children=[
                                     'marginTop': '0'
                                 }),
 
-                                # Purpose section
-                                html.Div(style={'marginBottom': '32px'}, children=[
-                                    html.H3(content.get('understanding.purpose.title', 'Purpose'), style={
-                                        'fontSize': '20px',
-                                        'fontWeight': '600',
-                                        'color': '#374151',
-                                        'marginTop': '0',
-                                        'marginBottom': '12px'
-                                    }),
-                                    html.P(
-                                        content.get('understanding.purpose.description',
-                                        'This interactive dashboard provides a comprehensive analysis of the Marginal Value of Public Funds (MVPF) '
-                                        'for Cook County Jail operations. It enables policymakers, researchers, and stakeholders to evaluate the '
-                                        'social welfare impacts of detention policies through a systematic, data-driven framework.'),
-                                        style={
-                                            'fontSize': '15px',
-                                            'color': '#4b5563',
-                                            'lineHeight': '1.8',
-                                            'margin': '0'
-                                        }
-                                    )
-                                ]),
-
-# Methodology section
-                                html.Div(style={'marginBottom': '32px'}, children=[
-                                    html.H3(content.get('understanding.methodology.title', 'Methodology'), style={
-                                        'fontSize': '20px',
-                                        'fontWeight': '600',
-                                        'color': '#374151',
-                                        'marginTop': '0',
-                                        'marginBottom': '12px'
-                                    }),
-                                    html.P(
-                                        content.get('understanding.methodology.description',
-                                        'The MVPF framework calculates the ratio of social benefits (measured through willingness-to-pay) '
-                                        'to government costs. This tool incorporates three main components:'),
-                                        style={
-                                            'fontSize': '15px',
-                                            'color': '#4b5563',
-                                            'lineHeight': '1.8',
-                                            'marginBottom': '12px'
-                                        }
-                                    ),
-                                    html.Ul(style={'fontSize': '15px', 'color': '#4b5563', 'lineHeight': '1.8'}, children=[
-                                        html.Li(content.get('understanding.methodology.component1', 'Detainee Values: Quantifying the harm imposed on individuals through detention')),
-                                        html.Li(content.get('understanding.methodology.component2', 'Society Values: Measuring external impacts on public safety and community wellbeing')),
-                                        html.Li(content.get('understanding.methodology.component3', 'Government Costs: Calculating the full fiscal burden of detention operations'))
-                                    ])
-                                ]),
-
-                                # Data Sources section
-                                html.Div(style={'marginBottom': '32px'}, children=[
-                                    html.H3(content.get('understanding.data_sources.title', 'Data Sources'), style={
-                                        'fontSize': '20px',
-                                        'fontWeight': '600',
-                                        'color': '#374151',
-                                        'marginTop': '0',
-                                        'marginBottom': '12px'
-                                    }),
-                                    html.P(
-                                        content.get('understanding.data_sources.description',
-                                        'This tool draws from multiple peer-reviewed research studies, government reports, and administrative data sources '
-                                        'to ensure accuracy and reliability. Parameter values are based on empirical estimates from criminal justice research '
-                                        'and can be adjusted to reflect different scenarios and assumptions.'),
-                                        style={
-                                            'fontSize': '15px',
-                                            'color': '#4b5563',
-                                            'lineHeight': '1.8',
-                                            'margin': '0'
-                                        }
-                                    )
-                                ]),
-
                                 html.Div(
                                     style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '24px'},
                                     children=[
@@ -1520,10 +1470,230 @@ app.layout = html.Div(className='app-container', children=[
                                     ]
                                 ),
 
+                                # Methodology section (visual equation + top-justified + in-page links)
+                                html.Div(style={'marginBottom': '32px'}, children=[
+                                    html.H3(
+                                        content.get('understanding.methodology.title', 'Methodology'),
+                                        style={
+                                            'fontSize': '20px',
+                                            'fontWeight': '600',
+                                            'color': '#374151',
+                                            'marginTop': '0',
+                                            'marginBottom': '12px'
+                                        }
+                                    ),
+
+                                    html.P(
+                                        content.get(
+                                            'understanding.methodology.description',
+                                            'This dashboard computes the Marginal Value of Public Funds (MVPF) as:'
+                                        ),
+                                        style={
+                                            'fontSize': '15px',
+                                            'color': '#4b5563',
+                                            'lineHeight': '1.6',
+                                            'marginBottom': '12px'
+                                        }
+                                    ),
+
+                                    # MVPF = (Total Value) / (Total Government Cost)
+                                    html.Div(style={
+                                        'display': 'grid',
+                                        'gridTemplateColumns': '1fr auto 1fr',
+                                        'alignItems': 'start',   # top-justify columns
+                                        'gap': '12px',
+                                        'background': 'white',
+                                        'border': '1px solid #e5e7eb',
+                                        'borderRadius': '10px',
+                                        'padding': '16px',
+                                        'marginBottom': '16px'
+                                    }, children=[
+                                        # Left: Numerator
+                                        html.Div(style={'display': 'flex', 'flexDirection': 'column', 'gap': '10px'}, children=[
+                                            html.Div(style={
+                                                'border': '1px solid #cbd5e1',
+                                                'borderRadius': '10px',
+                                                'padding': '10px 12px',
+                                                'background': '#f8fafc'
+                                            }, children=[
+                                                html.Div('Total Value', style={'fontSize': '12px', 'fontWeight': '700', 'color': '#334155', 'textTransform': 'uppercase', 'letterSpacing': '0.04em'}),
+                                                html.Div('to Detainees and Society', style={'fontSize': '14px', 'fontWeight': '600', 'color': '#0f172a', 'marginTop': '2px'})
+                                            ]),
+
+                                            # Components within Total Value
+                                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr', 'gap': '8px'}, children=[
+                                                html.Div(style={'borderLeft': '4px solid #3b82f6', 'border': '1px solid #e5e7eb', 'borderRadius': '10px', 'padding': '10px 12px', 'background': 'white'}, children=[
+                                                    html.A('Detainee Harm', href='#components-breakdown', style={'fontSize': '13px', 'fontWeight': '700', 'color': '#111827', 'textDecoration': 'none', 'cursor': 'pointer'}),
+                                                    html.Div('Harm from time in custody', style={'fontSize': '12px', 'color': '#6b7280', 'marginTop': '2px'})
+                                                ]),
+                                                html.Div(style={'borderLeft': '4px solid #10b981', 'border': '1px solid #e5e7eb', 'borderRadius': '10px', 'padding': '10px 12px', 'background': 'white'}, children=[
+                                                    html.A('Court Appearance', href='#components-breakdown', style={'fontSize': '13px', 'fontWeight': '700', 'color': '#111827', 'textDecoration': 'none', 'cursor': 'pointer'}),
+                                                    html.Div('Benefits from improved appearance', style={'fontSize': '12px', 'color': '#6b7280', 'marginTop': '2px'})
+                                                ]),
+                                                html.Div(style={'borderLeft': '4px solid #ef4444', 'border': '1px solid #e5e7eb', 'borderRadius': '10px', 'padding': '10px 12px', 'background': 'white'}, children=[
+                                                    html.A('Crime Effects', href='#components-breakdown', style={'fontSize': '13px', 'fontWeight': '700', 'color': '#111827', 'textDecoration': 'none', 'cursor': 'pointer'}),
+                                                    html.Div('Set to 0 in baseline; adjustable', style={'fontSize': '12px', 'color': '#6b7280', 'marginTop': '2px'})
+                                                ]),
+                                                html.Div(style={'borderLeft': '4px solid #8b5cf6', 'border': '1px solid #e5e7eb', 'borderRadius': '10px', 'padding': '10px 12px', 'background': 'white'}, children=[
+                                                    html.A('Community Spillovers', href='#components-breakdown', style={'fontSize': '13px', 'fontWeight': '700', 'color': '#111827', 'textDecoration': 'none', 'cursor': 'pointer'}),
+                                                    html.Div('Optional; depends on scenario', style={'fontSize': '12px', 'color': '#6b7280', 'marginTop': '2px'})
+                                                ])
+                                            ])
+                                        ]),
+
+                                        # Center: Division / equals
+                                        html.Div(style={
+                                            'display': 'flex',
+                                            'flexDirection': 'column',
+                                            'alignItems': 'center',
+                                            'justifyContent': 'flex-start',
+                                            'gap': '8px',
+                                            'paddingTop': '44px'  # tweak (36-52px) to align with stacks
+                                        }, children=[
+                                            html.Div('÷', style={'fontSize': '22px', 'fontWeight': '800', 'color': '#111827', 'lineHeight': '1'}),
+                                            html.Div('MVPF', style={'fontSize': '12px', 'fontWeight': '800', 'color': '#374151', 'letterSpacing': '0.06em'})
+                                        ]),
+
+                                        # Right: Denominator
+                                        html.Div(style={'display': 'flex', 'flexDirection': 'column', 'gap': '10px'}, children=[
+                                            html.Div(style={
+                                                'border': '1px solid #cbd5e1',
+                                                'borderRadius': '10px',
+                                                'padding': '10px 12px',
+                                                'background': '#f8fafc'
+                                            }, children=[
+                                                html.Div('Total Government Cost', style={'fontSize': '12px', 'fontWeight': '700', 'color': '#334155', 'textTransform': 'uppercase', 'letterSpacing': '0.04em'}),
+                                            ]),
+
+                                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr', 'gap': '8px'}, children=[
+                                                html.Div(style={'borderLeft': '4px solid #0ea5e9', 'border': '1px solid #e5e7eb', 'borderRadius': '10px', 'padding': '10px 12px', 'background': 'white'}, children=[
+                                                    html.A('CCJ Operating Costs', href='#components-breakdown', style={'fontSize': '13px', 'fontWeight': '700', 'color': '#111827', 'textDecoration': 'none', 'cursor': 'pointer'}),
+                                                    html.Div('Fixed baseline denominator', style={'fontSize': '12px', 'color': '#6b7280', 'marginTop': '2px'})
+                                                ]),
+                                                html.Div(style={'borderLeft': '4px solid #ef4444', 'border': '1px solid #e5e7eb', 'borderRadius': '10px', 'padding': '10px 12px', 'background': 'white'}, children=[
+                                                    html.A('Crime Effect-Related Costs/Savings', href='#components-breakdown', style={'fontSize': '13px', 'fontWeight': '700', 'color': '#111827', 'textDecoration': 'none', 'cursor': 'pointer'}),
+                                                    html.Div('Only non-zero when Crime Effect is non-zero', style={'fontSize': '12px', 'color': '#6b7280', 'marginTop': '2px'})
+                                                ])
+                                            ])
+                                        ])
+                                    ]),
+
+                                # Parameter-to-component legend
+                                html.Div(style={
+                                    'background': 'white',
+                                    'border': '1px solid #e5e7eb',
+                                    'borderRadius': '10px',
+                                    'padding': '14px 16px'
+                                }, children=[
+                                    html.Div('How parameters map to MVPF components', style={
+                                        'fontSize': '13px',
+                                        'fontWeight': '700',
+                                        'color': '#111827',
+                                        'marginBottom': '12px'
+                                    }),
+
+                                    html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '14px'}, children=[
+
+                                        # Detainee Population
+                                        html.Div(children=[
+                                            html.Div('Detainee Population', style={
+                                                'fontSize': '12px',
+                                                'fontWeight': '700',
+                                                'color': '#111827',
+                                                'marginBottom': '6px'
+                                            }),
+                                            html.Div(style={'display': 'flex', 'flexWrap': 'wrap', 'gap': '6px'}, children=[
+                                                html.Div('Detainee Harm', style={
+                                                    'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
+                                                    'background': '#dbeafe', 'color': '#1e40af'
+                                                }),
+                                                html.Div('Court Appearance', style={
+                                                    'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
+                                                    'background': '#dcfce7', 'color': '#166534'
+                                                }),
+                                                html.Div('Crime Effect', style={
+                                                    'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
+                                                    'background': '#dcfce7', 'color': '#166534'
+                                                }),
+                                                html.Div('Community Spillovers', style={
+                                                    'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
+                                                    'background': '#dcfce7', 'color': '#166534'
+                                                }),
+                                                html.Div('Crime Cost', style={
+                                                    'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
+                                                    'background': '#fecaca', 'color': '#7f1d1d'
+                                                })
+                                            ])
+                                        ]),
+
+                                        # Length of Stay
+                                        html.Div(children=[
+                                            html.Div('Length of Stay', style={
+                                                'fontSize': '12px',
+                                                'fontWeight': '700',
+                                                'color': '#111827',
+                                                'marginBottom': '6px'
+                                            }),
+                                            html.Div(style={'display': 'flex', 'flexWrap': 'wrap', 'gap': '6px'}, children=[
+                                                html.Div('Detainee Harm', style={
+                                                    'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
+                                                    'background': '#dbeafe', 'color': '#1e40af'
+                                                }),
+                                                html.Div('Community Spillovers', style={
+                                                    'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
+                                                    'background': '#dcfce7', 'color': '#166534'
+                                                })
+                                            ])
+                                        ]),
+
+                                        # Crime Effect
+                                        html.Div(children=[
+                                            html.Div('Crime Effect Assumption', style={
+                                                'fontSize': '12px',
+                                                'fontWeight': '700',
+                                                'color': '#111827',
+                                                'marginBottom': '6px'
+                                            }),
+                                            html.Div(style={'display': 'flex', 'flexWrap': 'wrap', 'gap': '6px'}, children=[
+                                                html.Div('Crime Effect', style={
+                                                    'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
+                                                    'background': '#dcfce7', 'color': '#166534'
+                                                }),
+                                                html.Div('Crime Cost', style={
+                                                    'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
+                                                    'background': '#fecaca', 'color': '#7f1d1d'
+                                                })
+                                            ])
+                                        ]),
+
+                                        # Felony Share
+                                        html.Div(children=[
+                                            html.Div('Felony Share', style={
+                                                'fontSize': '12px',
+                                                'fontWeight': '700',
+                                                'color': '#111827',
+                                                'marginBottom': '6px'
+                                            }),
+                                            html.Div(style={'display': 'flex', 'flexWrap': 'wrap', 'gap': '6px'}, children=[
+                                                html.Div('Crime Effect', style={
+                                                    'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
+                                                    'background': '#dcfce7', 'color': '#166534'
+                                                }),
+                                                html.Div('Crime Cost', style={
+                                                    'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
+                                                    'background': '#fecaca', 'color': '#7f1d1d'
+                                                })
+                                            ])
+                                        ])
+                                    ])
+                                ]),
+
                                 # Components breakdown
-                                html.Div(style={'marginTop': '24px', 'paddingTop': '24px', 'borderTop': '1px solid #e5e7eb'},
+                                html.Div(
+                                         id='components-breakdown',
+                                         style={'marginTop': '24px', 'paddingTop': '24px', 'borderTop': '1px solid #e5e7eb'},
                                          children=[
-                                             html.H4(content.get('components_breakdown.title', 'Components Breakdown'), style={
+                                             html.H4(content.get('components_breakdown.title', 'Components'), style={
                                                  'fontSize': '16px',
                                                  'fontWeight': '600',
                                                  'color': '#374151',
@@ -1576,7 +1746,7 @@ app.layout = html.Div(className='app-container', children=[
                                                                 # RHV
                                                                  html.Div([
                                                                      html.Button(
-                                                                         content.get('components_breakdown.detainee_values.subcomponents.harm_valuation.button_text', 'Willingness to Pay derived from Relative Harm Valuation'),
+                                                                         content.get('components_breakdown.detainee_values.subcomponents.harm_valuation.button_text', 'Detainee Harm: Willingness to Pay derived from Relative Harm Valuation'),
                                                                          id='detainee-harm-btn',
                                                                          n_clicks=0,
                                                                          className='collapse-toggle'
@@ -1599,7 +1769,7 @@ app.layout = html.Div(className='app-container', children=[
                                                                  # Willingness to Pay for Freedom
                                                                  html.Div([
                                                                      html.Button(
-                                                                         content.get('components_breakdown.detainee_values.subcomponents.wtp_freedom.button_text', 'Willingness to Pay for Freedom'),
+                                                                         content.get('components_breakdown.detainee_values.subcomponents.wtp_freedom.button_text', 'Detainee Harm: Willingness to Pay for Freedom'),
                                                                          id='detainee-wtp-btn',
                                                                          n_clicks=0,
                                                                          className='collapse-toggle'
@@ -1826,6 +1996,116 @@ app.layout = html.Div(className='app-container', children=[
                                                  ]
                                              )
                                          ])
+                                    ]),
+
+
+                                ]),
+
+                            # Scenarios section
+                            html.Div(className='chart-container', style={'background': '#f8fafc', 'marginTop': '32px'}, children=[
+                                html.H3('Scenarios', style={
+                                    'fontSize': '20px',
+                                    'fontWeight': '600',
+                                    'color': '#1e293b',
+                                    'marginBottom': '16px',
+                                    'marginTop': '0'
+                                }),
+                                html.P('Three normative scenarios offer different perspectives on how to value detention impacts:', style={
+                                    'fontSize': '15px',
+                                    'color': '#4b5563',
+                                    'marginBottom': '20px'
+                                }),
+                                html.Div(
+                                    style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': '16px'},
+                                    children=[
+                                        # Baseline Scenario
+                                        html.Div(
+                                            id='scenario-baseline',
+                                            className='jumbotron',
+                                            style={
+                                                'background': 'white',
+                                                'padding': '20px',
+                                                'borderRadius': '8px',
+                                                'borderLeft': '4px solid #2563eb'
+                                            },
+                                            children=[
+                                                html.H4(content.get('scenarios_explained.baseline.title', 'Baseline Scenario'), style={
+                                                    'fontSize': '16px',
+                                                    'fontWeight': '600',
+                                                    'color': '#2563eb',
+                                                    'margin': '0 0 12px 0'
+                                                }),
+                                                html.P(
+                                                    content.get('scenarios_explained.baseline.description', 'Focuses on individual harm to detainees plus potential criminogenic effects of detention.'),
+                                                    style={
+                                                        'fontSize': '14px',
+                                                        'color': '#374151',
+                                                        'lineHeight': '1.6',
+                                                        'margin': '0'
+                                                    }
+                                                )
+                                            ]
+                                        ),
+
+                                        # Most Conservative Scenario
+                                        html.Div(
+                                            id='scenario-most-conservative',
+                                            className='jumbotron',
+                                            style={
+                                                'background': 'white',
+                                                'padding': '20px',
+                                                'borderRadius': '8px',
+                                                'borderLeft': '4px solid #d97706'
+                                            },
+                                            children=[
+                                                html.H4(content.get('scenarios_explained.most_conservative.title', 'Conservative Scenario'), style={
+                                                    'fontSize': '16px',
+                                                    'fontWeight': '600',
+                                                    'color': '#d97706',
+                                                    'margin': '0 0 12px 0'
+                                                }),
+                                                html.P(
+                                                    content.get('scenarios_explained.most_conservative.description', 'Uses smaller survey-based estimates to value detainee harm, producing less negative MVPF values.'),
+                                                    style={
+                                                        'fontSize': '14px',
+                                                        'color': '#374151',
+                                                        'lineHeight': '1.6',
+                                                        'margin': '0'
+                                                    }
+                                                )
+                                            ]
+                                        ),
+
+                                        # Least Conservative Scenario
+                                        html.Div(
+                                            id='scenario-least-conservative',
+                                            className='jumbotron',
+                                            style={
+                                                'background': 'white',
+                                                'padding': '20px',
+                                                'borderRadius': '8px',
+                                                'borderLeft': '4px solid #16a34a'
+                                            },
+                                            children=[
+                                                html.H4(content.get('scenarios_explained.least_conservative.title', 'Least Conservative Scenario'), style={
+                                                    'fontSize': '16px',
+                                                    'fontWeight': '600',
+                                                    'color': '#16a34a',
+                                                    'margin': '0 0 12px 0'
+                                                }),
+                                                html.P(
+                                                    content.get('scenarios_explained.least_conservative.description', 'Includes broad social harms to communities and families, plus criminogenic effects of detention.'),
+                                                    style={
+                                                        'fontSize': '14px',
+                                                        'color': '#374151',
+                                                        'lineHeight': '1.6',
+                                                        'margin': '0'
+                                                    }
+                                                )
+                                            ]
+                                        )
+                                    ]
+                                )
                             ]),
 
                             # Parameters section
@@ -1995,112 +2275,6 @@ app.layout = html.Div(className='app-container', children=[
                                          )
                                      ]),
 
-                            # Scenarios section
-                            html.Div(className='chart-container', style={'background': '#f8fafc', 'marginTop': '32px'}, children=[
-                                html.H3('Scenario Comparisons', style={
-                                    'fontSize': '20px',
-                                    'fontWeight': '600',
-                                    'color': '#1e293b',
-                                    'marginBottom': '16px',
-                                    'marginTop': '0'
-                                }),
-                                html.P('Three normative scenarios offer different perspectives on how to value detention impacts:', style={
-                                    'fontSize': '15px',
-                                    'color': '#4b5563',
-                                    'marginBottom': '20px'
-                                }),
-                                html.Div(
-                                    style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': '16px'},
-                                    children=[
-                                        # Baseline Scenario
-                                        html.Div(
-                                            id='scenario-baseline',
-                                            className='jumbotron',
-                                            style={
-                                                'background': 'white',
-                                                'padding': '20px',
-                                                'borderRadius': '8px',
-                                                'borderLeft': '4px solid #2563eb'
-                                            },
-                                            children=[
-                                                html.H4(content.get('scenarios_explained.baseline.title', 'Baseline Scenario'), style={
-                                                    'fontSize': '16px',
-                                                    'fontWeight': '600',
-                                                    'color': '#2563eb',
-                                                    'margin': '0 0 12px 0'
-                                                }),
-                                                html.P(
-                                                    content.get('scenarios_explained.baseline.description', 'Focuses on individual harm to detainees plus potential criminogenic effects of detention.'),
-                                                    style={
-                                                        'fontSize': '14px',
-                                                        'color': '#374151',
-                                                        'lineHeight': '1.6',
-                                                        'margin': '0'
-                                                    }
-                                                )
-                                            ]
-                                        ),
-
-                                        # Most Conservative Scenario
-                                        html.Div(
-                                            id='scenario-most-conservative',
-                                            className='jumbotron',
-                                            style={
-                                                'background': 'white',
-                                                'padding': '20px',
-                                                'borderRadius': '8px',
-                                                'borderLeft': '4px solid #d97706'
-                                            },
-                                            children=[
-                                                html.H4(content.get('scenarios_explained.most_conservative.title', 'Conservative Scenario'), style={
-                                                    'fontSize': '16px',
-                                                    'fontWeight': '600',
-                                                    'color': '#d97706',
-                                                    'margin': '0 0 12px 0'
-                                                }),
-                                                html.P(
-                                                    content.get('scenarios_explained.most_conservative.description', 'Uses smaller survey-based estimates to value detainee harm, producing less negative MVPF values.'),
-                                                    style={
-                                                        'fontSize': '14px',
-                                                        'color': '#374151',
-                                                        'lineHeight': '1.6',
-                                                        'margin': '0'
-                                                    }
-                                                )
-                                            ]
-                                        ),
-
-                                        # Least Conservative Scenario
-                                        html.Div(
-                                            id='scenario-least-conservative',
-                                            className='jumbotron',
-                                            style={
-                                                'background': 'white',
-                                                'padding': '20px',
-                                                'borderRadius': '8px',
-                                                'borderLeft': '4px solid #16a34a'
-                                            },
-                                            children=[
-                                                html.H4(content.get('scenarios_explained.least_conservative.title', 'Least Conservative Scenario'), style={
-                                                    'fontSize': '16px',
-                                                    'fontWeight': '600',
-                                                    'color': '#16a34a',
-                                                    'margin': '0 0 12px 0'
-                                                }),
-                                                html.P(
-                                                    content.get('scenarios_explained.least_conservative.description', 'Includes broad social harms to communities and families, plus criminogenic effects of detention.'),
-                                                    style={
-                                                        'fontSize': '14px',
-                                                        'color': '#374151',
-                                                        'lineHeight': '1.6',
-                                                        'margin': '0'
-                                                    }
-                                                )
-                                            ]
-                                        )
-                                    ]
-                                )
-                            ]),
 
                             # Limitations section
                                 html.Div(style={'marginBottom': '0'}, children=[
@@ -2155,6 +2329,13 @@ app.layout = html.Div(className='app-container', children=[
                     }, children=[
                         html.Div(style={'padding': '24px 0', 'maxWidth': '900px', 'margin': '0 auto'}, children=[
                             html.Div(className='chart-container', children=[
+                                html.H2('Data Sources', style={
+                                    'fontSize': '28px',
+                                    'fontWeight': 'bold',
+                                    'color': '#1e293b',
+                                    'marginTop': '0',
+                                    'marginBottom': '24px'
+                                }),
                                 html.H2('About Cook County Jail', style={
                                     'fontSize': '28px',
                                     'fontWeight': 'bold',
@@ -2262,8 +2443,6 @@ app.layout = html.Div(className='app-container', children=[
         ])
     ])
 ])
-
-
 
 # =============================================================================
 # CALLBACKS MODULE
