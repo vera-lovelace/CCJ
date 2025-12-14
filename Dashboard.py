@@ -1796,30 +1796,7 @@ app.layout = html.Div(className='app-container', children=[
                                                                      )
                                                                  ]),
 
-                                                                 # Crime Increase Costs
-                                                                 html.Div([
-                                                                     html.Button(
-                                                                         content.get('components_breakdown.government_cost.subcomponents.crime_increase.button_text', 'Costs associated with Crime Effect: Increase'),
-                                                                         id='gov-crime-increase-btn',
-                                                                         n_clicks=0,
-                                                                         className='collapse-toggle'
-                                                                     ),
-                                                                     html.Div(
-                                                                         id='gov-crime-increase',
-                                                                         style={'display': 'none'},
-                                                                         children=[
-                                                                             html.P(
-                                                                                 content.get('components_breakdown.government_cost.subcomponents.crime_increase.explanation', ''),
-                                                                                 style={
-                                                                                     'fontSize': '13px',
-                                                                                     'color': '#6b7280'
-                                                                                 }
-                                                                             )
-                                                                         ]
-                                                                     )
-                                                                 ]),
-
-                                                                 # Crime Decrease Costs
+                                                                 # Crime Effect Costs
                                                                  html.Div([
                                                                      html.Button(
                                                                          content.get('components_breakdown.government_cost.subcomponents.crime_decrease.button_text', 'Costs associated with Crime Effect: Decrease'),

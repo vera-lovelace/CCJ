@@ -296,8 +296,8 @@
       "subcomponents_label": "Subcomponents",
       "subcomponents": {
         "crime_prevention": {
-          "button_text": "Crime Prevention",
-          "explanation": "This component captures any crime-prevention benefit from incapacitation during detention. In the baseline model, this is set to zero in line with empirical evidence suggesting minimal net crime reduction from pretrial detention. Users can adjust this assumption in alternative scenarios."
+          "button_text": "Crime Effects",
+          "explanation": "An optional component that assigns a social value to crimes prevented (or a social cost to crimes increased) due to detention. We value this using McCollister (2008) per-crime social cost estimates, which convert changes in crime counts into dollars reflecting victim harms and broader social costs. This component is off in the baseline (set to zero) because the most credible causal evidence on pretrial detention does not support a clear, generalizable crime-reduction effect. It is only activated when you turn on the Crime Effect assumption parameter. Once activated, the MVPF can move in either direction: assuming detention prevents crime makes the MVPF less negative, while assuming it increases crime makes it more negative. The size of that shift also depends on the crime mix parameter, since the McCollister (2008) dollar values differ by offense type, so we apply different values for misdemeanors versus felonies."
         },
         "court_appearance": {
           "button_text": "Court Appearance Effects",
@@ -305,7 +305,7 @@
         },
         "community_spillovers": {
           "button_text": "Community and Economic Spillovers",
-          "explanation": "This component captures broader community effects of detention, including impacts on families, neighborhoods, and local economies. Effects include lost wages, disrupted caregiving, and reduced community stability. These spillovers extend the costs of detention beyond the individual detainee."
+          "explanation": "An optional component that captures spillover harms of detention on families and communities, such as disrupted caregiving, household production, and informal economic support. This component is not included in the baseline and is set to zero unless turned on. When included, it is a negative per-detainee value, making the MVPF more negative. Our current approach uses a Wrongful Death Damages (WDD) economic-loss anchor to monetize the scale of household disruption: we take the economic-loss portion of wrongful death settlements and rescale it to a typical detention spell, applying a conservative 25% external-share to avoid double counting the detainee’s own losses. Spillover effects reflect the impacts detention itself and do not scale with any downstream crime assumptions."
         }
       }
     },
@@ -316,15 +316,11 @@
       "subcomponents": {
         "operational": {
           "button_text": "Operational Costs",
-          "explanation": "The baseline government cost component, representing the full operating budgets for the Cook County Department of Corrections and Cermak Health Services. These expenses include staffing, food, medical care, housing, and other daily operations, and they can be allocated over any assumed detainee count or length of stay. Since these costs reflect actual fiscal outlays, they form the default denominator of the MVPF. Source: Cook County FY2018 Appropriation Budget."
-        },
-        "crime_increase": {
-          "button_text": "Costs associated with Crime Effect: Increase",
-          "explanation": "Government costs that arise if detention leads to increased crime post-release (criminogenic effect). This includes additional law enforcement, court processing, victim services, and potential future incarceration costs. Evidence suggests detention can increase recidivism for some populations."
+          "explanation": "The baseline government cost component, representing the full operating budgets for the Cook County Department of Corrections and Cermak Health Services. These expenses include staffing, food, medical care, housing, and other daily operations, and they can be allocated over any assumed detainee count or length of stay. Since these costs reflect actual fiscal outlays, they form the default denominator of the MVPF. Source: Cook County FY2018 Appropriation Budget. \n\nNote: We exclude other potential government cost channels, such as downstream public health use or conviction-related administrative costs, due to limited credible estimates. This omission likely understates total government costs and biases the MVPF modestly toward zero."
         },
         "crime_decrease": {
-          "button_text": "Costs associated with Crime Effect: Decrease",
-          "explanation": "Government savings that occur if detention prevents crimes through incapacitation or deterrence. This includes avoided law enforcement costs, reduced court processing, and lower victim compensation. The magnitude depends on assumptions about detention's crime-prevention effectiveness."
+          "button_text": "Costs associated with Crime Effect",
+          "explanation": "An optional component that captures changes in government spending associated with changes in crime induced by detention. This component is off in the baseline and is only activated when the Crime Effect assumption parameter is turned on. We value these costs or savings using McCollister (2008) government cost estimates, which translate changes in crime into public-sector expenditures such as policing, courts, and corrections. Values are scaled by crime type, so shifts toward felonies versus misdemeanors have larger fiscal effects. \n\nThis component moves in lockstep with the crime effect in the numerator: if detention is assumed to reduce crime, government costs fall and the MVPF becomes less negative; if detention is assumed to increase crime, government costs rise and the MVPF becomes more negative."
         }
       }
     }
