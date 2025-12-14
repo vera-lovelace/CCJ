@@ -1492,11 +1492,21 @@ app.layout = html.Div(className='app-container', children=[
                                                         'color': '#4b5563',
                                                         'fontSize': '14px',
                                                         'lineHeight': '1.6',
-                                                        'margin': '0'
+                                                        'margin': '0',
                                                     }
                                                 ),
                                                 html.P(
                                                     content.get('mvpf_explainer.applying_to_detention.paragraph2', 'Most studies on detention focus on marginal changes.'),
+                                                    style={
+                                                        'color': '#4b5563',
+                                                        'fontSize': '14px',
+                                                        'lineHeight': '1.6',
+                                                        'marginTop': '1',
+                                                        'marginBottom': '12px'
+                                                    }
+                                                ),
+                                                html.P(
+                                                    content.get('mvpf_explainer.applying_to_detention.paragraph3'),
                                                     style={
                                                         'color': '#4b5563',
                                                         'fontSize': '14px',

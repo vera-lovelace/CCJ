@@ -8,11 +8,11 @@
   },
   "info_tile": {
     "heading": "What is MVPF?",
-    "description": "The Marginal Value of Public Funds (MVPF) is a metric that measures the social welfare benefit of a policy per dollar of government spending. It represents how much value beneficiaries receive relative to what the policy costs.",
+    "description": "The Marginal Value of Public Funds (MVPF) is a metric that measures the social welfare benefit of a policy per dollar of government spending. It represents how much value beneficiaries receive relative to what the policy costs. [link to MIT page]",
     "formula_label": "Applying MVPF to detention",
     "formula": "Most MVPF work looks at policies where the person subject to the policy is also the main beneficiary, such as cash transfers. Detention is different. Jail is imposed on detainees but is justified as benefiting the general public. That is why this tool tracks both Detainee effects and broader Society effects when calculating the MVPF of detention.",
     "application_label": "Our application of MVPF to Cook County Jail",
-    "application": "In most MVPF work, people plug in causal estimates for how behavior changes at the intensive margin (for example, working a bit more or less when a benefit changes). For Cook County Jail, we do not have credible intensive-margin estimates for detention, and the policy questions we are interested in are about the extensive margin and the scale of the jail itself: who is detained at all, for how long, and what level of funding or even continued operation is justified. It uses the full annual costs of operating the jail and the full set of impacts on people who are detained to summarize those tradeoffs in an MVPF-style framework. This CCJ calculator is built to help you see how assumptions about extensive-margin harms and benefits feed into both the numerator and the denominator, using 2018 jail spending as the benchmark. For a fuller discussion of this choice and its limits, see the longer explanation [link to MVPF Explained]."
+    "application": "In most MVPF work, In most MVPF work, people plug in causal estimates for how behavior changes at the intensive margin (for example, working a bit more or less when a benefit changes). For Cook County Jail, we do not have credible intensive-margin estimates for detention, and the policy questions we are interested in are about the extensive margin and the scale of the jail itself: who is detained at all, for how long, and what level of funding or even continued operation is justified. It uses the full annual costs of operating the jail and the full set of impacts on people who are detained to summarize those tradeoffs in an MVPF-style framework. This CCJ calculator is built to help you see how assumptions about extensive-margin harms and benefits feed into both the numerator and the denominator, using 2018 jail spending as the benchmark.  For a fuller discussion of this choice and its limits, see the longer explanation [link to MVPF Explained]."
   },
   "tabs": {
     "overview": "Calculation",
@@ -24,24 +24,24 @@
   "controls": {
     "section_title": "Analysis Parameters",
     "felony_rate": {
-      "title": "Select percentage of detainees with felony charges",
-      "tooltip": "The proportion of detainees that have been charged with at least one felony in 2018"
+      "title": "SELECT FELONY VS. MISDEMEANOR CHARGE MIX",
+      "tooltip": "The proportion of detainees that have been charged with at least one felony. Default: 70% for CCJ in 2018."
     },
     "detainee_population": {
       "title": "Select Detainee Population Size",
-      "tooltip": "The number of individuals detained at Cook County Jail for at least one night over the course of the year"
+      "tooltip": "The number of individuals detained for at least one night over the course of the year. Default: 33,945 for CCJ in 2018."
     },
     "community_size": {
       "title": "Select Community Size",
       "tooltip": "The number of individuals who live in the jurisdiction of the detention center"
     },
     "length_of_stay": {
-      "title": "How long an individual should be detained on average?",
-      "tooltip": "The average number of days detainees are detained in Cook County Jail was 70 days in 2018. "
+      "title": "SELECT AVERAGE Length Of Detention",
+      "tooltip": "The average number of days detainees are detained over the course of a year. Default: 70 days for CCJ in 2018."
     },
     "crime_effect": {
-      "title": "Crime Effect",
-      "description": "Crime impact multiplier on detention outcomes"
+      "title": "Select Crime Effect Assumption",
+      "description": "The assumed impact of detention on future crime rate of detainees. Default: 0% based on literature review."
     },
     "scenario_selection": {
       "title": "Scenario Selection"
@@ -52,28 +52,28 @@
   },
   "scenarios": {
     "section_title": "Scenario Selection",
-    "description": "Compare different policy scenarios and their impact on MVPF calculations.",
+    "description": "The scenarios below offer three different set-ups for how to value the effects of detention on detainees. They differ only in how detainee harm is measured between two options, and whether spillover harms to the detainee’s community are included as well. \n \nNote: There are nearly infinite reasonable normative stances one could take about how to scale the harm of detention to detainees, especially in the absence of a clean experiment. The scenarios in this dashboard do not claim to identify a single “correct” stance. We do suggest a baseline scenario as a useful starting point, but it is only one choice among many reasonable alternatives. Instead, the dashboard provides a structured way to translate different views about detainee harm into concrete MVPF calculations so that policy and value disagreements can be discussed using the same underlying quantities.",
     "label": "Select Scenario:",
     "options": {
-      "baseline": "Baseline - Current Operations",
-      "most_conservative": "Conservative Approach",
-      "least_conservative": "Least Conservative Approach"
+      "baseline": "Baseline Valuation",
+      "most_conservative": "Lower-Bound Anchor / Smallest Valuation ",
+      "least_conservative": "Upper-Bound Anchor / Largest Valuation"
     },
     "cards": {
       "baseline": {
-        "title": "Baseline - Current Operations",
-        "value": "Focus on individual harm plus potential criminogenic effects",
-        "description": "Choose this if you think detention may worsen public safety"
+        "title": "Baseline Valuation",
+        "value": "Uses RHV without community spillovers",
+        "description": "In this scenario, detainee harm is valued using the Relative Harm Valuation (RHV) scale. RHV yields a relatively large negative value per day in custody based on an indirect survey of the general population. We do not add any spillover harms to the detainee’s community, on the view that some of those broader harms may already be reflected in RHV. This combination leans on components that are well supported in the literature and keeps extra assumptions to a minimum. It is the default scenario in the dashboard and our recommended starting point for interpretation."
       },
       "most_conservative": {
-        "title": "Less Negative Detainee Value - Conservative",
-        "value": "Focus on conservative valuation of individual harms",
-        "description": "Choose this if you believe detainee harm should be valued using smaller, survey-based estimates"
+        "title": "Lower-Bound Anchor / Smallest Valuation",
+        "value": "Uses the smaller detainee-harm scale (WTP)",
+        "description": "In this scenario, detainee harm is valued using the smaller Willingness to Pay for Freedom (WTP) scale rather than the larger Relative Harm Valuation (RHV) scale. WTP is based on direct survey responses from people who have experienced jail, producing a much smaller per-day harm estimate than RHV (roughly 300x smaller). Because this scale assigns far less harm to detention, the numerator becomes less negative and the MVPF moves closer to zero. This anchor represents the most detention-favorable valuation of harm in the dashboard."
       },
       "least_conservative": {
-        "title": "Least Conservative (lowest MVPF)",
-        "value": "Focus on broad social harms and criminogenic effects",
-        "description": "Choose this if you think detention harms both individuals and communities and may increase crime"
+        "title": "Upper-Bound Anchor / Largest Valuation",
+        "value": "Uses RHV plus added community spillover harms",
+        "description": "In this scenario, detainee harm is valued using the same RHV scale as in the baseline anchor, and we add an extra term to capture spillover harms to the detainee’s community that are not already captured by the individual-level value. This additional component makes the total harm assigned to detention larger in magnitude. As a result, the numerator becomes more negative and the MVPF for detention moves further below zero. Among the scenarios, this anchor represents the least detention-favorable valuation of harm."
       }
     }
   },
@@ -187,12 +187,13 @@
     "section_title": "Understanding MVPF",
     "what_is_mvpf": {
       "heading": "What is MVPF?",
-      "description": "The Marginal Value of Public Funds (MVPF) is a metric that measures the social welfare benefit of a policy per dollar of government spending. It represents how much value beneficiaries receive relative to what the policy costs."
+      "description": "The Marginal Value of Public Funds (MVPF) is a metric that measures the social welfare benefit of a policy per dollar of government spending. It represents how much value beneficiaries receive relative to what the policy costs. [link to MIT page]"
     },
     "applying_to_detention": {
       "heading": "Applying MVPF to detention in Cook County Jail",
       "paragraph1": "Most MVPF work looks at policies where the person subject to the policy is also the main beneficiary, such as cash transfers. Detention is different. Jail is imposed on detainees but is justified as benefiting the general public. That is why this tool tracks both Detainee effects and broader Society effects when calculating the MVPF of detention.",
-      "paragraph2": "Most studies on detention focus on marginal changes, like one extra day in jail or one additional person detained. This tool instead looks at the overall or infra-marginal picture for a facility, using Cook County Jail as the baseline case. It uses the full annual costs of operating the jail and the full set of impacts on people who are detained to summarize those tradeoffs in an MVPF-style framework."
+      "paragraph2": "In most MVPF work, people plug in causal estimates for how behavior changes at the intensive margin (for example, working a bit more or less when a benefit changes). For Cook County Jail, we do not have credible intensive-margin estimates for detention, and the policy questions we are interested in are about the extensive margin and the scale of the jail itself: who is detained at all, for how long, and what level of funding or even continued operation is justified. It uses the full annual costs of operating the jail and the full set of impacts on people who are detained to summarize those tradeoffs in an MVPF-style framework. This CCJ calculator is built to help you see how assumptions about extensive-margin harms and benefits feed into both the numerator and the denominator, using 2018 jail spending as the benchmark.",
+      "paragraph3": "To further understand the assumptions behind this approach, we provide a detailed breakdown of each scenario, the parameters, and how they may reflect the broader implications of detention policy. The scenarios and parameter are designed to explore different perspectives on the tradeoffs between public costs and the various social, individual, and government-related harms and benefits associated with detention. Each scenario allows users to adjust key components, such as the detainee value approach, and the parameters allow users to change the multipliers applied to these components, helping to assess the sensitivity of the MVPF to these assumptions. By reviewing the full explanations below, users can better understand the rationale behind the assumptions and how small changes in these variables can lead to different policy recommendations. This will give you a comprehensive view of the complexities and trade-offs inherent in making decisions about the scale and impact of pretrial detention."
     }
   },
   "understanding": {
