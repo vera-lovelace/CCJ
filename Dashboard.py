@@ -1852,140 +1852,171 @@ app.layout = html.Div(className='app-container', children=[
                             ]),
 
                             # Parameters section
-                            html.Div(className='chart-container', style={'background': '#f8fafc', 'marginTop': '32px'}, children=[
-                                html.H3('Analysis Parameters', style={
-                                    'fontSize': '20px',
-                                    'fontWeight': '600',
-                                    'color': '#1e293b',
-                                    'marginBottom': '16px',
-                                    'marginTop': '0'
-                                }),
-                                html.P('The MVPF calculation depends on four key parameters that you can adjust in the Overview tab:', style={
-                                    'fontSize': '15px',
-                                    'color': '#4b5563',
-                                    'marginBottom': '20px'
-                                }),
-                                html.Div(
-                                    style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '16px'},
-                                    children=[
-                                        # Felony Rate
-                                        html.Div(
-                                            id='parameter-felony-rate',
-                                            className='jumbotron',
-                                            style={
-                                                'background': 'white',
-                                                'padding': '20px',
-                                                'borderRadius': '8px',
-                                                'borderLeft': '4px solid #3b82f6'
-                                            },
-                                            children=[
-                                                html.H4(content.get('parameters.felony_rate.title', 'Felony Rate'), style={
-                                                    'fontSize': '16px',
-                                                    'fontWeight': '600',
-                                                    'color': '#3b82f6',
-                                                    'margin': '0 0 12px 0'
-                                                }),
-                                                html.P(
-                                                    content.get('parameters.felony_rate.description', 'The proportion of detainees charged with at least one felony offense.'),
-                                                    style={
-                                                        'fontSize': '14px',
-                                                        'color': '#374151',
-                                                        'lineHeight': '1.6',
-                                                        'margin': '0'
-                                                    }
-                                                )
-                                            ]
-                                        ),
+                            html.Div(className='chart-container', style={'background': '#f8fafc', 'marginTop': '32px'},
+                                     children=[
+                                         html.H3('Analysis Parameters', style={
+                                             'fontSize': '20px',
+                                             'fontWeight': '600',
+                                             'color': '#1e293b',
+                                             'marginBottom': '16px',
+                                             'marginTop': '0'
+                                         }),
+                                         html.P(
+                                             'The MVPF calculation depends on four key parameters that you can adjust in the Overview tab:',
+                                             style={
+                                                 'fontSize': '15px',
+                                                 'color': '#4b5563',
+                                                 'marginBottom': '20px'
+                                             }),
 
-                                        # Detainee Population
-                                        html.Div(
-                                            id='parameter-detainee-population',
-                                            className='jumbotron',
-                                            style={
-                                                'background': 'white',
-                                                'padding': '20px',
-                                                'borderRadius': '8px',
-                                                'borderLeft': '4px solid #10b981'
-                                            },
-                                            children=[
-                                                html.H4(content.get('parameters.detainee_population.title', 'Detainee Population'), style={
-                                                    'fontSize': '16px',
-                                                    'fontWeight': '600',
-                                                    'color': '#10b981',
-                                                    'margin': '0 0 12px 0'
-                                                }),
-                                                html.P(
-                                                    content.get('parameters.detainee_population.description', 'The number of individuals detained at Cook County Jail over the course of a year.'),
-                                                    style={
-                                                        'fontSize': '14px',
-                                                        'color': '#374151',
-                                                        'lineHeight': '1.6',
-                                                        'margin': '0'
-                                                    }
-                                                )
-                                            ]
-                                        ),
+                                         html.Div(
+                                             style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '16px'},
+                                             children=[
+                                                 # Felony Rate
+                                                 html.Div(
+                                                     id='parameter-felony-rate',
+                                                     className='jumbotron',
+                                                     style={'background': 'white', 'padding': '20px',
+                                                            'borderRadius': '8px', 'borderLeft': '4px solid #3b82f6'},
+                                                     children=[
+                                                         html.H4(
+                                                             content.get('parameters.felony_rate.title', 'Felony Rate'),
+                                                             style={'fontSize': '16px', 'fontWeight': '600',
+                                                                    'color': '#3b82f6', 'margin': '0 0 12px 0'}
+                                                         ),
+                                                         html.Div(children=[
+                                                             html.Div(style={'marginBottom': '10px'}, children=[
+                                                                 html.Div(
+                                                                     sec.get('label', ''),
+                                                                     style={'fontSize': '12px', 'fontWeight': '700',
+                                                                            'color': '#374151',
+                                                                            'textTransform': 'uppercase',
+                                                                            'letterSpacing': '0.04em',
+                                                                            'marginBottom': '4px'}
+                                                                 ),
+                                                                 html.P(
+                                                                     sec.get('text', ''),
+                                                                     style={'fontSize': '13px', 'color': '#374151',
+                                                                            'lineHeight': '1.5', 'margin': '0'}
+                                                                 )
+                                                             ])
+                                                             for sec in
+                                                             content.get('parameters.felony_rate.sections', [])
+                                                             if sec.get('text')
+                                                         ])
+                                                     ]
+                                                 ),
 
-                                        # Length of Stay
-                                        html.Div(
-                                            id='parameter-length-of-stay',
-                                            className='jumbotron',
-                                            style={
-                                                'background': 'white',
-                                                'padding': '20px',
-                                                'borderRadius': '8px',
-                                                'borderLeft': '4px solid #f59e0b'
-                                            },
-                                            children=[
-                                                html.H4(content.get('parameters.length_of_stay.title', 'Length of Stay'), style={
-                                                    'fontSize': '16px',
-                                                    'fontWeight': '600',
-                                                    'color': '#f59e0b',
-                                                    'margin': '0 0 12px 0'
-                                                }),
-                                                html.P(
-                                                    content.get('parameters.length_of_stay.description', 'The average number of days individuals are detained in Cook County Jail.'),
-                                                    style={
-                                                        'fontSize': '14px',
-                                                        'color': '#374151',
-                                                        'lineHeight': '1.6',
-                                                        'margin': '0'
-                                                    }
-                                                )
-                                            ]
-                                        ),
+                                                 # Detainee Population
+                                                 html.Div(
+                                                     id='parameter-detainee-population',
+                                                     className='jumbotron',
+                                                     style={'background': 'white', 'padding': '20px',
+                                                            'borderRadius': '8px', 'borderLeft': '4px solid #10b981'},
+                                                     children=[
+                                                         html.H4(
+                                                             content.get('parameters.detainee_population.title',
+                                                                         'Detainee Population'),
+                                                             style={'fontSize': '16px', 'fontWeight': '600',
+                                                                    'color': '#10b981', 'margin': '0 0 12px 0'}
+                                                         ),
+                                                         html.Div(children=[
+                                                             html.Div(style={'marginBottom': '10px'}, children=[
+                                                                 html.Div(
+                                                                     sec.get('label', ''),
+                                                                     style={'fontSize': '12px', 'fontWeight': '700',
+                                                                            'color': '#374151',
+                                                                            'textTransform': 'uppercase',
+                                                                            'letterSpacing': '0.04em',
+                                                                            'marginBottom': '4px'}
+                                                                 ),
+                                                                 html.P(
+                                                                     sec.get('text', ''),
+                                                                     style={'fontSize': '13px', 'color': '#374151',
+                                                                            'lineHeight': '1.5', 'margin': '0'}
+                                                                 )
+                                                             ])
+                                                             for sec in
+                                                             content.get('parameters.detainee_population.sections', [])
+                                                             if sec.get('text')
+                                                         ])
+                                                     ]
+                                                 ),
 
-                                        # Crime Effect
-                                        html.Div(
-                                            id='parameter-crime-effect',
-                                            className='jumbotron',
-                                            style={
-                                                'background': 'white',
-                                                'padding': '20px',
-                                                'borderRadius': '8px',
-                                                'borderLeft': '4px solid #ef4444'
-                                            },
-                                            children=[
-                                                html.H4(content.get('parameters.crime_effect.title', 'Crime Effect'), style={
-                                                    'fontSize': '16px',
-                                                    'fontWeight': '600',
-                                                    'color': '#ef4444',
-                                                    'margin': '0 0 12px 0'
-                                                }),
-                                                html.P(
-                                                    content.get('parameters.crime_effect.description', 'The multiplier applied to crime-related impacts of detention on public safety.'),
-                                                    style={
-                                                        'fontSize': '14px',
-                                                        'color': '#374151',
-                                                        'lineHeight': '1.6',
-                                                        'margin': '0'
-                                                    }
-                                                )
-                                            ]
-                                        )
-                                    ]
-                                )
-                            ]),
+                                                 # Length of Stay
+                                                 html.Div(
+                                                     id='parameter-length-of-stay',
+                                                     className='jumbotron',
+                                                     style={'background': 'white', 'padding': '20px',
+                                                            'borderRadius': '8px', 'borderLeft': '4px solid #f59e0b'},
+                                                     children=[
+                                                         html.H4(
+                                                             content.get('parameters.length_of_stay.title',
+                                                                         'Length of Stay'),
+                                                             style={'fontSize': '16px', 'fontWeight': '600',
+                                                                    'color': '#f59e0b', 'margin': '0 0 12px 0'}
+                                                         ),
+                                                         html.Div(children=[
+                                                             html.Div(style={'marginBottom': '10px'}, children=[
+                                                                 html.Div(
+                                                                     sec.get('label', ''),
+                                                                     style={'fontSize': '12px', 'fontWeight': '700',
+                                                                            'color': '#374151',
+                                                                            'textTransform': 'uppercase',
+                                                                            'letterSpacing': '0.04em',
+                                                                            'marginBottom': '4px'}
+                                                                 ),
+                                                                 html.P(
+                                                                     sec.get('text', ''),
+                                                                     style={'fontSize': '13px', 'color': '#374151',
+                                                                            'lineHeight': '1.5', 'margin': '0'}
+                                                                 )
+                                                             ])
+                                                             for sec in
+                                                             content.get('parameters.length_of_stay.sections', [])
+                                                             if sec.get('text')
+                                                         ])
+                                                     ]
+                                                 ),
+
+                                                 # Crime Effect
+                                                 html.Div(
+                                                     id='parameter-crime-effect',
+                                                     className='jumbotron',
+                                                     style={'background': 'white', 'padding': '20px',
+                                                            'borderRadius': '8px', 'borderLeft': '4px solid #ef4444'},
+                                                     children=[
+                                                         html.H4(
+                                                             content.get('parameters.crime_effect.title',
+                                                                         'Crime Effect'),
+                                                             style={'fontSize': '16px', 'fontWeight': '600',
+                                                                    'color': '#ef4444', 'margin': '0 0 12px 0'}
+                                                         ),
+                                                         html.Div(children=[
+                                                             html.Div(style={'marginBottom': '10px'}, children=[
+                                                                 html.Div(
+                                                                     sec.get('label', ''),
+                                                                     style={'fontSize': '12px', 'fontWeight': '700',
+                                                                            'color': '#374151',
+                                                                            'textTransform': 'uppercase',
+                                                                            'letterSpacing': '0.04em',
+                                                                            'marginBottom': '4px'}
+                                                                 ),
+                                                                 html.P(
+                                                                     sec.get('text', ''),
+                                                                     style={'fontSize': '13px', 'color': '#374151',
+                                                                            'lineHeight': '1.5', 'margin': '0'}
+                                                                 )
+                                                             ])
+                                                             for sec in
+                                                             content.get('parameters.crime_effect.sections', [])
+                                                             if sec.get('text')
+                                                         ])
+                                                     ]
+                                                 ),
+                                             ]
+                                         )
+                                     ]),
 
                             # Scenarios section
                             html.Div(className='chart-container', style={'background': '#f8fafc', 'marginTop': '32px'}, children=[

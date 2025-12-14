@@ -213,24 +213,51 @@
       "description": "This analysis relies on empirical evidence from Cook County Jail operations (2018), academic research on detention impacts, and validated cost estimates from government budgets and policy studies."
     }
   },
-  "parameters": {
-    "felony_rate": {
-      "title": "Felony Rate",
-      "description": "The proportion of detainees charged with at least one felony offense. This parameter affects the severity classification of cases and influences both societal benefits and detainee harm valuations. Higher felony rates typically correlate with longer sentences and greater incapacitation effects."
-    },
-    "detainee_population": {
-      "title": "Detainee Population",
-      "description": "The number of individuals detained at Cook County Jail over the course of a year. This baseline population figure is multiplied by the population multiplier to determine the total detention scale. Changes in this parameter directly affect all cost and benefit calculations proportionally."
-    },
-    "length_of_stay": {
-      "title": "Length of Stay",
-      "description": "The average number of days individuals are detained in Cook County Jail before resolution of their case. This parameter affects both the per-person harm experienced by detainees and the operational costs borne by the government. Longer stays increase both harms and costs proportionally."
-    },
-    "crime_effect": {
-      "title": "Crime Effect",
-      "description": "The multiplier applied to crime-related impacts of detention on public safety. This parameter reflects assumptions about detention's incapacitation effect (preventing crimes while incarcerated) versus potential criminogenic effects (increased criminal behavior post-release). A value of 0 assumes no net crime impact, positive values assume crime reduction, and negative values assume detention increases future criminal behavior."
-    }
+"parameters": {
+  "felony_rate": {
+    "title": "Felony vs. Misdemeanor Charge Mix",
+    "sections": [
+      { "label": "Description", "text": "The proportion of detainees charged with at least one felony." },
+      { "label": "Default", "text": "70% felonies (30% misdemeanors)." },
+      { "label": "Use in MVPF", "text": "Scales crime effects in the numerator and crime-related costs in the denominator, because felony and misdemeanor offenses differ in both social harm and government cost. A higher felony share generally shifts the MVPF further from 1 when a non-zero crime effect is selected (the direction depends on the sign of the crime effect)." },
+      { "label": "Explanation and Alternatives", "text": "We set the default to 70% felonies based on Illinois evidence that pretrial detention is felony-dominant (about 82% felony among the pretrial jail stock in 2019). Because stock measures overstate felony share relative to annual admissions (which include more short-stay misdemeanors), we lower the default to 70%. The dashboard allows 50% to 100% felonies to explore sensitivity." },
+      { "label": "Notes and Key Assumptions", "text": "We assume one charge per detainee, using the highest-level charge when multiple charges exist. This may undercount social harm more than associated government costs because the marginal difference of the harm of an additional crime is likely larger than that of the cost of processing an additional charge. This biases the MVPF away from 0 when crime effects are non-zero (baseline sets crime effects to 0). When crime effects are applied, felony vs. misdemeanor values are built from granular crime-type estimates (McCollister 2008) using equal-incidence averaging across crime types, which is inexact but preserves magnitude and broad severity differences." }
+    ]
   },
+
+  "detainee_population": {
+    "title": "Detainee Population Size",
+    "sections": [
+      { "label": "Description", "text": "The number of people detained pretrial for at least one night over the course of the year." },
+      { "label": "Default", "text": "33,945 admissions (100%)." },
+      { "label": "Use in MVPF", "text": "Scales the total value in the numerator (detainee harms and societal effects). Operational funding is treated as fixed and does not scale with this parameter." },
+      { "label": "Explanation and Alternatives", "text": "We source this from the Cook County Jail dashboard, which distinguishes bookings (about 100,000 in 2018) from admissions (33,945), where admissions reflect bookings that result in at least one night in custody. The dashboard allows a multiplier range of 80% to 120% to explore how detention scale affects the MVPF." },
+      { "label": "Notes and Key Assumptions", "text": "In reality, some operating costs likely vary with detainee volume. Because we do not have a credible marginal cost estimate for Cook County Jail, we treat 2018 operating costs as fixed. This is a meaningful limitation and will bias the MVPF away from 1 whenever population is set above or below the default." }
+    ]
+  },
+
+  "crime_effect": {
+    "title": "Crime Effect Assumption",
+    "sections": [
+      { "label": "Description", "text": "The assumed impact of detention on detainees’ future crime (two-year rearrest), expressed as a percentage-point change." },
+      { "label": "Default", "text": "0% change." },
+      { "label": "Use in MVPF", "text": "Determines the sign and scales the crime-related components in the numerator (societal value of crime effects) and in the denominator (government costs or savings associated with crime effects)." },
+      { "label": "Explanation and Alternatives", "text": "We set the baseline to 0 because the best causal evidence does not support a clear non-zero net effect of pretrial detention on crime. The leading study (Dobbie, Goldin, and Yang, 2018) reports a point estimate and a 95% confidence interval wide enough to allow both modest crime reduction and modest crime increase. The dashboard offers the point estimate (5%) and the CI bounds (−4%, +14%) as sensitivity options." },
+      { "label": "Notes and Key Assumptions", "text": "Detention could decrease crime via incapacitation or deterrence, or increase crime by disrupting employment, housing, and social ties after release. The crime components assume symmetry: the value of a crime prevented equals the harm of a crime that occurs (same magnitude, opposite sign), and government savings from a prevented crime equal government costs of an additional crime." }
+    ]
+  },
+
+  "length_of_stay": {
+    "title": "Average Length of Detention",
+    "sections": [
+      { "label": "Description", "text": "The average number of days detainees are held." },
+      { "label": "Default", "text": "70 days." },
+      { "label": "Use in MVPF", "text": "Scales time-based detainee harms and (if included) community spillovers. Operational funding is treated as fixed and does not scale with length of stay." },
+      { "label": "Explanation and Alternatives", "text": "The CCJ dashboard reports a 60.37-day average for releases in 2018, which likely understates overall detention exposure because it excludes long-stay detainees not released during the year. We correct for this by setting a 70-day baseline informed by a long-stayer dataset. The dashboard offers the 60-day release-based figure, our 70-day baseline, and up to 203 days (the long-stayer average) to examine sensitivity." },
+      { "label": "Notes and Key Assumptions", "text": "For details on the long-stayer dataset and the construction of the 70-day baseline, see the Overleaf documentation and OSF page. [link] [link]" }
+    ]
+  }
+},
   "scenarios_explained": {
     "baseline": {
       "title": "Baseline Scenario",
