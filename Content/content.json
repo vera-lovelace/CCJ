@@ -331,7 +331,7 @@
     "overview_intro": {
       "title": "Calculating the MVPF for Cook County Jail",
       "paragraph1": "This calculator dashboard lets you explore how different assumptions change the Marginal Value of Public Funds (MVPF) for pretrial detention in Cook County Jail. The MVPF compares the total harms and benefits created by detention to the public cost of operating the jail. You can adjust several inputs that determine the number of people detained, the composition of cases, and the average length of stay. These inputs reshape the numerator and denominator of the MVPF and let you test how sensitive the results are to policy or system changes. Use these scenarios and parameters to see how alternative value judgments and crime assumptions shift the MVPF and what that implies about the social return of pretrial detention under different assumptions.",
-      "paragraph2": "Each scenario shows an MVPF for pretrial detention that compares harms and benefits to the public cost of running Cook County Jail in 2018. In every scenario, the numerator is built from two types of components: \n • harms to detainees, valued in dollars per day in custody \n • effects on society, such as changes in court appearance or crime outcomes",
+      "paragraph2": "Select your preferred MVPF scenario. In every scenario, the numerator is built from two types of components: \n • harms to detainees, valued in dollars per day in custody \n • effects on society, such as changes in court appearance or crime outcomes",
       "paragraph3": "The denominator is always the 2018 operating cost of the jail, scaled by the population and length of stay choices you set above, plus any costs or savings associated with crime outcomes.",
       "paragraph4": "The scenarios below offer three different approaches to detainee harm. You may choose the baseline approach, switch to the smaller detainee harm value, or include additional spillover harms to the detainee's community."
     },
@@ -348,7 +348,12 @@
       "paragraph_1": "The scenario determines what components will be included to quantify the MVPF. Each scenario compares harms and benefits of detention to the public cost of running Cook County Jail in 2018.",
       "paragraph_2": "In every scenario, the numerator is built from two components: (i) effects of detainment on detainees valued in dollars, such as loss of agency and income, and (ii) effects of detainment on society valued in dollars, such as changes in court appearance or crime outcomes. The denominator is the cost of detainment to government, made up of the 2018 operating cost of the jail, plus any costs or savings to the public associated with changes in crime outcomes.",
       "paragraph_3": "In all scenarios, the effects and costs of crime are included in the numerator and denominator respectively, but the multiplier on them is set to zero percent by default; you may adjust that parameter after you select your scenario."
-    }
+    },
+    "parameter_intro": {
+    "title": "Parameter Selection",
+    "paragraph_1": "Use these controls to adjust several parameters that act as multipliers to the components in the MVPF set-up. The defaults for each parameter capture the picture of Cook County Jail in 2018. The other options available are outer bounds for sensitivity analysis, and some alternatives based on our broad review of the literature. Changing parameters updates the underlying inputs, while scenarios change which components are included and how they are valued."
+}
+
 
 
   },

@@ -998,136 +998,159 @@ app.layout = html.Div(className='app-container', children=[
                                     )
                                 ])
                             ]),
+                            # Parameter Lead-in text
+                            html.Div(className='jumbotron', style={'marginTop': '0', 'marginBottom': '24px'}, children=[
+                                html.H4(
+                                    content.get('placeholders.parameter_intro.title', 'Parameter Selection'),
+                                    style={
+                                        'fontSize': '18px',
+                                        'fontWeight': '600',
+                                        'color': '#374151',
+                                        'marginTop': '0',
+                                        'marginBottom': '12px'
+                                    }
+                                ),
+                                html.P(
+                                    content.get('placeholders.parameter_intro.paragraph_1', ''),
+                                    style={
+                                        'fontSize': '14px',
+                                        'color': '#4b5563',
+                                        'lineHeight': '1.6',
+                                        'margin': '0',
+                                        'whiteSpace': 'pre-line'
+                                    }
+                                ),
 
-                            # Parameter Jumbotrons Grid
-                            html.Div(className='jumbotron-grid', style={'marginBottom': '24px'}, children=[
-                                # Jumbotron 1: Felony Rate
-                                html.Div(className='jumbotron', children=[
-                                    html.Div(className='jumbotron-icon', style={'background': '#dbeafe'}, children=[
-                                        html.Span('%%', style={'color': '#2563eb'})
-                                    ]),
-                                    html.H4(content.get('controls.felony_rate.title', 'Felony Rate'), className='jumbotron-title'),
-                                    html.P(id='felony-rate-value', children=f"{fel_rate_param.default_value:.0%}", className='jumbotron-value'),
-                                    html.P(content.get('controls.felony_rate.tooltip', fel_rate_param.description), className='jumbotron-description'),
-                                    dcc.Slider(
-                                        id='detainee-param1',
-                                        min=0.5,
-                                        max=1.0,
-                                        value=0.7,
-                                        marks={
-                                            0.5: {'label': '50%', 'style': {'fontSize': '11px'}},
-                                            0.7: {'label': '70%', 'style': {'fontSize': '11px'}},
-                                            1.0: {'label': '100%', 'style': {'fontSize': '11px'}}
-                                        },
-                                        step=0.01,
-                                        tooltip={'placement': 'bottom', 'always_visible': False}
-                                    )
-                                ]),
-
-                                # Jumbotron 2: Detainee Population
-                                html.Div(className='jumbotron', children=[
-                                    html.Div(className='jumbotron-icon', style={'background': '#fef3c7'}, children=[
-                                        html.Span('#', style={'color': '#d97706', 'fontWeight': '700'})
-                                    ]),
-                                    html.H4(content.get('controls.detainee_population.title', 'Detainee Population'), className='jumbotron-title'),
-                                    html.P(id='detainee-population-value', children=f"{n_detainees_param.base_value:,.0f}", className='jumbotron-value'),
-                                    html.P(content.get('controls.detainee_population.tooltip', n_detainees_param.description), className='jumbotron-description'),
-
-                                    # Baseline Population Input
-                                    html.Div(style={'marginBottom': '16px'}, children=[
-                                        html.Label('Baseline Population:', style={
-                                            'fontSize': '12px',
-                                            'fontWeight': '500',
-                                            'color': '#374151',
-                                            'marginBottom': '4px',
-                                            'display': 'block'
-                                        }),
-                                        dcc.Input(
-                                            id='detainee-baseline-input',
-                                            type='number',
-                                            value=n_detainees_param.base_value,
-                                            min=0,
-                                            step=100,
-                                            style={
-                                                'width': '100%',
-                                                'padding': '8px',
-                                                'fontSize': '14px',
-                                                'border': '1px solid #d1d5db',
-                                                'borderRadius': '6px',
-                                                'boxSizing': 'border-box'
-                                            }
+                                # Parameter Jumbotrons Grid
+                                html.Div(className='jumbotron-grid', style={'marginBottom': '24px'}, children=[
+                                    # Jumbotron 1: Felony Rate
+                                    html.Div(className='jumbotron', children=[
+                                        html.Div(className='jumbotron-icon', style={'background': '#dbeafe'}, children=[
+                                            html.Span('%%', style={'color': '#2563eb'})
+                                        ]),
+                                        html.H4(content.get('controls.felony_rate.title', 'Felony Rate'), className='jumbotron-title'),
+                                        html.P(id='felony-rate-value', children=f"{fel_rate_param.default_value:.0%}", className='jumbotron-value'),
+                                        html.P(content.get('controls.felony_rate.tooltip', fel_rate_param.description), className='jumbotron-description'),
+                                        dcc.Slider(
+                                            id='detainee-param1',
+                                            min=0.5,
+                                            max=1.0,
+                                            value=0.7,
+                                            marks={
+                                                0.5: {'label': '50%', 'style': {'fontSize': '11px'}},
+                                                0.7: {'label': '70%', 'style': {'fontSize': '11px'}},
+                                                1.0: {'label': '100%', 'style': {'fontSize': '11px'}}
+                                            },
+                                            step=0.01,
+                                            tooltip={'placement': 'bottom', 'always_visible': False}
                                         )
                                     ]),
 
-                                    # Population Multiplier Slider
-                                    html.Label('Population Multiplier:', style={
-                                        'fontSize': '12px',
-                                        'fontWeight': '500',
-                                        'color': '#374151',
-                                        'marginBottom': '8px',
-                                        'display': 'block'
-                                    }),
-                                    dcc.Slider(
-                                        id='detainee-param2',
-                                        min=0.8,
-                                        max=1.2,
-                                        value=1.0,
-                                        marks={
-                                            0.8: {'label': '80%', 'style': {'fontSize': '11px'}},
-                                            1.0: {'label': '100%', 'style': {'fontSize': '11px'}},
-                                            1.2: {'label': '120%', 'style': {'fontSize': '11px'}}
-                                        },
-                                        step=0.01,
-                                        tooltip={'placement': 'bottom', 'always_visible': False}
-                                    )
-                                ]),
+                                    # Jumbotron 2: Detainee Population
+                                    html.Div(className='jumbotron', children=[
+                                        html.Div(className='jumbotron-icon', style={'background': '#fef3c7'}, children=[
+                                            html.Span('#', style={'color': '#d97706', 'fontWeight': '700'})
+                                        ]),
+                                        html.H4(content.get('controls.detainee_population.title', 'Detainee Population'), className='jumbotron-title'),
+                                        html.P(id='detainee-population-value', children=f"{n_detainees_param.base_value:,.0f}", className='jumbotron-value'),
+                                        html.P(content.get('controls.detainee_population.tooltip', n_detainees_param.description), className='jumbotron-description'),
 
-                                # Jumbotron 3: Crime Effect
-                                html.Div(className='jumbotron', children=[
-                                    html.Div(className='jumbotron-icon', style={'background': '#fef2f2'}, children=[
-                                        html.Span('⚠️', style={'color': '#dc2626'})
-                                    ]),
-                                    html.H4(content.get('controls.crime_effect.title', 'Crime Effect'), className='jumbotron-title'),
-                                    html.P(id='crime-effect-value', children='0', className='jumbotron-value'),
-                                    html.P(content.get('controls.crime_effect.description', 'Crime impact multiplier on detention outcomes'), className='jumbotron-description'),
-                                    dcc.Slider(
-                                        id='crime-effect-slider',
-                                        min=-4,
-                                        max=14,
-                                        value=0,
-                                        marks={
-                                            -4: {'label': '-4 (Large Decrease)', 'style': {'fontSize': '8px'}},
-                                            0: {'label': '0 (No Effect)', 'style': {'fontSize': '8px'}},
-                                            5: {'label': '5 (Moderate Increase)', 'style': {'fontSize': '8px'}},
-                                            14: {'label': '14 (Large Increase)', 'style': {'fontSize': '8px'}}
-                                        },
-                                        step=None,
-                                        tooltip={'placement': 'bottom', 'always_visible': False}
-                                    )
-                                ]),
+                                        # Baseline Population Input
+                                        html.Div(style={'marginBottom': '16px'}, children=[
+                                            html.Label('Baseline Population:', style={
+                                                'fontSize': '12px',
+                                                'fontWeight': '500',
+                                                'color': '#374151',
+                                                'marginBottom': '4px',
+                                                'display': 'block'
+                                            }),
+                                            dcc.Input(
+                                                id='detainee-baseline-input',
+                                                type='number',
+                                                value=n_detainees_param.base_value,
+                                                min=0,
+                                                step=100,
+                                                style={
+                                                    'width': '100%',
+                                                    'padding': '8px',
+                                                    'fontSize': '14px',
+                                                    'border': '1px solid #d1d5db',
+                                                    'borderRadius': '6px',
+                                                    'boxSizing': 'border-box'
+                                                }
+                                            )
+                                        ]),
 
-                                # Jumbotron 4: Length of Stay
-                                html.Div(className='jumbotron', children=[
-                                    html.Div(className='jumbotron-icon', style={'background': '#fee2e2'}, children=[
-                                        html.Span('D', style={'color': '#dc2626', 'fontWeight': '700'})
+                                        # Population Multiplier Slider
+                                        html.Label('Population Multiplier:', style={
+                                            'fontSize': '12px',
+                                            'fontWeight': '500',
+                                            'color': '#374151',
+                                            'marginBottom': '8px',
+                                            'display': 'block'
+                                        }),
+                                        dcc.Slider(
+                                            id='detainee-param2',
+                                            min=0.8,
+                                            max=1.2,
+                                            value=1.0,
+                                            marks={
+                                                0.8: {'label': '80%', 'style': {'fontSize': '11px'}},
+                                                1.0: {'label': '100%', 'style': {'fontSize': '11px'}},
+                                                1.2: {'label': '120%', 'style': {'fontSize': '11px'}}
+                                            },
+                                            step=0.01,
+                                            tooltip={'placement': 'bottom', 'always_visible': False}
+                                        )
                                     ]),
-                                    html.H4(content.get('controls.length_of_stay.title', 'Length of Stay'), className='jumbotron-title'),
-                                    html.P(id='los-days-value', children=f"{los_days_param.default_value:.0f} days", className='jumbotron-value'),
-                                    html.P(content.get('controls.length_of_stay.tooltip', los_days_param.description), className='jumbotron-description'),
-                                    dcc.Slider(
-                                        id='society-param2',
-                                        min=60,
-                                        max=203,
-                                        value=70,
-                                        marks={
-                                            60: {'label': '60', 'style': {'fontSize': '11px'}},
-                                            70: {'label': '70', 'style': {'fontSize': '11px'}},
-                                            203: {'label': '203', 'style': {'fontSize': '11px'}}
-                                        },
-                                        step=1,
-                                        tooltip={'placement': 'bottom', 'always_visible': False}
-                                    )
-                                ])
+
+                                    # Jumbotron 3: Crime Effect
+                                    html.Div(className='jumbotron', children=[
+                                        html.Div(className='jumbotron-icon', style={'background': '#fef2f2'}, children=[
+                                            html.Span('⚠️', style={'color': '#dc2626'})
+                                        ]),
+                                        html.H4(content.get('controls.crime_effect.title', 'Crime Effect'), className='jumbotron-title'),
+                                        html.P(id='crime-effect-value', children='0', className='jumbotron-value'),
+                                        html.P(content.get('controls.crime_effect.description', 'Crime impact multiplier on detention outcomes'), className='jumbotron-description'),
+                                        dcc.Slider(
+                                            id='crime-effect-slider',
+                                            min=-4,
+                                            max=14,
+                                            value=0,
+                                            marks={
+                                                -4: {'label': '-4 (Large Decrease)', 'style': {'fontSize': '8px'}},
+                                                0: {'label': '0 (No Effect)', 'style': {'fontSize': '8px'}},
+                                                5: {'label': '5 (Moderate Increase)', 'style': {'fontSize': '8px'}},
+                                                14: {'label': '14 (Large Increase)', 'style': {'fontSize': '8px'}}
+                                            },
+                                            step=None,
+                                            tooltip={'placement': 'bottom', 'always_visible': False}
+                                        )
+                                    ]),
+
+                                    # Jumbotron 4: Length of Stay
+                                    html.Div(className='jumbotron', children=[
+                                        html.Div(className='jumbotron-icon', style={'background': '#fee2e2'}, children=[
+                                            html.Span('D', style={'color': '#dc2626', 'fontWeight': '700'})
+                                        ]),
+                                        html.H4(content.get('controls.length_of_stay.title', 'Length of Stay'), className='jumbotron-title'),
+                                        html.P(id='los-days-value', children=f"{los_days_param.default_value:.0f} days", className='jumbotron-value'),
+                                        html.P(content.get('controls.length_of_stay.tooltip', los_days_param.description), className='jumbotron-description'),
+                                        dcc.Slider(
+                                            id='society-param2',
+                                            min=60,
+                                            max=203,
+                                            value=70,
+                                            marks={
+                                                60: {'label': '60', 'style': {'fontSize': '11px'}},
+                                                70: {'label': '70', 'style': {'fontSize': '11px'}},
+                                                203: {'label': '203', 'style': {'fontSize': '11px'}}
+                                            },
+                                            step=1,
+                                            tooltip={'placement': 'bottom', 'always_visible': False}
+                                        )
+                                    ])
+                                ]),
                             ]),
 
                             # Scenario Selection Section
