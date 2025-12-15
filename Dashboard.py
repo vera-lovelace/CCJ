@@ -3133,7 +3133,7 @@ def _build_parameter_comparison_chart(scenario, base_det_p1, base_det_p2, base_s
     fig = go.Figure()
 
     colors = ['#93c5fd', '#3b82f6', '#1e40af']  # Light to dark blue for below, average, above
-    labels = ['Below', 'Average', 'Above']
+    labels = ['Lower Bound', 'Baseline', 'Upper Bound']
 
     for i, label in enumerate(labels):
         values = [param_variations[param][i] for param in param_variations.keys()]
@@ -3183,8 +3183,8 @@ def _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2, detainee_ba
 
     scenario_labels = {
         'baseline': 'Baseline',
-        'most conservative': 'Conservative',
-        'least conservative': 'Least Conservative'
+        'most conservative': 'Lower bound',
+        'least conservative': 'Upper bound'
     }
 
     # Calculate MVPF for each scenario
@@ -3273,8 +3273,8 @@ def _build_sensitivity_analysis_chart(parameter_name, param_values, base_det_p1,
     scenarios = ['baseline', 'most conservative', 'least conservative']
     scenario_labels = {
         'baseline': 'Baseline',
-        'most conservative': 'Most Conservative',
-        'least conservative': 'Least Conservative'
+        'most conservative': 'Lower Bound',
+        'least conservative': 'Upper bound'
     }
     scenario_colors = {
         'baseline': '#2563eb',  # Blue

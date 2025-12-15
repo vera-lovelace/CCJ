@@ -336,8 +336,8 @@
       "paragraph4": "The scenarios below offer three different approaches to detainee harm. You may choose the baseline approach, switch to the smaller detainee harm value, or include additional spillover harms to the detainee's community."
     },
     "mvpf_purpose": {
-      "title": "How the MVPF for Cook County Jail was calculated?",
-      "content": "This section will explain the purpose and methodology of the MVPF calculation, including how the baseline values are derived and what they represent in the context of Cook County Jail operations. \n  The metric is calculated by dividing the willingness to pay for a policy by its net government cost. A higher MVPF indicates that beneficiaries value the policy more relative to its cost, making it a more efficient use of public resources."
+      "title": "How to use this result",
+      "content": "This is the Marginal Value of Public Funds (MVPF) for pretrial detention under the assumptions you selected above, expressed as a ratio of total dollar-valued harms and benefits to the public cost of operating the jail. To understand what is driving the result, review the numerator and denominator breakdown below; to test sensitivity, change one parameter at a time or switch scenarios and compare how the breakdown changes, or go to the “Compare alternative scenarios” tab for a summary."
     },
     "scenarios_intro": {
       "title": "Sensitivity analysis",
