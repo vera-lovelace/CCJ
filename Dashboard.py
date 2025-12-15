@@ -1331,27 +1331,6 @@ app.layout = html.Div(className='app-container', children=[
                         'backgroundColor': 'white'
                     }, children=[
                         html.Div(style={'padding': '24px 0'}, children=[
-                            # Tab 2 Description Placeholder
-                            html.Div(style={
-                                'backgroundColor': '#f9fafb',
-                                'padding': '20px',
-                                'borderRadius': '8px',
-                                'marginBottom': '24px',
-                                'borderLeft': '4px solid #3b82f6'
-                            }, children=[
-                                html.H3(content.get('placeholders.scenarios_intro.title', 'Placeholder for Tab 2 Description'), style={
-                                    'fontSize': '18px',
-                                    'fontWeight': '600',
-                                    'color': '#374151',
-                                    'margin': '0 0 8px 0'
-                                }),
-                                html.P(content.get('placeholders.scenarios_intro.content', 'Placeholder for: Overview of the Scenario Analysis tab, explaining what users can explore and learn from the visualizations below.'), style={
-                                    'fontSize': '14px',
-                                    'color': '#6b7280',
-                                    'margin': '0',
-                                    'lineHeight': '1.6'
-                                })
-                            ]),
 
                             # Alternative Scenarios Description
                             html.Div(
@@ -1413,7 +1392,7 @@ app.layout = html.Div(className='app-container', children=[
                                 'marginTop': '0',
                                 'marginBottom': '8px'
                             }),
-                            html.P('Examine how each parameter affects MVPF values across baseline, most conservative, and least conservative scenarios.', style={
+                            html.P('This tab lets you compare how the MVPF for pretrial detention changes across alternative valuation scenarios. The visualizations show how different assumptions about detainee harm and community spillovers shift the overall result, holding the underlying jail operations constant. Use this tab to see which conclusions are robust across scenarios and which depend heavily on specific normative choices about how detention harms are valued.', style={
                                 'fontSize': '14px',
                                 'color': '#6b7280',
                                 'marginBottom': '24px'
@@ -2368,43 +2347,52 @@ app.layout = html.Div(className='app-container', children=[
                                          )
                                      ]),
 
-
                             # Limitations section
-                                html.Div(style={'marginBottom': '0'}, children=[
-                                    html.H3('Limitations and Considerations', style={
-                                        'fontSize': '20px',
-                                        'fontWeight': '600',
-                                        'color': '#374151',
-                                        'marginTop': '0',
+                            html.Div(style={'marginBottom': '0'}, children=[
+                                html.H3('Limitations and Considerations', style={
+                                    'fontSize': '20px',
+                                    'fontWeight': '600',
+                                    'color': '#374151',
+                                    'marginTop': '0',
+                                    'marginBottom': '12px'
+                                }),
+                                html.P(
+                                    'This dashboard is a structured way to translate assumptions into an MVPF for pretrial detention. It is not a definitive estimate of detention’s “true” social value.',
+                                    style={
+                                        'fontSize': '15px',
+                                        'color': '#4b5563',
+                                        'lineHeight': '1.8',
                                         'marginBottom': '12px'
-                                    }),
-                                    html.P(
-                                        'While this tool provides valuable insights, users should be aware of several important limitations:',
-                                        style={
-                                            'fontSize': '15px',
-                                            'color': '#4b5563',
-                                            'lineHeight': '1.8',
-                                            'marginBottom': '12px'
-                                        }
-                                    ),
-                                    html.Ul(style={'fontSize': '15px', 'color': '#4b5563', 'lineHeight': '1.8', 'marginBottom': '16px'}, children=[
-                                        html.Li('Estimates rely on available research and may not capture all local context'),
-                                        html.Li('Willingness-to-pay measures have inherent uncertainties and ethical considerations'),
-                                        html.Li('Results should be interpreted as informative estimates rather than precise predictions'),
-                                        html.Li('Policy decisions should consider multiple factors beyond MVPF analysis alone')
-                                    ]),
-                                    html.P(
-                                        'This tool is designed to inform policy discussions and should be used alongside other evidence, '
-                                        'stakeholder input, and contextual knowledge about Cook County Jail operations.',
-                                        style={
-                                            'fontSize': '15px',
-                                            'color': '#4b5563',
-                                            'lineHeight': '1.8',
-                                            'margin': '0',
-                                            'fontStyle': 'italic'
-                                        }
-                                    )
-                                ])
+                                    }
+                                ),
+                                html.Ul(
+                                    style={'fontSize': '15px', 'color': '#4b5563', 'lineHeight': '1.8',
+                                           'marginBottom': '16px'},
+                                    children=[
+                                        html.Li(
+                                            'Normative choices drive results: the largest source of variation is how detainee harm is monetized (RHV vs WTP) and whether additional community spillovers are added.'),
+                                        html.Li(
+                                            'Crime impacts are uncertain and context-dependent; in this dashboard, crime effects can affect both the numerator (social harms/benefits) and the denominator (public costs or savings).'),
+                                        html.Li(
+                                            'Local transferability is limited: baseline costs and operating conditions are anchored to Cook County Jail in 2018 and may not generalize to other years or jurisdictions.'),
+                                        html.Li(
+                                            'Component coverage is incomplete: the MVPF includes only impacts with usable estimates, so some downstream, distributional, or hard-to-monetize effects may be missing.'),
+                                        html.Li(
+                                            'Interpret outputs as sensitivity analysis (“what the MVPF would be if these assumptions held”), not as a prediction of what will happen under a policy change.')
+                                    ]
+                                ),
+                                html.P(
+                                    'This tool is designed to inform policy discussions and should be used alongside other evidence, '
+                                    'stakeholder input, and contextual knowledge about Cook County Jail operations.',
+                                    style={
+                                        'fontSize': '15px',
+                                        'color': '#4b5563',
+                                        'lineHeight': '1.8',
+                                        'margin': '0',
+                                        'fontStyle': 'italic'
+                                    }
+                                )
+                            ])
                         ])
                     ]),
 
