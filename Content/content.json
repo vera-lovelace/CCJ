@@ -64,21 +64,22 @@
     "cards": {
       "baseline": {
         "title": "Baseline Valuation",
-        "value": "Uses RHV without community spillovers",
-        "description": "In this scenario, detainee harm is valued using the Relative Harm Valuation (RHV) scale. RHV yields a relatively large negative value per day in custody based on an indirect survey of the general population. We do not add any spillover harms to the detainee’s community, on the view that some of those broader harms may already be reflected in RHV. This combination leans on components that are well supported in the literature and keeps extra assumptions to a minimum. It is the default scenario in the dashboard and our recommended starting point for interpretation."
+        "value": "Default specification",
+        "description": "This baseline scenario values detainee harm using the Relative Harm Valuation (RHV) scale and does not include a separate community spillover term. It is the default specification in the dashboard and the recommended starting point for interpretation."
       },
       "most_conservative": {
         "title": "Lower-Bound Anchor / Smallest Valuation",
-        "value": "Uses the smaller detainee-harm scale (WTP)",
-        "description": "In this scenario, detainee harm is valued using the smaller Willingness to Pay for Freedom (WTP) scale rather than the larger Relative Harm Valuation (RHV) scale. WTP is based on direct survey responses from people who have experienced jail, producing a much smaller per-day harm estimate than RHV (roughly 300x smaller). Because this scale assigns far less harm to detention, the numerator becomes less negative and the MVPF moves closer to zero. This anchor represents the most detention-favorable valuation of harm in the dashboard."
+        "value": "Detention-favorable lower bound on harm",
+        "description": "This scenario values detainee harm using Willingness to Pay for Freedom (WTP), which produces a smaller per-day harm estimate than RHV, and it does not include a separate community spillover term."
       },
       "least_conservative": {
         "title": "Upper-Bound Anchor / Largest Valuation",
-        "value": "Uses RHV plus added community spillover harms",
-        "description": "In this scenario, detainee harm is valued using the same RHV scale as in the baseline anchor, and we add an extra term to capture spillover harms to the detainee’s community that are not already captured by the individual-level value. This additional component makes the total harm assigned to detention larger in magnitude. As a result, the numerator becomes more negative and the MVPF for detention moves further below zero. Among the scenarios, this anchor represents the least detention-favorable valuation of harm."
+        "value": "Adds community spillover harms",
+        "description": "This scenario values detainee harm using RHV and adds a separate component for spillover harms to the detainee’s community."
       }
     }
   },
+
   "kpi_card": {
     "title": "MVPF Score",
     "ratio_label": "ratio",
@@ -260,18 +261,18 @@
     ]
   }
 },
-  "scenarios_explained": {
+    "scenarios_explained": {
     "baseline": {
       "title": "Baseline Scenario",
-      "description": "Focuses on individual harm to detainees plus potential criminogenic effects of detention. This scenario uses empirically-derived estimates for the willingness-to-pay to avoid detention and includes both direct individual harms and potential increases in future criminal behavior. It represents a middle-ground perspective that acknowledges both the personal costs of incarceration and concerns about criminogenic effects."
+      "description": "In this scenario, detainee harm is valued using the Relative Harm Valuation (RHV) scale. RHV yields a relatively large negative value per day in custody based on an indirect survey of the general population. We do not add any spillover harms to the detainee’s community, on the view that some of those broader harms may already be reflected in RHV. This combination leans on components that are well supported in the literature and keeps extra assumptions to a minimum. It is the default scenario in the dashboard and our recommended starting point for interpretation."
     },
     "most_conservative": {
-      "title": "Conservative Scenario",
-      "description": "Uses smaller survey-based estimates to value detainee harm, producing less negative MVPF values. This scenario relies on revealed preference studies that provide lower-bound estimates of the harm from detention, excluding broader spillover effects on families and communities. It represents a minimal harm valuation approach that focuses only on direct, measurable impacts on detained individuals."
+      "title": "Lower-Bound Anchor / Smallest Valuation",
+      "description": "In this scenario, detainee harm is valued using the smaller Willingness to Pay for Freedom (WTP) scale rather than the larger Relative Harm Valuation (RHV) scale. WTP is based on direct survey responses from people who have experienced jail, producing a much smaller per-day harm estimate than RHV (roughly 300x smaller). Because this scale assigns far less harm to detention, the numerator becomes less negative and the MVPF moves closer to zero. This anchor represents the most detention-favorable valuation of harm in the dashboard."
     },
     "least_conservative": {
-      "title": "Least Conservative Scenario",
-      "description": "Includes broad social harms to communities and families, plus criminogenic effects of detention. This scenario incorporates spillover costs to families, neighborhoods, and social networks, alongside individual-level harms. It also accounts for potential increases in criminal behavior following detention. This approach captures the full range of social costs that extend beyond the individual detainee."
+      "title": "Upper-Bound Anchor / Largest Valuation",
+      "description": "In this scenario, detainee harm is valued using the same RHV scale as in the baseline anchor, and we add an extra term to capture spillover harms to the detainee’s community that are not already captured by the individual-level value. This additional component makes the total harm assigned to detention larger in magnitude. As a result, the numerator becomes more negative and the MVPF for detention moves further below zero. Among the scenarios, this anchor represents the least detention-favorable valuation of harm."
     }
   },
   "components_breakdown": {
