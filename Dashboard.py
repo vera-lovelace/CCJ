@@ -2189,7 +2189,7 @@ app.layout = html.Div(className='app-container', children=[
                                              'marginTop': '0'
                                          }),
                                          html.P(
-                                             'The MVPF calculation depends on four key parameters that you can adjust in the Overview tab:',
+                                             'You can adjust several parameters that act as multipliers to the components in the MVPF set-up. These include: i. the number of people detained, ii. the composition of cases, iii. the average length of stay, and iv. the assumption about detention’s effect on crime. These inputs scale the numerator and denominator components of the MVPF and let you test how sensitive the results are to policy or system changes. The defaults for each parameter capture the picture of Cook County Jail in 2018. The other options available are outer bounds for sensitivity analysis, and some alternatives based on our broad review of the literature.',
                                              style={
                                                  'fontSize': '15px',
                                                  'color': '#4b5563',
@@ -2445,7 +2445,7 @@ app.layout = html.Div(className='app-container', children=[
             html.Div(style={'marginBottom': '32px'}, children=[
 
                 html.P(
-                    'This data tool was developed by Diag Davenport et. al at the University of California, Berkeley, to support evidence-based policymaking and research on criminal justice reform. '
+                    'This data tool was developed by Adrienn Sinapis J. and Lara Pesce Ares, as part of the "Building Data Products for Public Impact" clinic led by Diag Davenport at the University of California, Berkeley. It is intended to support evidence-based policymaking and research on criminal justice reform.'
                     'We gratefully acknowledge the contributions of researchers, data scientists, and policy experts who made this work possible.',
                     style={
                         'fontSize': '12px',
