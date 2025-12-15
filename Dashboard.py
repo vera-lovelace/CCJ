@@ -974,22 +974,29 @@ app.layout = html.Div(className='app-container', children=[
                                 'borderLeft': '4px solid #f59e0b',
                                 'marginBottom': '24px'
                             }, children=[
-                                html.H3(content.get('placeholders.overview_intro.title', 'Placeholder: Overview Tab Introduction'), style={
-                                    'fontSize': '18px',
-                                    'fontWeight': '600',
-                                    'color': '#92400e',
-                                    'marginTop': '0',
-                                    'marginBottom': '12px'
-                                }),
-                                html.P(
-                                    content.get('placeholders.overview_intro.content', 'This section will provide an introduction to the Overview tab, explaining how to use the parameter controls below to customize your MVPF analysis.'),
+                                html.H3(
+                                    content.get('placeholders.overview_intro.title',
+                                                'Placeholder: Overview Tab Introduction'),
                                     style={
-                                        'fontSize': '14px',
+                                        'fontSize': '18px',
+                                        'fontWeight': '600',
                                         'color': '#92400e',
-                                        'lineHeight': '1.6',
-                                        'margin': '0'
+                                        'marginTop': '0',
+                                        'marginBottom': '12px'
                                     }
-                                )
+                                ),
+                                html.Div(children=[
+                                    html.P(
+                                        content.get('placeholders.overview_intro.paragraph1', ''),
+                                        style={
+                                            'fontSize': '14px',
+                                            'color': '#92400e',
+                                            'lineHeight': '1.6',
+                                            'margin': '0 0 12px 0',
+                                            'whiteSpace': 'pre-line'
+                                        }
+                                    )
+                                ])
                             ]),
 
                             # Parameter Jumbotrons Grid
@@ -1135,6 +1142,39 @@ app.layout = html.Div(className='app-container', children=[
 
                                 # Hidden store for selected scenario
                                 dcc.Store(id='scenario-selector', data='baseline'),
+                                # Scenerio Lead-in text
+                                html.Div(style={'marginBottom': '16px'}, children=[
+                                    html.P(
+                                        content.get('placeholders.overview_intro.paragraph2', ''),
+                                        style={
+                                            'fontSize': '14px',
+                                            'color': '#4b5563',
+                                            'lineHeight': '1.6',
+                                            'margin': '0 0 10px 0',
+                                            'whiteSpace': 'pre-line'
+                                        }
+                                    ),
+                                    html.P(
+                                        content.get('placeholders.overview_intro.paragraph3', ''),
+                                        style={
+                                            'fontSize': '14px',
+                                            'color': '#4b5563',
+                                            'lineHeight': '1.6',
+                                            'margin': '0 0 10px 0',
+                                            'whiteSpace': 'pre-line'
+                                        }
+                                    ),
+                                    html.P(
+                                        content.get('placeholders.overview_intro.paragraph4', ''),
+                                        style={
+                                            'fontSize': '14px',
+                                            'color': '#4b5563',
+                                            'lineHeight': '1.6',
+                                            'margin': '0',
+                                            'whiteSpace': 'pre-line'
+                                        }
+                                    )
+                                ]),
 
                                 # Scenario Jumbotrons Grid (now clickable)
                                 html.Div(className='jumbotron-grid', style={'marginBottom': '24px'}, children=[
@@ -1290,27 +1330,57 @@ app.layout = html.Div(className='app-container', children=[
                                 })
                             ]),
 
-                            # Alternative Scenarios Description Placeholder
-                            html.Div(style={
-                                'backgroundColor': '#fffbeb',
-                                'padding': '20px',
-                                'borderRadius': '8px',
-                                'marginBottom': '24px',
-                                'borderLeft': '4px solid #f59e0b'
-                            }, children=[
-                                html.H3(content.get('placeholders.alt_scenarios.title', 'Placeholder for Alternative Scenarios Description'), style={
-                                    'fontSize': '18px',
-                                    'fontWeight': '600',
-                                    'color': '#374151',
-                                    'margin': '0 0 8px 0'
-                                }),
-                                html.P(content.get('placeholders.alt_scenarios.content', 'Placeholder for: Explanation of the different scenarios available (baseline, conservative, reduced crime, etc.) and how they differ from each other in terms of assumptions and parameters.'), style={
-                                    'fontSize': '14px',
-                                    'color': '#92400e',
-                                    'margin': '0',
-                                    'lineHeight': '1.6'
-                                })
-                            ]),
+                            # Alternative Scenarios Description
+                            html.Div(
+                                style={
+                                    'backgroundColor': '#fffbeb',
+                                    'padding': '20px',
+                                    'borderRadius': '8px',
+                                    'marginBottom': '24px',
+                                    'borderLeft': '4px solid #f59e0b'
+                                },
+                                children=[
+                                    html.H3(
+                                        content.get(
+                                            'placeholders.alt_scenarios.title',
+                                            'Alternative Scenarios Description'
+                                        ),
+                                        style={
+                                            'fontSize': '18px',
+                                            'fontWeight': '600',
+                                            'color': '#374151',
+                                            'margin': '0 0 12px 0'
+                                        }
+                                    ),
+                                    html.P(
+                                        content.get('placeholders.alt_scenarios.paragraph_1', ''),
+                                        style={
+                                            'fontSize': '14px',
+                                            'color': '#92400e',
+                                            'margin': '0 0 8px 0',
+                                            'lineHeight': '1.6'
+                                        }
+                                    ),
+                                    html.P(
+                                        content.get('placeholders.alt_scenarios.paragraph_2', ''),
+                                        style={
+                                            'fontSize': '14px',
+                                            'color': '#92400e',
+                                            'margin': '0 0 8px 0',
+                                            'lineHeight': '1.6'
+                                        }
+                                    ),
+                                    html.P(
+                                        content.get('placeholders.alt_scenarios.paragraph_3', ''),
+                                        style={
+                                            'fontSize': '14px',
+                                            'color': '#92400e',
+                                            'margin': '0',
+                                            'lineHeight': '1.6'
+                                        }
+                                    )
+                                ]
+                            ),
 
                             # Sensitivity Analysis Section Header
                             html.H3('Sensitivity Analysis', style={
