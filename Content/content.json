@@ -26,19 +26,19 @@
   "controls": {
     "section_title": "Analysis Parameters",
     "felony_rate": {
-      "title": "SELECT FELONY CHARGE MIX",
+      "title": "FELONY CHARGE MIX",
       "tooltip": "The proportion of detainees that have been charged with at least one felony (vs. a misdemeanor). Default: 70% for CCJ in 2018."
     },
     "detainee_population": {
-      "title": "Select Detainee Population Size",
+      "title": "Detainee Population Size",
       "tooltip": "The number of individuals detained for at least one night over the course of the year. Default: 33,945 for CCJ in 2018."
     },
     "community_size": {
-      "title": "Select Community Size",
+      "title": "Community Size",
       "tooltip": "The number of individuals who live in the jurisdiction of the detention center"
     },
     "length_of_stay": {
-      "title": "SELECT AVERAGE Length Of Detention",
+      "title": "AVERAGE Length Of Detention",
       "tooltip": "The average number of days detainees are detained over the course of a year. Default: 70 days for CCJ in 2018."
     },
     "crime_effect": {
@@ -202,7 +202,7 @@
   "understanding": {
     "purpose": {
       "title": "Purpose",
-      "description": "This dashboard helps policymakers and researchers understand the tradeoffs involved in pretrial detention by quantifying both costs and benefits in a common framework."
+      "description": "This dashboard helps policymakers and researchers understand the tradeoffs involved in pretrial detention by quantifying both costs and benefits in a common framework. We use Cook County Jail in 2018 as our base case."
     },
     "methodology": {
       "title": "Methodology",
