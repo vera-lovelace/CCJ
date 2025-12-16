@@ -1456,11 +1456,6 @@ app.layout = html.Div(className='app-container', children=[
                                 'marginTop': '0',
                                 'marginBottom': '8px'
                             }),
-                            html.P('This tab lets you compare how the MVPF for pretrial detention changes across alternative valuation scenarios. The visualizations show how different assumptions about detainee harm and community spillovers shift the overall result, holding the underlying jail operations constant. Use this tab to see which conclusions are robust across scenarios and which depend heavily on specific normative choices about how detention harms are valued.', style={
-                                'fontSize': '14px',
-                                'color': '#6b7280',
-                                'marginBottom': '24px'
-                            }),
 
                             # Sensitivity Analysis Graphs (2x2 Grid)
                             html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '24px', 'marginBottom': '48px'}, children=[

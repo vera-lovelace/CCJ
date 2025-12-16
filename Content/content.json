@@ -346,9 +346,9 @@
     },
     "alt_scenarios": {
       "title": "Alternative Scenarios Description",
-      "paragraph_1": "This tab lets you compare how the MVPF for pretrial detention changes across alternative valuation scenarios. \n \n The scenario determines what components will be included to quantify the MVPF. Each scenario compares harms and benefits of detention to the public cost of running Cook County Jail in 2018.",
-      "paragraph_2": "In every scenario, the numerator is built from two components:  \n (i) effects of detainment on detainees valued in dollars, such as loss of agency and income, and  \n (ii) effects of detainment on society valued in dollars, such as changes in court appearance or crime outcomes. The denominator is the cost of detainment to government, made up of the 2018 operating cost of the jail, plus any costs or savings to the public associated with changes in crime outcomes.",
-      "paragraph_3": "In all scenarios, the effects and costs of crime are included in the numerator and denominator respectively, but the multiplier on them is set to zero percent by default; you may adjust that parameter after you select your scenario."
+      "paragraph_1": "This tab lets you compare how the MVPF for pretrial detention changes across alternative valuation scenarios and parameters. The scenario determines what components will be included to quantify the MVPF, and the parameters are the multipliers on those components.",
+      "paragraph_2": "This tab is dynamic, meaning the outputs change based on the choices made on the Calculation tab. The chart to the left shows you how *your MVPF* would have changed had you picked the same parameters but a different scenario. The graphs below show you how *your MVPF* changes if you modify one parameter, but hold all else equal.",
+      "paragraph_3": "Use this tab to see which conclusions are robust across scenarios and which depend heavily on specific normative and policy choices."
     },
     "parameter_intro": {
     "title": "Parameter Selection",
