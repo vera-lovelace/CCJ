@@ -42,7 +42,7 @@
       "tooltip": "The average number of days detainees are detained over the course of a year. Default: 70 days for CCJ in 2018."
     },
     "crime_effect": {
-      "title": "Crime Effect Assumption",
+      "title": "Effect of Detention on Crime Assumption",
       "description": "The assumed impact of detention on future crime rate of detainees. Default: 0% based on literature review."
     },
     "scenario_selection": {
