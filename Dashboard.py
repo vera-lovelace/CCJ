@@ -1015,7 +1015,7 @@ app.layout = html.Div(className='app-container', children=[
                                     style={
                                         'fontSize': '36px',
                                         'fontWeight': '600',
-                                        'color': '#1e293b',
+                                        'color': '#374151',
                                         'textAlign': 'center',
                                         'marginTop': '6',
                                         'marginBottom': '24px'
@@ -1322,22 +1322,23 @@ app.layout = html.Div(className='app-container', children=[
 
                             # MVPF Calculation Purpose Placeholder
                             html.Div(className='chart-container', style={
-                                'background': '#f0f9ff',
-                                'borderLeft': '4px solid #3b82f6',
+                                'background': 'white',
+
                                 'marginBottom': '24px'
                             }, children=[
                                 html.H3(content.get('placeholders.mvpf_purpose.title', 'Placeholder: Purpose of MVPF Calculation'), style={
-                                    'fontSize': '18px',
-                                    'fontWeight': '600',
-                                    'color': '#1e3a8a',
+                                    'fontSize': '24px',
+                                    'fontWeight': 'bold',
+                                    'color': '#374151',
                                     'marginTop': '0',
-                                    'marginBottom': '12px'
+                                    'marginBottom': '12px',
+                                    'textAlign': 'center',
                                 }),
                                 html.P(
                                     content.get('placeholders.mvpf_purpose.content', 'This section will explain the purpose and methodology of the MVPF calculation, providing context for interpreting the results shown above and the detailed breakdowns below.'),
                                     style={
                                         'fontSize': '14px',
-                                        'color': '#1e40af',
+                                        'color': '#374151',
                                         'lineHeight': '1.6',
                                         'margin': '0'
                                     }
