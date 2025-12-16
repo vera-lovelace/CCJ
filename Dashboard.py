@@ -2262,7 +2262,7 @@ app.layout = html.Div(className='app-container', children=[
                                              'marginTop': '0'
                                          }),
                                          html.P(
-                                             'You can adjust several parameters that act as multipliers to the components in the MVPF set-up. These include: i. the number of people detained, ii. the composition of cases, iii. the average length of stay, and iv. the assumption about detention’s effect on crime. These inputs scale the numerator and denominator components of the MVPF and let you test how sensitive the results are to policy or system changes. The defaults for each parameter capture the picture of Cook County Jail in 2018. The other options available are outer bounds for sensitivity analysis, and some alternatives based on our broad review of the literature.',
+                                             'You can adjust several parameters that act as multipliers to the components in the MVPF set-up. These inputs scale the numerator and denominator components of the MVPF and let you test how sensitive the results are to policy or system changes. The defaults for each parameter capture the picture of Cook County Jail in 2018. The other options available are outer bounds for sensitivity analysis, and some alternatives based on our broad review of the literature.',
                                              style={
                                                  'fontSize': '15px',
                                                  'color': '#4b5563',
