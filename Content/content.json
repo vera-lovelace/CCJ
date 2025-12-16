@@ -346,8 +346,8 @@
     },
     "alt_scenarios": {
       "title": "Alternative Scenarios Description",
-      "paragraph_1": "The scenario determines what components will be included to quantify the MVPF. Each scenario compares harms and benefits of detention to the public cost of running Cook County Jail in 2018.",
-      "paragraph_2": "In every scenario, the numerator is built from two components: (i) effects of detainment on detainees valued in dollars, such as loss of agency and income, and (ii) effects of detainment on society valued in dollars, such as changes in court appearance or crime outcomes. The denominator is the cost of detainment to government, made up of the 2018 operating cost of the jail, plus any costs or savings to the public associated with changes in crime outcomes.",
+      "paragraph_1": "This tab lets you compare how the MVPF for pretrial detention changes across alternative valuation scenarios. \n \n The scenario determines what components will be included to quantify the MVPF. Each scenario compares harms and benefits of detention to the public cost of running Cook County Jail in 2018.",
+      "paragraph_2": "In every scenario, the numerator is built from two components:  \n (i) effects of detainment on detainees valued in dollars, such as loss of agency and income, and  \n (ii) effects of detainment on society valued in dollars, such as changes in court appearance or crime outcomes. The denominator is the cost of detainment to government, made up of the 2018 operating cost of the jail, plus any costs or savings to the public associated with changes in crime outcomes.",
       "paragraph_3": "In all scenarios, the effects and costs of crime are included in the numerator and denominator respectively, but the multiplier on them is set to zero percent by default; you may adjust that parameter after you select your scenario."
     },
     "parameter_intro": {
@@ -358,5 +358,30 @@
 
 
   },
-  "scenario_intro_p1": "The three scenarios differ only in how we value harm to detainees (a larger Relative Harm Valuation scale versus a smaller survey-based \"Willingness to Pay for Freedom\") and whether we add an extra negative term for spillover harms to the detainee’s community. In all scenarios, the crime effect components are set to zero by default; they only change if you adjust that parameter elsewhere in the dashboard."
+  "scenario_intro_p1": "The three scenarios differ only in how we value harm to detainees (a larger Relative Harm Valuation scale versus a smaller survey-based \"Willingness to Pay for Freedom\") and whether we add an extra negative term for spillover harms to the detainee's community. In all scenarios, the crime effect components are set to zero by default; they only change if you adjust that parameter elsewhere in the dashboard.",
+
+  "about": {
+    "data_sources": {
+      "title": "Data Sources",
+      "content": "This analysis relies on empirical evidence from Cook County Jail operations (2018), academic research on detention impacts, and validated cost estimates from government budgets and policy studies. Key data sources include the Cook County Jail dashboard for admissions and population statistics, the Cook County FY2018 Appropriation Budget for operational costs, and peer-reviewed research on detention effects including Dobbie, Goldin, and Yang (2018) for crime effects, Stevenson & Mayson (2022) for harm valuation approaches, McCollister et al. (2008) for crime cost estimates, and Fishbane, Ouss & Shah (2020) for court appearance data."
+    },
+    "about_ccj": {
+      "title": "About Cook County Jail",
+      "content": "Cook County Jail is one of the largest single-site pretrial detention facilities in the United States, located in Chicago, Illinois. In 2018, the jail had approximately 33,945 admissions (individuals detained for at least one night), with an average length of stay around 70 days. The facility serves as the primary pretrial detention center for Cook County's criminal justice system, housing individuals awaiting trial who have not been released on bail or their own recognizance. The jail is operated by the Cook County Sheriff's Office, with healthcare services provided by Cermak Health Services."
+    },
+    "contact": {
+      "title": "Contact",
+      "content": "For questions about this tool, methodology, or data sources, please contact the development team at the University of California, Berkeley. For questions about Cook County Jail operations or data, please contact the Cook County government directly."
+    },
+    "acknowledgements": {
+      "title": "Acknowledgements",
+      "development": "This data tool was developed by Adrienn Sinapis J. and Lara Pesce Ares, as part of the 'Building Data Products for Public Impact' clinic led by Diag Davenport at the University of California, Berkeley. It is intended to support evidence-based policymaking and research on criminal justice reform. We gratefully acknowledge the contributions of researchers, data scientists, and policy experts who made this work possible.",
+      "framework": "This tool builds upon the MVPF framework applies it to the context of pretrial detention. We acknowledge the foundational research in criminal justice, welfare economics, and public policy that informs our methodology.",
+      "data_access": "We thank Cook County government agencies for providing access to administrative data and operational information. This project also benefited from open-source software tools and libraries that enable interactive data visualization and analysis."
+    },
+    "disclaimer": {
+      "title": "Disclaimer",
+      "content": "The views and findings presented in this tool are those of the authors and do not necessarily reflect the official positions or policies of Cook County government, funding organizations, or affiliated institutions. All estimates should be interpreted as analytical tools to inform discussion rather than definitive policy prescriptions."
+    }
+  }
 }

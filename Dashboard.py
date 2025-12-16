@@ -68,6 +68,33 @@ N_SOCIETY_OPTIONS = [
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 server = app.server
 
+
+# Font size constants
+FONT_SIZES = {
+      'h1': '32px',
+      'h2': '28px',
+      'h3': '24px',
+      'h4': '20px',
+      'body': '14px',
+      'small': '10px',
+      'label': '12px'
+}
+
+  # Reusable style dictionaries
+BODY_TEXT_STYLE = {
+      'fontSize': FONT_SIZES['body'],
+      'color': '#4b5563',
+      'lineHeight': '1.8'
+}
+
+HEADER_2_STYLE = {
+      'fontSize': FONT_SIZES['h2'],
+      'fontWeight': 'bold',
+      'color': '#1e293b',
+      'marginBottom': '16px'
+}
+
+
 # Custom CSS for styling
 app.index_string = '''
 <!DOCTYPE html>
@@ -89,7 +116,7 @@ app.index_string = '''
                 padding: 24px;
             }
             .sidebar {
-                background: white;
+                background: #2C5F6F;
                 border-radius: 8px;
                 padding: 20px;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.1);
@@ -240,7 +267,7 @@ app.index_string = '''
                 background: #d1d5db;
             }
             .kpi-card {
-                background: white;
+                background: #1E3A5F;
                 border-radius: 8px;
                 padding: 32px;
                 box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -253,9 +280,10 @@ app.index_string = '''
                 margin-bottom: 16px;
             }
             .kpi-title {
-                font-size: 20px;
+                font-size: 24px;
                 font-weight: 600;
-                color: #1e293b;
+                color: white;
+                text-align: center;
             }
             .kpi-badge {
                 padding: 4px 12px;
@@ -266,14 +294,16 @@ app.index_string = '''
             .kpi-value {
                 font-size: 60px;
                 font-weight: bold;
-                color: #111827;
+                color: white;
                 line-height: 1;
                 margin-bottom: 24px;
+                text-align: center;
             }
             .kpi-ratio {
                 font-size: 24px;
                 color: #6b7280;
                 margin-left: 8px;
+                textAlign: center;
             }
             .kpi-components {
                 display: grid;
@@ -496,7 +526,7 @@ app.index_string = '''
             }
             .left-sidebar {
                 width: 240px;
-                background: white;
+                background: #1E3A5F;
                 box-shadow: 2px 0 8px rgba(0,0,0,0.1);
                 position: fixed;
                 left: 0;
@@ -547,7 +577,7 @@ app.index_string = '''
             }
             .nav-button:hover {
                 background: #f8fafc;
-                color: #2563eb;
+                color: #1E3A5F;
             }
             .nav-button.active {
                 background: #eff6ff;
@@ -582,6 +612,10 @@ app.index_string = '''
             .custom-tabs > div:first-child {
                 display: none !important;
             }
+             .custom-tabs .tab {
+                display: none !important;
+            }
+
         </style>
     </head>
     <body>
@@ -604,14 +638,14 @@ app.layout = html.Div(className='app-container', children=[
     html.Div(className='left-sidebar', children=[
         html.Div(className='sidebar-header', children=[
             html.H2(content.get('header.title', 'MVPF Analysis Dashboard'), style={
-                'fontSize': '18px',
+                'fontSize': '24px',
                 'fontWeight': '700',
-                'color': '#1e293b',
+                'color': 'white',
                 'margin': '0 0 8px 0'
             }),
             html.P(content.get('header.subtitle', 'Marginal Value of Public Funds Calculation'), style={
                 'fontSize': '12px',
-                'color': '#64748b',
+                'color': 'white',
                 'margin': '0 0 16px 0',
                 'lineHeight': '1.4'
             })
@@ -652,7 +686,7 @@ app.layout = html.Div(className='app-container', children=[
                         n_clicks=0,
                         className='download-button',
                         style={
-                            'backgroundColor': '#0ea5e9',
+                            'backgroundColor': '#1E3A5F',
                             'color': 'white',
                             'border': 'none',
                             'borderRadius': '6px',
@@ -692,12 +726,13 @@ app.layout = html.Div(className='app-container', children=[
 
                             # Purpose section
                             html.Div(style={'marginBottom': '32px'}, children=[
-                                html.H3(content.get('understanding.purpose.title', 'Purpose'), style={
+                                html.H3(content.get('understanding.purpose.title', ''), style={
                                     'fontSize': '20px',
                                     'fontWeight': '600',
                                     'color': '#374151',
                                     'marginTop': '0',
-                                    'marginBottom': '12px'
+                                    'marginBottom': '12px',
+                                    'textAlign': 'center'
                                 }),
                                 html.P(
                                     content.get('understanding.purpose.description',
@@ -705,7 +740,7 @@ app.layout = html.Div(className='app-container', children=[
                                                 'for Cook County Jail operations. It enables policymakers, researchers, and stakeholders to evaluate the '
                                                 'social welfare impacts of detention policies through a systematic, data-driven framework.'),
                                     style={
-                                        'fontSize': '15px',
+                                        'fontSize': '16px',
                                         'color': '#4b5563',
                                         'lineHeight': '1.8',
                                         'margin': '0'
@@ -792,11 +827,11 @@ app.layout = html.Div(className='app-container', children=[
 
                             # Description
                             html.Div(style={
-                                'backgroundColor': '#f0f9ff',
+
                                 'padding': '32px',
-                                'borderRadius': '12px',
+                                'borderRadius': '0px',
                                 'marginBottom': '48px',
-                                'borderLeft': '6px solid #3b82f6'
+
                             }, children=[
                                 html.P([
                                     'This interactive dashboard helps you analyze the ',
@@ -852,7 +887,7 @@ app.layout = html.Div(className='app-container', children=[
                                         }, children=[
                                             html.Span('📊', style={'fontSize': '28px'})
                                         ]),
-                                        html.H3('Overview', style={
+                                        html.H3('Calculator', style={
                                             'fontSize': '20px',
                                             'fontWeight': '600',
                                             'color': '#1e293b',
@@ -956,7 +991,7 @@ app.layout = html.Div(className='app-container', children=[
                     ]),
 
                     # Tab 1: Overview - KPI, Main Chart, Interpretation, Benchmarks
-                    dcc.Tab(label=content.get('tabs.overview', 'Overview'), value='tab-overview', style={
+                    dcc.Tab(label=content.get('tabs.overview', 'Calculator'), value='tab-overview', style={
                         'padding': '12px 24px',
                         'fontWeight': '500',
                         'fontSize': '14px'
@@ -970,19 +1005,20 @@ app.layout = html.Div(className='app-container', children=[
                         html.Div(style={'padding': '24px 0'}, children=[
                             # Overview Tab Description Placeholder
                             html.Div(className='chart-container', style={
-                                'background': '#fef3c7',
-                                'borderLeft': '4px solid #f59e0b',
+
+
                                 'marginBottom': '24px'
                             }, children=[
                                 html.H3(
                                     content.get('placeholders.overview_intro.title',
                                                 'Placeholder: Overview Tab Introduction'),
                                     style={
-                                        'fontSize': '18px',
+                                        'fontSize': '36px',
                                         'fontWeight': '600',
-                                        'color': '#92400e',
-                                        'marginTop': '0',
-                                        'marginBottom': '12px'
+                                        'color': '#1e293b',
+                                        'textAlign': 'center',
+                                        'marginTop': '6',
+                                        'marginBottom': '24px'
                                     }
                                 ),
                                 html.Div(children=[
@@ -990,7 +1026,7 @@ app.layout = html.Div(className='app-container', children=[
                                         content.get('placeholders.overview_intro.paragraph1', ''),
                                         style={
                                             'fontSize': '14px',
-                                            'color': '#92400e',
+
                                             'lineHeight': '1.6',
                                             'margin': '0 0 12px 0',
                                             'whiteSpace': 'pre-line'
@@ -1003,11 +1039,13 @@ app.layout = html.Div(className='app-container', children=[
                                 html.H4(
                                     content.get('placeholders.parameter_intro.title', 'Parameter Selection'),
                                     style={
-                                        'fontSize': '18px',
+                                        'fontSize': '24px',
                                         'fontWeight': '600',
                                         'color': '#374151',
                                         'marginTop': '0',
-                                        'marginBottom': '12px'
+                                        'marginBottom': '12px',
+                                        'textAlign': 'center'
+
                                     }
                                 ),
                                 html.P(
@@ -1156,11 +1194,14 @@ app.layout = html.Div(className='app-container', children=[
                             # Scenario Selection Section
                             html.Div(className='jumbotron', style={'marginTop': '0', 'marginBottom': '24px'}, children=[
                                 html.H4(content.get('controls.scenario_selection.title', 'Scenario Selection'), style={
-                                    'fontSize': '18px',
+                                    'fontSize': '24px',
                                     'fontWeight': '600',
                                     'color': '#374151',
                                     'marginTop': '0',
-                                    'marginBottom': '12px'
+                                    'textAlign': 'center',
+                                    'marginBottom': '12px',
+                                    'alignItems': 'center',
+                                    'justifyContent': 'center',
                                 }),
 
                                 # Hidden store for selected scenario
@@ -1199,7 +1240,7 @@ app.layout = html.Div(className='app-container', children=[
                                     )
                                 ]),
 
-                                # Scenario Jumbotrons Grid (now clickable)
+                                # Scenario Jumbotrons Grid ( clickable)
                                 html.Div(className='jumbotron-grid', style={'marginBottom': '24px'}, children=[
                                     # Jumbotron 1: Baseline Scenario
                                     html.Button(
@@ -1262,7 +1303,7 @@ app.layout = html.Div(className='app-container', children=[
                                     id='btn-calculate',
                                     n_clicks=0,
                                     style={
-                                        'backgroundColor': '#2563eb',
+                                        'backgroundColor': '#1E3A5F',
                                         'color': 'white',
                                         'border': 'none',
                                         'borderRadius': '8px',
@@ -1322,67 +1363,91 @@ app.layout = html.Div(className='app-container', children=[
                     dcc.Tab(label=content.get('tabs.scenarios', 'Scenario Analysis'), value='tab-scenarios', style={
                         'padding': '12px 24px',
                         'fontWeight': '500',
-                        'fontSize': '14px'
+                        'fontSize': '36px',
+                        'color': '#1e293b',
+                                        'textAlign': 'center',
+                                        'marginTop': '6',
+                                        'marginBottom': '24px'
                     }, selected_style={
                         'padding': '12px 24px',
                         'fontWeight': '600',
                         'fontSize': '14px',
                         'borderTop': '3px solid #3b82f6',
-                        'backgroundColor': 'white'
+                        'backgroundColor': 'white',
+
+
+
                     }, children=[
                         html.Div(style={'padding': '24px 0'}, children=[
 
-                            # Alternative Scenarios Description
-                            html.Div(
+                            # Main Tab Header
+                            html.H3(
+                                content.get(
+                                    'placeholders.alt_scenarios.title',
+                                    'Comparison of Alternative Scenarios'
+                                ),
                                 style={
-                                    'backgroundColor': '#fffbeb',
-                                    'padding': '20px',
-                                    'borderRadius': '8px',
-                                    'marginBottom': '24px',
-                                    'borderLeft': '4px solid #f59e0b'
-                                },
-                                children=[
-                                    html.H3(
-                                        content.get(
-                                            'placeholders.alt_scenarios.title',
-                                            'Alternative Scenarios Description'
-                                        ),
-                                        style={
-                                            'fontSize': '18px',
-                                            'fontWeight': '600',
-                                            'color': '#374151',
-                                            'margin': '0 0 12px 0'
-                                        }
-                                    ),
-                                    html.P(
-                                        content.get('placeholders.alt_scenarios.paragraph_1', ''),
-                                        style={
-                                            'fontSize': '14px',
-                                            'color': '#92400e',
-                                            'margin': '0 0 8px 0',
-                                            'lineHeight': '1.6'
-                                        }
-                                    ),
-                                    html.P(
-                                        content.get('placeholders.alt_scenarios.paragraph_2', ''),
-                                        style={
-                                            'fontSize': '14px',
-                                            'color': '#92400e',
-                                            'margin': '0 0 8px 0',
-                                            'lineHeight': '1.6'
-                                        }
-                                    ),
-                                    html.P(
-                                        content.get('placeholders.alt_scenarios.paragraph_3', ''),
-                                        style={
-                                            'fontSize': '14px',
-                                            'color': '#92400e',
-                                            'margin': '0',
-                                            'lineHeight': '1.6'
-                                        }
-                                    )
-                                ]
+                                    'fontSize': '36px',
+                                    'fontWeight': 'bold',
+                                    'color': '#1e293b',
+                                    'textAlign': 'center',
+                                    'margin': '0 0 24px 0'
+                                }
                             ),
+
+                            # Two-column layout: MVPF Comparison Chart (left) + Scenarios Paragraphs (right)
+                            html.Div(style={
+                                'display': 'grid',
+                                'gridTemplateColumns': '1fr 1fr',
+                                'gap': '24px',
+                                'marginBottom': '48px'
+                            }, children=[
+                                # Left column: MVPF Comparison Chart
+                                html.Div(className='chart-container', children=[
+                                    dcc.Graph(id='scenario-comparison-chart')
+                                ]),
+
+                                # Right column: Scenarios 3 paragraphs
+                                html.Div(
+                                    style={
+                                        'padding': '20px',
+                                        'borderRadius': '8px',
+                                        'color': '#1e293b',
+                                        'display': 'flex',
+                                        'flexDirection': 'column',
+                                        'justifyContent': 'center'
+                                    },
+                                    children=[
+                                        html.P(
+                                            content.get('placeholders.alt_scenarios.paragraph_1', ''),
+                                            style={
+                                                'fontSize': '14px',
+                                                'color': '#1e293b',
+                                                'margin': '0 0 12px 0',
+                                                'lineHeight': '1.6'
+                                            }
+                                        ),
+                                        html.P(
+                                            content.get('placeholders.alt_scenarios.paragraph_2', ''),
+                                            style={
+                                                'fontSize': '14px',
+                                                'color': '#1e293b',
+                                                'margin': '0 0 12px 0',
+                                                'lineHeight': '1.6'
+                                            }
+                                        ),
+                                        html.P(
+                                            content.get('placeholders.alt_scenarios.paragraph_3', ''),
+                                            style={
+                                                'fontSize': '14px',
+                                                'color': '#1e293b',
+                                                'margin': '0',
+                                                'lineHeight': '1.6'
+                                            }
+                                        )
+                                    ]
+                                )
+                            ]),
 
                             # Sensitivity Analysis Section Header
                             html.H3('Sensitivity Analysis', style={
@@ -1416,18 +1481,9 @@ app.layout = html.Div(className='app-container', children=[
                                 ])
                             ]),
 
-                            # Side-by-side charts: Scenario Comparison and Parameter Sensitivity
-                            html.Div(style={
-                                'display': 'flex',
-                                'gap': '24px',
-                                'marginBottom': '24px'
-                            }, children=[
-                                html.Div(className='chart-container', style={'flex': '1'}, children=[
-                                    dcc.Graph(id='scenario-comparison-chart')
-                                ]),
-                                html.Div(className='chart-container', style={'flex': '1'}, children=[
-                                    dcc.Graph(id='parameter-comparison-chart')
-                                ])
+                            # Parameter Sensitivity Chart
+                            html.Div(className='chart-container', style={'marginBottom': '24px'}, children=[
+                                dcc.Graph(id='parameter-comparison-chart')
                             ])
                         ])
                     ]),
@@ -1466,11 +1522,12 @@ app.layout = html.Div(className='app-container', children=[
                             # MVPF Explainer Section
                             html.Div(className='chart-container', style={'background': '#f8fafc'}, children=[
                                 html.H3(content.get('mvpf_explainer.section_title', 'Understanding MVPF'), style={
-                                    'fontSize': '20px',
-                                    'fontWeight': '600',
+                                    'fontSize': '24px',
+                                    'fontWeight': 'bold',
                                     'color': '#1e293b',
                                     'marginBottom': '16px',
-                                    'marginTop': '0'
+                                    'marginTop': '0',
+                                    'textAlign': 'center'
                                 }),
 
                                 html.Div(
@@ -1530,11 +1587,11 @@ app.layout = html.Div(className='app-container', children=[
                                                 html.P(
                                                     content.get('mvpf_explainer.applying_to_detention.paragraph3'),
                                                     style={
-                                                        'color': '#4b5563',
+                                                        'color': '#374151',
                                                         'fontSize': '14px',
                                                         'lineHeight': '1.6',
-                                                        'marginTop': '1',
-                                                        'marginBottom': '12px'
+                                                        'marginTop': '0',
+                                                        'marginBottom': '12px',
                                                     }
                                                 )
                                             ])
@@ -2410,118 +2467,105 @@ app.layout = html.Div(className='app-container', children=[
                     }, children=[
                         html.Div(style={'padding': '24px 0', 'maxWidth': '900px', 'margin': '0 auto'}, children=[
                             html.Div(className='chart-container', children=[
-                                html.H2('Data Sources', style={
-                                    'fontSize': '28px',
+                                # Data Sources Section
+                                html.H2(content.get('about.data_sources.title', 'Data Sources'), style={
+                                    'fontSize': '18px',
                                     'fontWeight': 'bold',
                                     'color': '#1e293b',
                                     'marginTop': '0',
-                                    'marginBottom': '24px'
+                                    'marginBottom': '16px'
                                 }),
-                                html.H2('About Cook County Jail', style={
-                                    'fontSize': '28px',
-                                    'fontWeight': 'bold',
-                                    'color': '#1e293b',
-                                    'marginTop': '0',
-                                    'marginBottom': '24px'
-                                }),
-                                html.H2('Contact', style={
-                                    'fontSize': '28px',
-                                    'fontWeight': 'bold',
-                                    'color': '#1e293b',
-                                    'marginTop': '0',
-                                    'marginBottom': '24px'
+                                html.P(content.get('about.data_sources.content', ''), style={
+                                    'fontSize': '12px',
+                                    'color': '#4b5563',
+                                    'lineHeight': '1.8',
+                                    'marginBottom': '32px'
                                 }),
 
+                                # About Cook County Jail Section
+                                html.H2(content.get('about.about_ccj.title', 'About Cook County Jail'), style={
+                                    'fontSize': '18px',
+                                    'fontWeight': 'bold',
+                                    'color': '#1e293b',
+                                    'marginTop': '0',
+                                    'marginBottom': '16px'
+                                }),
+                                html.P(content.get('about.about_ccj.content', ''), style={
+                                    'fontSize': '12px',
+                                    'color': '#4b5563',
+                                    'lineHeight': '1.8',
+                                    'marginBottom': '32px'
+                                }),
 
+                                # Contact Section
+                                html.H2(content.get('about.contact.title', 'Contact'), style={
+                                    'fontSize': '18px',
+                                    'fontWeight': 'bold',
+                                    'color': '#1e293b',
+                                    'marginTop': '0',
+                                    'marginBottom': '16px'
+                                }),
+                                html.P(content.get('about.contact.content', ''), style={
+                                    'fontSize': '12px',
+                                    'color': '#4b5563',
+                                    'lineHeight': '1.8',
+                                    'marginBottom': '32px'
+                                }),
+
+                                # Acknowledgements Section
+                                html.H2(content.get('about.acknowledgements.title', 'Acknowledgements'), style={
+                                    'fontSize': '18px',
+                                    'fontWeight': 'bold',
+                                    'color': '#1e293b',
+                                    'marginTop': '0',
+                                    'marginBottom': '16px'
+                                }),
+                                html.P(content.get('about.acknowledgements.development', ''), style={
+                                    'fontSize': '12px',
+                                    'color': '#4b5563',
+                                    'lineHeight': '1.8',
+                                    'marginBottom': '16px'
+                                }),
+                                html.P(content.get('about.acknowledgements.framework', ''), style={
+                                    'fontSize': '12px',
+                                    'color': '#4b5563',
+                                    'lineHeight': '1.8',
+                                    'marginBottom': '16px'
+                                }),
+                                html.P(content.get('about.acknowledgements.data_access', ''), style={
+                                    'fontSize': '12px',
+                                    'color': '#4b5563',
+                                    'lineHeight': '1.8',
+                                    'marginBottom': '48px'
+                                })
                             ])
                         ])
                     ])
                 ]),
 
-                # Acknowledgements Section (Inside main-content, at bottom)
+                # Standalone Disclaimer Section (outside of tabs)
                 html.Div(style={
-                    'marginTop': '48px',
-                    'paddingTop': '48px',
-                    'borderTop': '2px solid #e5e7eb'
+                    'maxWidth': '900px',
+                    'margin': '16px auto 24px auto',
+                    'padding': '12px',
+                    'backgroundColor': '#E8E8E8',
+                    'borderLeft': '4px solid #2C5F6F',
+                    'borderRadius': '4px'
                 }, children=[
-            html.H2('Acknowledgements', style={
-                'fontSize': '14px',
-                'fontWeight': 'bold',
-                'color': '#1e293b',
-                'marginTop': '0',
-                'marginBottom': '24px'
-            }),
-
-            # Development section
-            html.Div(style={'marginBottom': '32px'}, children=[
-
-                html.P(
-                    'This data tool was developed by Adrienn Sinapis J. and Lara Pesce Ares, as part of the "Building Data Products for Public Impact" clinic led by Diag Davenport at the University of California, Berkeley. It is intended to support evidence-based policymaking and research on criminal justice reform.'
-                    'We gratefully acknowledge the contributions of researchers, data scientists, and policy experts who made this work possible.',
-                    style={
+                    html.H2(content.get('about.disclaimer.title', 'Disclaimer'), style={
                         'fontSize': '12px',
+                        'fontWeight': 'bold',
+                        'color': '#1e293b',
+                        'marginTop': '0',
+                        'marginBottom': '16px'
+                    }),
+                    html.P(content.get('about.disclaimer.content', ''), style={
+                        'fontSize': '10px',
                         'color': '#4b5563',
-                        'lineHeight': '1.8',
+                        'lineHeight': '1.2',
                         'margin': '0'
-                    }
-                ),
-
-
-                html.P(
-                    'This tool builds upon the MVPF framework applies it to '
-                    'the context of pretrial detention. We acknowledge the foundational research in criminal justice, '
-                    'welfare economics, and public policy that informs our methodology.',
-                    style={
-                        'fontSize': '12px',
-                        'color': '#4b5563',
-                        'lineHeight': '1.8',
-                        'margin': '0'
-                    }
-                ),
-
-
-                html.P(
-                    'We thank Cook County government agencies for providing access to administrative data and operational information. '
-                    'This project also benefited from open-source software tools and libraries that enable interactive data visualization and analysis.',
-                    style={
-                        'fontSize': '12px',
-                        'color': '#4b5563',
-                        'lineHeight': '1.8',
-                        'margin': '0'
-                    }
-                )
-            ]),
-
-
-            # Disclaimer section
-            html.Div(style={
-                'marginBottom': '0',
-                'backgroundColor': '#f9fafb',
-                'padding': '20px',
-                'borderRadius': '8px',
-                'borderLeft': '4px solid #3b82f6'
-            }, children=[
-                html.H3('Disclaimer', style={
-                    'fontSize': '12px',
-                    'fontWeight': '600',
-                    'color': '#374151',
-                    'marginTop': '0',
-                    'marginBottom': '12px'
-                }),
-                html.P(
-                    'The views and findings presented in this tool are those of the authors and do not necessarily reflect '
-                    'the official positions or policies of Cook County government, funding organizations, or affiliated institutions. '
-                    'All estimates should be interpreted as analytical tools to inform discussion rather than definitive policy prescriptions.',
-                    style={
-                        'fontSize': '12px',
-                        'color': '#4b5563',
-                        'lineHeight': '1.8',
-                        'margin': '0',
-                        'fontStyle': 'italic'
-                    }
-                )
-            ])
-        ])
+                    })
+                ])
     ])
 ])
 
@@ -2858,7 +2902,7 @@ def _build_benchmark_chart(current_mvpf, benchmarks):
     # Prepare data: current MVPF first, then benchmarks
     names = ['Current MVPF for CCJ']
     values = [current_mvpf]
-    colors = ['#2563eb']  # Blue for current
+    colors = ['#1E3A5F']  # Blue for current
 
     for benchmark in benchmarks:
         bench_mvpf = float(benchmark['mvpf_value'])
@@ -2975,17 +3019,18 @@ def _build_benchmark_card(current_mvpf):
 
     return html.Div(className='kpi-card', children=[
         html.H3('Comparative Benchmarking', style={
-            'fontSize': '20px',
+            'fontSize': '24px',
             'fontWeight': '600',
-            'color': '#1e293b',
+            'color': 'white',
             'marginBottom': '8px',
-            'marginTop': '0'
+            'marginTop': '0',
+            'textAlign': 'center',
         }),
         html.P([
             'Comparing the the actual MVPF values of selected government programs, interventions, and policy initiatives across different domains, and the impact of how 1 US dollar is spent on Cook County Jail comparing to spending on these initiatives.'
         ], style={
             'fontSize': '14px',
-            'color': '#6b7280',
+            'color': 'white',
             'marginBottom': '16px',
             'fontWeight': '400'
         }),
@@ -3187,7 +3232,7 @@ def _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2, detainee_ba
         if mvpf >= 2.5:
             colors.append('#16a34a')  # Green - Excellent
         elif mvpf >= 1.5:
-            colors.append('#3b82f6')  # Blue - Good
+            colors.append('#1E3A5F')  # Blue - Good
         elif mvpf >= 1.0:
             colors.append('#f59e0b')  # Yellow - Fair
         else:
@@ -3265,7 +3310,7 @@ def _build_sensitivity_analysis_chart(parameter_name, param_values, base_det_p1,
         'least conservative': 'Upper bound'
     }
     scenario_colors = {
-        'baseline': '#2563eb',  # Blue
+        'baseline': '#1E3A5F',  # Blue
         'most conservative': '#d97706',  # Orange
         'least conservative': '#16a34a'  # Green
     }
@@ -3340,7 +3385,7 @@ def _build_subcomponents_chart(result):
     # Detainee subcomponents (blue)
     for var_name, value in result.get('detainee_breakdown', {}).items():
         subcomponents.append({'name': var_name, 'value': value, 'category': 'Detainee'})
-        colors.append('#3b82f6')
+        colors.append('#1E3A5F')
 
     # Society subcomponents (green)
     for var_name, value in result.get('society_breakdown', {}).items():
@@ -3806,5 +3851,6 @@ if __name__ == '__main__':
     import os
 
     port = int(os.environ.get('PORT', 8050))
-    app.run_server(host='0.0.0.0', port=port, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=True)
+
 
