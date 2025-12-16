@@ -1380,7 +1380,6 @@ app.layout = html.Div(className='app-container', children=[
 
                     }, children=[
                         html.Div(style={'padding': '24px 0'}, children=[
-
                             # Main Tab Header
                             html.H3(
                                 content.get(
@@ -1393,7 +1392,7 @@ app.layout = html.Div(className='app-container', children=[
                                     'color': '#1e293b',
                                     'textAlign': 'center',
                                     'margin': '0 0 24px 0'
-                                }
+                               }
                             ),
 
                             # Two-column layout: MVPF Comparison Chart (left) + Scenarios Paragraphs (right)
@@ -1457,11 +1456,6 @@ app.layout = html.Div(className='app-container', children=[
                                 'color': '#1e293b',
                                 'marginTop': '0',
                                 'marginBottom': '8px'
-                            }),
-                            html.P('This tab lets you compare how the MVPF for pretrial detention changes across alternative valuation scenarios. The visualizations show how different assumptions about detainee harm and community spillovers shift the overall result, holding the underlying jail operations constant. Use this tab to see which conclusions are robust across scenarios and which depend heavily on specific normative choices about how detention harms are valued.', style={
-                                'fontSize': '14px',
-                                'color': '#6b7280',
-                                'marginBottom': '24px'
                             }),
 
                             # Sensitivity Analysis Graphs (2x2 Grid)
@@ -2140,11 +2134,31 @@ app.layout = html.Div(className='app-container', children=[
                                     'marginBottom': '16px',
                                     'marginTop': '0'
                                 }),
-                                html.P('Three normative scenarios offer different perspectives on how to value detention impacts:', style={
-                                    'fontSize': '15px',
-                                    'color': '#4b5563',
-                                    'marginBottom': '20px'
-                                }),
+                                html.P(
+                                    content.get('alt_scenarios.paragraph_1', ''),
+                                    style={
+                                        'fontSize': '15px',
+                                        'color': '#4b5563',
+                                        'marginBottom': '12px'
+                                    }
+                                ),
+                                html.P(
+                                    content.get('alt_scenarios.paragraph_2', ''),
+                                    style={
+                                        'fontSize': '15px',
+                                        'color': '#4b5563',
+                                        'marginBottom': '12px'
+                                    }
+                                ),
+                                html.P(
+                                    content.get('alt_scenarios.paragraph_3', ''),
+                                    style={
+                                        'fontSize': '15px',
+                                        'color': '#4b5563',
+                                        'marginBottom': '20px'
+                                    }
+                                ),
+
                                 html.Div(
                                     style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': '16px'},
                                     children=[
@@ -2249,7 +2263,7 @@ app.layout = html.Div(className='app-container', children=[
                                              'marginTop': '0'
                                          }),
                                          html.P(
-                                             'You can adjust several parameters that act as multipliers to the components in the MVPF set-up. These include: i. the number of people detained, ii. the composition of cases, iii. the average length of stay, and iv. the assumption about detention’s effect on crime. These inputs scale the numerator and denominator components of the MVPF and let you test how sensitive the results are to policy or system changes. The defaults for each parameter capture the picture of Cook County Jail in 2018. The other options available are outer bounds for sensitivity analysis, and some alternatives based on our broad review of the literature.',
+                                             'You can adjust several parameters that act as multipliers to the components in the MVPF set-up. These inputs scale the numerator and denominator components of the MVPF and let you test how sensitive the results are to policy or system changes. The defaults for each parameter capture the picture of Cook County Jail in 2018. The other options available are outer bounds for sensitivity analysis, and some alternatives based on our broad review of the literature.',
                                              style={
                                                  'fontSize': '15px',
                                                  'color': '#4b5563',
