@@ -338,7 +338,7 @@
     },
     "mvpf_purpose": {
       "title": "How to use this result",
-      "content": "This is the Marginal Value of Public Funds (MVPF) for pretrial detention under the assumptions you selected above, expressed as a ratio of total dollar-valued harms and benefits to the public cost of operating the jail. To understand what is driving the result, review the numerator and denominator breakdown below; to test sensitivity, change one parameter at a time or switch scenarios and compare how the breakdown changes, or go to the “Compare alternative scenarios” tab for a summary."
+      "content": "This is the Marginal Value of Public Funds (MVPF) for pretrial detention under the assumptions you selected above, expressed as a ratio of total dollar-valued harms and benefits to the public cost of operating the jail. To understand what is driving the result, review the numerator and denominator breakdown below; to test sensitivity, change one parameter at a time or switch scenarios and compare how the breakdown changes, or go to the “Compare alternative scenarios” tab for a summary of how your calculated MVPF would change if you vary one aspect at a time while holding all others fixed.."
     },
     "scenarios_intro": {
       "title": "Sensitivity analysis",

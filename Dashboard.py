@@ -1332,58 +1332,6 @@ app.layout = html.Div(className='app-container', children=[
                     }, children=[
                         html.Div(style={'padding': '24px 0'}, children=[
 
-                            # Alternative Scenarios Description
-                            html.Div(
-                                style={
-                                    'backgroundColor': '#fffbeb',
-                                    'padding': '20px',
-                                    'borderRadius': '8px',
-                                    'marginBottom': '24px',
-                                    'borderLeft': '4px solid #f59e0b'
-                                },
-                                children=[
-                                    html.H3(
-                                        content.get(
-                                            'placeholders.alt_scenarios.title',
-                                            'Alternative Scenarios Description'
-                                        ),
-                                        style={
-                                            'fontSize': '18px',
-                                            'fontWeight': '600',
-                                            'color': '#374151',
-                                            'margin': '0 0 12px 0'
-                                        }
-                                    ),
-                                    html.P(
-                                        content.get('placeholders.alt_scenarios.paragraph_1', ''),
-                                        style={
-                                            'fontSize': '14px',
-                                            'color': '#92400e',
-                                            'margin': '0 0 8px 0',
-                                            'lineHeight': '1.6'
-                                        }
-                                    ),
-                                    html.P(
-                                        content.get('placeholders.alt_scenarios.paragraph_2', ''),
-                                        style={
-                                            'fontSize': '14px',
-                                            'color': '#92400e',
-                                            'margin': '0 0 8px 0',
-                                            'lineHeight': '1.6'
-                                        }
-                                    ),
-                                    html.P(
-                                        content.get('placeholders.alt_scenarios.paragraph_3', ''),
-                                        style={
-                                            'fontSize': '14px',
-                                            'color': '#92400e',
-                                            'margin': '0',
-                                            'lineHeight': '1.6'
-                                        }
-                                    )
-                                ]
-                            ),
-
                             # Sensitivity Analysis Section Header
                             html.H3('Sensitivity Analysis', style={
                                 'fontSize': '24px',
@@ -2082,11 +2030,31 @@ app.layout = html.Div(className='app-container', children=[
                                     'marginBottom': '16px',
                                     'marginTop': '0'
                                 }),
-                                html.P('Three normative scenarios offer different perspectives on how to value detention impacts:', style={
-                                    'fontSize': '15px',
-                                    'color': '#4b5563',
-                                    'marginBottom': '20px'
-                                }),
+                                html.P(
+                                    content.get('alt_scenarios.paragraph_1', ''),
+                                    style={
+                                        'fontSize': '15px',
+                                        'color': '#4b5563',
+                                        'marginBottom': '12px'
+                                    }
+                                ),
+                                html.P(
+                                    content.get('alt_scenarios.paragraph_2', ''),
+                                    style={
+                                        'fontSize': '15px',
+                                        'color': '#4b5563',
+                                        'marginBottom': '12px'
+                                    }
+                                ),
+                                html.P(
+                                    content.get('alt_scenarios.paragraph_3', ''),
+                                    style={
+                                        'fontSize': '15px',
+                                        'color': '#4b5563',
+                                        'marginBottom': '20px'
+                                    }
+                                ),
+
                                 html.Div(
                                     style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': '16px'},
                                     children=[
