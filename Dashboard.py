@@ -657,13 +657,13 @@ app.layout = html.Div(className='app-container', children=[
                 html.Button(content.get('navigation.home', 'Home'), id='nav-home', n_clicks=0, className='nav-button active')
             ]),
             html.Div(className='nav-item', children=[
-                html.Button(content.get('tabs.overview', 'Overview'), id='nav-overview', n_clicks=0, className='nav-button')
+                html.Button(content.get('tabs.overview', 'Calculations'), id='nav-overview', n_clicks=0, className='nav-button')
             ]),
             html.Div(className='nav-item', children=[
-                html.Button(content.get('tabs.scenarios', 'Scenario Analysis'), id='nav-scenarios', n_clicks=0, className='nav-button')
+                html.Button(content.get('tabs.scenarios', 'Compare Scenarios'), id='nav-scenarios', n_clicks=0, className='nav-button')
             ]),
             html.Div(className='nav-item', children=[
-                html.Button(content.get('navigation.benchmarking', 'Comparative Benchmarking'), id='nav-benchmarking', n_clicks=0, className='nav-button')
+                html.Button(content.get('navigation.benchmarking', 'View Benchmarks'), id='nav-benchmarking', n_clicks=0, className='nav-button')
             ]),
             html.Div(className='nav-item', children=[
                 html.Button(content.get('navigation.mvpf_explained', 'MVPF Explained'), id='nav-descriptions', n_clicks=0, className='nav-button')

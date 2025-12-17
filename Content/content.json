@@ -17,11 +17,11 @@
       "description": "View the MVPF calculation, key performance indicators, and comparison charts showing detainee values, society values, and government costs."
     },
     "scenario_analysis_card": {
-      "title": "Scenario Analysis",
+      "title": "Compare Scenarios",
       "description": "Compare different policy scenarios and analyze parameter sensitivity to understand how changes in assumptions affect MVPF outcomes."
     },
     "benchmarking_card": {
-      "title": "Comparative Benchmarking",
+      "title": "View Benchmarks",
       "description": "Compare Cook County Jail MVPF against other government programs and policy initiatives to contextualize the value of public spending."
     }
   },
