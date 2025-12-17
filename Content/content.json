@@ -212,6 +212,11 @@
     "HTC_single_phaseout_begin": "Tax credit for higher education expenses with income phase-out provisions for single filers.",
     "AOTC_joint_phaseout_begin": "Education tax credit for college expenses with income-based phase-out for joint filers."
   },
+  "scenario_descriptions": {
+    "baseline": "values detainee harm using standard willingness-to-pay estimates from the criminal justice literature",
+    "most_conservative": "uses the lower bound of detainee harm estimates, providing the most conservative assessment of costs",
+    "least_conservative": "includes spillover effects on detainee families and communities, capturing broader social costs"
+  },
   "charts": {
     "main_components": {
       "title": "MVPF Main Components (Absolute values)",

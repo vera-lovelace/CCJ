@@ -1022,6 +1022,110 @@ app.layout = html.Div(className='app-container', children=[
                                     )
                                 ])
                             ]),
+
+                            # Scenario Selection Section (Centered)
+                            html.Div(style={'maxWidth': '1200px', 'margin': '0 auto', 'marginBottom': '24px'}, children=[
+                                html.Div(className='jumbotron', children=[
+                                    html.H4(content.get('controls.scenario_selection.title', 'Scenario Selection'), style={
+                                        'fontSize': '24px',
+                                        'fontWeight': '600',
+                                        'color': '#374151',
+                                        'marginTop': '0',
+                                        'textAlign': 'center',
+                                        'marginBottom': '12px',
+                                        'alignItems': 'center',
+                                        'justifyContent': 'center',
+                                    }),
+
+                                    # Hidden store for selected scenario
+                                    dcc.Store(id='scenario-selector', data='baseline'),
+                                    # Scenerio Lead-in text
+                                    html.Div(style={'marginBottom': '16px'}, children=[
+                                    html.P(
+                                        content.get('placeholders.overview_intro.paragraph2', ''),
+                                        style={
+                                            'fontSize': '14px',
+                                            'color': '#4b5563',
+                                            'lineHeight': '1.6',
+                                            'margin': '0 0 10px 0',
+                                            'whiteSpace': 'pre-line'
+                                        }
+                                    ),
+                                    html.P(
+                                        content.get('placeholders.overview_intro.paragraph3', ''),
+                                        style={
+                                            'fontSize': '14px',
+                                            'color': '#4b5563',
+                                            'lineHeight': '1.6',
+                                            'margin': '0 0 10px 0',
+                                            'whiteSpace': 'pre-line'
+                                        }
+                                    ),
+                                    html.P(
+                                        content.get('placeholders.overview_intro.paragraph4', ''),
+                                        style={
+                                            'fontSize': '14px',
+                                            'color': '#4b5563',
+                                            'lineHeight': '1.6',
+                                            'margin': '0',
+                                            'whiteSpace': 'pre-line'
+                                        }
+                                    )
+                                ]),
+
+                                # Scenario Jumbotrons Grid ( clickable)
+                                html.Div(className='jumbotron-grid', style={'marginBottom': '24px'}, children=[
+                                    # Jumbotron 1: Baseline Scenario
+                                    html.Button(
+                                        id='scenario-btn-baseline',
+                                        n_clicks=0,
+                                        className='jumbotron scenario-card',
+                                        style={'border': '3px solid #2563eb', 'cursor': 'pointer'},
+                                        children=[
+                                            html.Div(className='jumbotron-icon', style={'background': '#dbeafe'}, children=[
+                                                html.Span('📊', style={'color': '#2563eb'})
+                                            ]),
+                                            html.H4(content.get('scenarios.cards.baseline.title', 'Baseline - Current Operations'), className='jumbotron-title', style={'fontWeight': '700'}),
+                                            html.P(content.get('scenarios.cards.baseline.value', 'Focus on individual harm plus potential criminogenic effects'), className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#2563eb'}),
+                                            html.P(content.get('scenarios.cards.baseline.description', 'Choose this if you think detention may worsen public safety'), className='jumbotron-description')
+                                        ]
+                                    ),
+
+                                    # Jumbotron 2: Most Conservative Scenario
+                                    html.Button(
+                                        id='scenario-btn-most-conservative',
+                                        n_clicks=0,
+                                        className='jumbotron scenario-card',
+                                        style={'border': '2px solid #e5e7eb', 'cursor': 'pointer'},
+                                        children=[
+                                            html.Div(className='jumbotron-icon', style={'background': '#fef3c7'}, children=[
+                                                html.Span('🛡️', style={'color': '#d97706'})
+                                            ]),
+                                            html.H4(content.get('scenarios.cards.most_conservative.title', 'Less Negative Detainee Value - Conservative'), className='jumbotron-title', style={'fontWeight': '700'}),
+                                            html.P(content.get('scenarios.cards.most_conservative.value', 'Focus on conservative valuation of individual harms'), className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#d97706'}),
+                                            html.P(content.get('scenarios.cards.most_conservative.description', 'Choose this if you believe detainee harm should be valued using smaller, survey-based estimates'), className='jumbotron-description')
+                                        ]
+                                    ),
+
+                                    # Jumbotron 3: Least Conservative Scenario
+                                    html.Button(
+                                        id='scenario-btn-least-conservative',
+                                        n_clicks=0,
+                                        className='jumbotron scenario-card',
+                                        style={'border': '2px solid #e5e7eb', 'cursor': 'pointer'},
+                                        children=[
+                                            html.Div(className='jumbotron-icon', style={'background': '#dcfce7'}, children=[
+                                                html.Span('🚀', style={'color': '#16a34a'})
+                                            ]),
+                                            html.H4(content.get('scenarios.cards.least_conservative.title', 'Least Conservative (lowest MVPF)'), className='jumbotron-title', style={'fontWeight': '700'}),
+                                            html.P(content.get('scenarios.cards.least_conservative.value', 'Focus on broad social harms and criminogenic effects'), className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#16a34a'}),
+                                            html.P(content.get('scenarios.cards.least_conservative.description', 'Choose this if you think detention harms both individuals and communities and may increase crime'), className='jumbotron-description')
+                                        ]
+                                    )
+                                ])
+                                ])
+                            ]),
+
                             # Parameter Lead-in text
                             html.Div(className='jumbotron', style={'marginTop': '0', 'marginBottom': '24px'}, children=[
                                 html.H4(
@@ -1177,109 +1281,6 @@ app.layout = html.Div(className='app-container', children=[
                                         )
                                     ])
                                 ]),
-                            ]),
-
-                            # Scenario Selection Section (Centered)
-                            html.Div(style={'maxWidth': '1200px', 'margin': '0 auto', 'marginBottom': '24px'}, children=[
-                                html.Div(className='jumbotron', children=[
-                                    html.H4(content.get('controls.scenario_selection.title', 'Scenario Selection'), style={
-                                        'fontSize': '24px',
-                                        'fontWeight': '600',
-                                        'color': '#374151',
-                                        'marginTop': '0',
-                                        'textAlign': 'center',
-                                        'marginBottom': '12px',
-                                        'alignItems': 'center',
-                                        'justifyContent': 'center',
-                                    }),
-
-                                    # Hidden store for selected scenario
-                                    dcc.Store(id='scenario-selector', data='baseline'),
-                                    # Scenerio Lead-in text
-                                    html.Div(style={'marginBottom': '16px'}, children=[
-                                    html.P(
-                                        content.get('placeholders.overview_intro.paragraph2', ''),
-                                        style={
-                                            'fontSize': '14px',
-                                            'color': '#4b5563',
-                                            'lineHeight': '1.6',
-                                            'margin': '0 0 10px 0',
-                                            'whiteSpace': 'pre-line'
-                                        }
-                                    ),
-                                    html.P(
-                                        content.get('placeholders.overview_intro.paragraph3', ''),
-                                        style={
-                                            'fontSize': '14px',
-                                            'color': '#4b5563',
-                                            'lineHeight': '1.6',
-                                            'margin': '0 0 10px 0',
-                                            'whiteSpace': 'pre-line'
-                                        }
-                                    ),
-                                    html.P(
-                                        content.get('placeholders.overview_intro.paragraph4', ''),
-                                        style={
-                                            'fontSize': '14px',
-                                            'color': '#4b5563',
-                                            'lineHeight': '1.6',
-                                            'margin': '0',
-                                            'whiteSpace': 'pre-line'
-                                        }
-                                    )
-                                ]),
-
-                                # Scenario Jumbotrons Grid ( clickable)
-                                html.Div(className='jumbotron-grid', style={'marginBottom': '24px'}, children=[
-                                    # Jumbotron 1: Baseline Scenario
-                                    html.Button(
-                                        id='scenario-btn-baseline',
-                                        n_clicks=0,
-                                        className='jumbotron scenario-card',
-                                        style={'border': '3px solid #2563eb', 'cursor': 'pointer'},
-                                        children=[
-                                            html.Div(className='jumbotron-icon', style={'background': '#dbeafe'}, children=[
-                                                html.Span('📊', style={'color': '#2563eb'})
-                                            ]),
-                                            html.H4(content.get('scenarios.cards.baseline.title', 'Baseline - Current Operations'), className='jumbotron-title', style={'fontWeight': '700'}),
-                                            html.P(content.get('scenarios.cards.baseline.value', 'Focus on individual harm plus potential criminogenic effects'), className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#2563eb'}),
-                                            html.P(content.get('scenarios.cards.baseline.description', 'Choose this if you think detention may worsen public safety'), className='jumbotron-description')
-                                        ]
-                                    ),
-
-                                    # Jumbotron 2: Most Conservative Scenario
-                                    html.Button(
-                                        id='scenario-btn-most-conservative',
-                                        n_clicks=0,
-                                        className='jumbotron scenario-card',
-                                        style={'border': '2px solid #e5e7eb', 'cursor': 'pointer'},
-                                        children=[
-                                            html.Div(className='jumbotron-icon', style={'background': '#fef3c7'}, children=[
-                                                html.Span('🛡️', style={'color': '#d97706'})
-                                            ]),
-                                            html.H4(content.get('scenarios.cards.most_conservative.title', 'Less Negative Detainee Value - Conservative'), className='jumbotron-title', style={'fontWeight': '700'}),
-                                            html.P(content.get('scenarios.cards.most_conservative.value', 'Focus on conservative valuation of individual harms'), className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#d97706'}),
-                                            html.P(content.get('scenarios.cards.most_conservative.description', 'Choose this if you believe detainee harm should be valued using smaller, survey-based estimates'), className='jumbotron-description')
-                                        ]
-                                    ),
-
-                                    # Jumbotron 3: Least Conservative Scenario
-                                    html.Button(
-                                        id='scenario-btn-least-conservative',
-                                        n_clicks=0,
-                                        className='jumbotron scenario-card',
-                                        style={'border': '2px solid #e5e7eb', 'cursor': 'pointer'},
-                                        children=[
-                                            html.Div(className='jumbotron-icon', style={'background': '#dcfce7'}, children=[
-                                                html.Span('🚀', style={'color': '#16a34a'})
-                                            ]),
-                                            html.H4(content.get('scenarios.cards.least_conservative.title', 'Least Conservative (lowest MVPF)'), className='jumbotron-title', style={'fontWeight': '700'}),
-                                            html.P(content.get('scenarios.cards.least_conservative.value', 'Focus on broad social harms and criminogenic effects'), className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#16a34a'}),
-                                            html.P(content.get('scenarios.cards.least_conservative.description', 'Choose this if you think detention harms both individuals and communities and may increase crime'), className='jumbotron-description')
-                                        ]
-                                    )
-                                ])
-                                ])
                             ]),
 
                             # Calculate Button Section
@@ -2885,11 +2886,11 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
         )
 
     return html.Div(className='kpi-card', children=[
-        html.Div(className='kpi-header', children=[
+        html.Div(className='kpi-header', style={'textAlign': 'center'}, children=[
             html.H2(content.get('kpi_card.title', 'MVPF Score'), className='kpi-title')
         ]),
 
-        html.Div([
+        html.Div(style={'textAlign': 'center'}, children=[
             html.Span(f"{mvpf:.4f}", className='kpi-value'),
             html.Span(content.get('kpi_card.ratio_label', 'ratio'), className='kpi-ratio')
         ]),
@@ -3034,7 +3035,7 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
     ])
 
 
-def _build_kpi_card_split(result, mvpf, badge_color, badge_text_color, label, params):
+def _build_kpi_card_split(result, mvpf, badge_color, badge_text_color, label, params, scenario):
     """Build the KPI card split into two components: score display and detailed components."""
 
     # Build subcomponent lists for each main component
@@ -3067,52 +3068,73 @@ def _build_kpi_card_split(result, mvpf, badge_color, badge_text_color, label, pa
 
     # First component: Score display (to be centered)
     kpi_score = html.Div(className='kpi-card', style={'maxWidth': '800px', 'margin': '0 auto'}, children=[
-        html.Div(className='kpi-header', children=[
+        html.Div(className='kpi-header', style={'textAlign': 'center'}, children=[
             html.H2(content.get('kpi_card.title', 'MVPF Score'), className='kpi-title')
         ]),
 
-        html.Div([
+        html.Div(style={'textAlign': 'center'}, children=[
             html.Span(f"{mvpf:.4f}", className='kpi-value'),
             html.Span(content.get('kpi_card.ratio_label', 'ratio'), className='kpi-ratio')
         ]),
 
-        html.Div(className='kpi-interpretation', style={
+        # Two-column layout: Explanation (left) and Interpretation (right)
+        html.Div(style={
             'marginTop': '24px',
-            'padding': '20px',
-            'background': '#f0f9ff',
-            'borderRadius': '8px',
-            'border': '1px solid #bfdbfe'
+            'display': 'grid',
+            'gridTemplateColumns': '1fr 1fr',
+            'gap': '20px'
         }, children=[
-            html.Div(style={'marginBottom': '12px'}, children=[
-                html.Span(label, className='kpi-badge', style={
-                    'backgroundColor': badge_color,
-                    'color': badge_text_color,
-                    'display': 'inline-block',
-                    'padding': '6px 14px',
-                    'borderRadius': '9999px',
-                    'fontSize': '14px',
-                    'fontWeight': '600'
-                })
+            # Left column: Dynamic explanation
+            html.Div(style={
+                'padding': '20px',
+                'background': '#f0f9ff',
+                'borderRadius': '8px',
+                'border': '1px solid #bfdbfe'
+            }, children=[
+                html.H4(
+                    'What This Means',
+                    style={
+                        'fontSize': '16px',
+                        'fontWeight': '600',
+                        'color': '#1e3a8a',
+                        'marginTop': '0',
+                        'marginBottom': '12px'
+                    }
+                ),
+                html.P(
+                    f"For each dollar spent operating CCJ, ${abs(mvpf):.2f} of {'net value is generated' if mvpf > 0 else 'net harm is caused'} for detainees and society combined.",
+                    style={
+                        'margin': '0 0 12px 0',
+                        'color': '#1e3a8a',
+                        'fontSize': '14px',
+                        'lineHeight': '1.6',
+                        'fontWeight': '500'
+                    }
+                ),
+                html.P([
+                    f"This calculation uses the '{scenario}' scenario, which ",
+                    content.get(f'scenario_descriptions.{scenario.replace(" ", "_")}', 'represents a specific set of assumptions about detainee harm and societal impacts'),
+                    "."
+                ], style={
+                        'margin': '0',
+                        'color': '#1e40af',
+                        'fontSize': '13px',
+                        'lineHeight': '1.6'
+                    }
+                )
             ]),
 
-            html.P(
-                content.get('kpi_card.interpretation_positive', 'This indicates the program delivers more value than its cost.') if mvpf > 1
-                else content.get('kpi_card.interpretation_negative', 'Consider reviewing program efficiency.'),
-                style={
-                    'marginTop': '0',
-                    'marginBottom': '16px',
-                    'color': '#1e3a8a',
-                    'fontSize': '14px',
-                    'lineHeight': '1.6',
-                    'fontWeight': '500'
-                }
-            ),
-
-            html.Div(style={'marginTop': '16px', 'paddingTop': '16px', 'borderTop': '1px solid #bfdbfe'}, children=[
+            # Right column: Interpretation guide
+            html.Div(style={
+                'padding': '20px',
+                'background': '#f0f9ff',
+                'borderRadius': '8px',
+                'border': '1px solid #bfdbfe'
+            }, children=[
                 html.H4(
                     content.get('interpretation_card.title', 'How to Interpret'),
                     style={
-                        'fontSize': '14px',
+                        'fontSize': '16px',
                         'fontWeight': '600',
                         'color': '#1e3a8a',
                         'marginTop': '0',
@@ -3128,11 +3150,11 @@ def _build_kpi_card_split(result, mvpf, badge_color, badge_text_color, label, pa
                         'lineHeight': '1.8'
                     },
                     children=[
-                        html.Li([html.Strong(content.get('interpretation_card.levels.very_high.threshold', 'MVPF ≥ 2.5:')), ' ' + content.get('interpretation_card.levels.very_high.description', 'Very high social return on investment')]),
-                        html.Li([html.Strong(content.get('interpretation_card.levels.positive.threshold', 'MVPF > 1:')), ' ' + content.get('interpretation_card.levels.positive.description', 'Program delivers more value than it costs')]),
-                        html.Li([html.Strong(content.get('interpretation_card.levels.neutral.threshold', 'MVPF = 1:')), ' ' + content.get('interpretation_card.levels.neutral.description', 'Program value equals its cost')]),
-                        html.Li([html.Strong(content.get('interpretation_card.levels.negative.threshold', 'MVPF < 1:')), ' ' + content.get('interpretation_card.levels.negative.description', 'Program costs more than the value it provides')]),
-                        html.Li([html.Strong(content.get('interpretation_card.levels.harmful.threshold', 'MVPF < 0:')), ' ' + content.get('interpretation_card.levels.harmful.description', 'Indicates program delivers net harm')])
+                        html.Li([html.Strong(content.get('interpretation_card.levels.very_high.threshold', 'MVPF ≥ 2.5:')), ' ' + content.get('interpretation_card.levels.very_high.description', 'Very high social return')]),
+                        html.Li([html.Strong(content.get('interpretation_card.levels.positive.threshold', 'MVPF > 1:')), ' ' + content.get('interpretation_card.levels.positive.description', 'More value than cost')]),
+                        html.Li([html.Strong(content.get('interpretation_card.levels.neutral.threshold', 'MVPF = 1:')), ' ' + content.get('interpretation_card.levels.neutral.description', 'Value equals cost')]),
+                        html.Li([html.Strong(content.get('interpretation_card.levels.negative.threshold', 'MVPF < 1:')), ' ' + content.get('interpretation_card.levels.negative.description', 'Costs exceed value')]),
+                        html.Li([html.Strong(content.get('interpretation_card.levels.harmful.threshold', 'MVPF < 0:')), ' ' + content.get('interpretation_card.levels.harmful.description', 'Net harm delivered')])
                     ]
                 )
             ])
@@ -4120,7 +4142,7 @@ def register_callbacks(app):
             badge_color, badge_text_color, label = '#fee2e2', '#dc2626', 'Poor'
 
         # Build components
-        kpi_score, kpi_components = _build_kpi_card_split(result, mvpf, badge_color, badge_text_color, label, params)
+        kpi_score, kpi_components = _build_kpi_card_split(result, mvpf, badge_color, badge_text_color, label, params, scenario)
         benchmark_card = _build_benchmark_card(mvpf)
         numerator_fig = _build_numerator_chart(result)
         denominator_fig = _build_denominator_chart(result)
