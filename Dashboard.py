@@ -10,6 +10,8 @@ import plotly.graph_objs as go
 from datetime import datetime
 import pandas as pd
 import os
+import csv
+import io
 
 from content_loader import ContentManager
 from mvpf_calculator import MVPFCalculator
@@ -652,7 +654,7 @@ app.layout = html.Div(className='app-container', children=[
         ]),
         html.Nav(className='nav-menu', children=[
             html.Div(className='nav-item', children=[
-                html.Button('Home', id='nav-home', n_clicks=0, className='nav-button active')
+                html.Button(content.get('navigation.home', 'Home'), id='nav-home', n_clicks=0, className='nav-button active')
             ]),
             html.Div(className='nav-item', children=[
                 html.Button(content.get('tabs.overview', 'Overview'), id='nav-overview', n_clicks=0, className='nav-button')
@@ -661,45 +663,19 @@ app.layout = html.Div(className='app-container', children=[
                 html.Button(content.get('tabs.scenarios', 'Scenario Analysis'), id='nav-scenarios', n_clicks=0, className='nav-button')
             ]),
             html.Div(className='nav-item', children=[
-                html.Button('Comparative Benchmarking', id='nav-benchmarking', n_clicks=0, className='nav-button')
+                html.Button(content.get('navigation.benchmarking', 'Comparative Benchmarking'), id='nav-benchmarking', n_clicks=0, className='nav-button')
             ]),
             html.Div(className='nav-item', children=[
-                html.Button('MVPF Explained', id='nav-descriptions', n_clicks=0, className='nav-button')
+                html.Button(content.get('navigation.mvpf_explained', 'MVPF Explained'), id='nav-descriptions', n_clicks=0, className='nav-button')
             ]),
             html.Div(className='nav-item', children=[
-                html.Button('About', id='nav-about', n_clicks=0, className='nav-button')
+                html.Button(content.get('navigation.about', 'About'), id='nav-about', n_clicks=0, className='nav-button')
             ])
         ])
     ]),
 
     # Main Content Area
     html.Div(className='main-content', children=[
-                # Download section
-                html.Div(className='download-section', style={
-                    'display': 'flex',
-                    'justifyContent': 'flex-end',
-                    'marginBottom': '16px'
-                }, children=[
-                    html.Button(
-                        content.get('download.button_text', 'Download Results (CSV)'),
-                        id='btn-download-csv',
-                        n_clicks=0,
-                        className='download-button',
-                        style={
-                            'backgroundColor': '#1E3A5F',
-                            'color': 'white',
-                            'border': 'none',
-                            'borderRadius': '6px',
-                            'padding': '10px 20px',
-                            'fontSize': '14px',
-                            'fontWeight': '600',
-                            'cursor': 'pointer',
-                            'transition': 'all 0.2s'
-                        }
-                    ),
-                    dcc.Download(id='download-dataframe-csv')
-                ]),
-
                 # Tabs Container (headers hidden, controlled by sidebar)
                 dcc.Tabs(id='main-tabs', value='tab-landing', parent_className='custom-tabs-container', className='custom-tabs', children=[
                     # Tab 0: Landing Page
@@ -855,13 +831,16 @@ app.layout = html.Div(className='app-container', children=[
                             ]),
 
                             # Navigation Cards
-                            html.H2('Explore the Dashboard', style={
-                                'fontSize': '24px',
-                                'fontWeight': '600',
-                                'color': '#1e293b',
-                                'marginBottom': '24px',
-                                'textAlign': 'center'
-                            }),
+                            html.H2(
+                                content.get('landing.explore_heading', 'Explore the Dashboard'),
+                                style={
+                                    'fontSize': '24px',
+                                    'fontWeight': '600',
+                                    'color': '#1e293b',
+                                    'marginBottom': '24px',
+                                    'textAlign': 'center'
+                                }
+                            ),
 
                             html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': '24px'}, children=[
                                 # Card 1: Overview
@@ -887,14 +866,17 @@ app.layout = html.Div(className='app-container', children=[
                                         }, children=[
                                             html.Span('📊', style={'fontSize': '28px'})
                                         ]),
-                                        html.H3('Calculator', style={
-                                            'fontSize': '20px',
-                                            'fontWeight': '600',
-                                            'color': '#1e293b',
-                                            'marginBottom': '12px'
-                                        }),
+                                        html.H3(
+                                            content.get('landing.calculator_card.title', 'Calculator'),
+                                            style={
+                                                'fontSize': '20px',
+                                                'fontWeight': '600',
+                                                'color': '#1e293b',
+                                                'marginBottom': '12px'
+                                            }
+                                        ),
                                         html.P(
-                                            'View the MVPF calculation, key performance indicators, and comparison charts showing detainee values, society values, and government costs.',
+                                            content.get('landing.calculator_card.description', 'View the MVPF calculation, key performance indicators, and comparison charts showing detainee values, society values, and government costs.'),
                                             style={
                                                 'fontSize': '14px',
                                                 'color': '#64748b',
@@ -928,14 +910,17 @@ app.layout = html.Div(className='app-container', children=[
                                         }, children=[
                                             html.Span('🔍', style={'fontSize': '28px'})
                                         ]),
-                                        html.H3('Scenario Analysis', style={
-                                            'fontSize': '20px',
-                                            'fontWeight': '600',
-                                            'color': '#1e293b',
-                                            'marginBottom': '12px'
-                                        }),
+                                        html.H3(
+                                            content.get('landing.scenario_analysis_card.title', 'Scenario Analysis'),
+                                            style={
+                                                'fontSize': '20px',
+                                                'fontWeight': '600',
+                                                'color': '#1e293b',
+                                                'marginBottom': '12px'
+                                            }
+                                        ),
                                         html.P(
-                                            'Compare different policy scenarios and analyze parameter sensitivity to understand how changes in assumptions affect MVPF outcomes.',
+                                            content.get('landing.scenario_analysis_card.description', 'Compare different policy scenarios and analyze parameter sensitivity to understand how changes in assumptions affect MVPF outcomes.'),
                                             style={
                                                 'fontSize': '14px',
                                                 'color': '#64748b',
@@ -969,14 +954,17 @@ app.layout = html.Div(className='app-container', children=[
                                         }, children=[
                                             html.Span('📈', style={'fontSize': '28px'})
                                         ]),
-                                        html.H3('Comparative Benchmarking', style={
-                                            'fontSize': '20px',
-                                            'fontWeight': '600',
-                                            'color': '#1e293b',
-                                            'marginBottom': '12px'
-                                        }),
+                                        html.H3(
+                                            content.get('landing.benchmarking_card.title', 'Comparative Benchmarking'),
+                                            style={
+                                                'fontSize': '20px',
+                                                'fontWeight': '600',
+                                                'color': '#1e293b',
+                                                'marginBottom': '12px'
+                                            }
+                                        ),
                                         html.P(
-                                            'Compare Cook County Jail MVPF against other government programs and policy initiatives to contextualize the value of public spending.',
+                                            content.get('landing.benchmarking_card.description', 'Compare Cook County Jail MVPF against other government programs and policy initiatives to contextualize the value of public spending.'),
                                             style={
                                                 'fontSize': '14px',
                                                 'color': '#64748b',
@@ -1191,23 +1179,24 @@ app.layout = html.Div(className='app-container', children=[
                                 ]),
                             ]),
 
-                            # Scenario Selection Section
-                            html.Div(className='jumbotron', style={'marginTop': '0', 'marginBottom': '24px'}, children=[
-                                html.H4(content.get('controls.scenario_selection.title', 'Scenario Selection'), style={
-                                    'fontSize': '24px',
-                                    'fontWeight': '600',
-                                    'color': '#374151',
-                                    'marginTop': '0',
-                                    'textAlign': 'center',
-                                    'marginBottom': '12px',
-                                    'alignItems': 'center',
-                                    'justifyContent': 'center',
-                                }),
+                            # Scenario Selection Section (Centered)
+                            html.Div(style={'maxWidth': '1200px', 'margin': '0 auto', 'marginBottom': '24px'}, children=[
+                                html.Div(className='jumbotron', children=[
+                                    html.H4(content.get('controls.scenario_selection.title', 'Scenario Selection'), style={
+                                        'fontSize': '24px',
+                                        'fontWeight': '600',
+                                        'color': '#374151',
+                                        'marginTop': '0',
+                                        'textAlign': 'center',
+                                        'marginBottom': '12px',
+                                        'alignItems': 'center',
+                                        'justifyContent': 'center',
+                                    }),
 
-                                # Hidden store for selected scenario
-                                dcc.Store(id='scenario-selector', data='baseline'),
-                                # Scenerio Lead-in text
-                                html.Div(style={'marginBottom': '16px'}, children=[
+                                    # Hidden store for selected scenario
+                                    dcc.Store(id='scenario-selector', data='baseline'),
+                                    # Scenerio Lead-in text
+                                    html.Div(style={'marginBottom': '16px'}, children=[
                                     html.P(
                                         content.get('placeholders.overview_intro.paragraph2', ''),
                                         style={
@@ -1290,6 +1279,7 @@ app.layout = html.Div(className='app-container', children=[
                                         ]
                                     )
                                 ])
+                                ])
                             ]),
 
                             # Calculate Button Section
@@ -1317,13 +1307,16 @@ app.layout = html.Div(className='app-container', children=[
                                 )
                             ]),
 
-                            # KPI Card (Full Width with embedded interpretation)
-                            html.Div(id='kpi-card', style={'marginBottom': '24px'}),
+                            # MVPF Score Display (Centered)
+                            html.Div(id='kpi-card', style={
+                                'marginBottom': '24px',
+                                'display': 'flex',
+                                'justifyContent': 'center'
+                            }),
 
-                            # MVPF Calculation Purpose Placeholder
+                            # MVPF Calculation Purpose Placeholder ("How to use this result")
                             html.Div(className='chart-container', style={
                                 'background': 'white',
-
                                 'marginBottom': '24px'
                             }, children=[
                                 html.H3(content.get('placeholders.mvpf_purpose.title', 'Placeholder: Purpose of MVPF Calculation'), style={
@@ -1344,6 +1337,9 @@ app.layout = html.Div(className='app-container', children=[
                                     }
                                 )
                             ]),
+
+                            # Calculation and Components Details (below "how to use this result")
+                            html.Div(id='kpi-components', style={'marginBottom': '24px'}),
 
                             # Charts Row: Numerator and Denominator Charts
                             html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '24px'}, children=[
@@ -1441,44 +1437,202 @@ app.layout = html.Div(className='app-container', children=[
                                             style={
                                                 'fontSize': '14px',
                                                 'color': '#1e293b',
-                                                'margin': '0',
+                                                'margin': '0 0 24px 0',
                                                 'lineHeight': '1.6'
                                             }
-                                        )
+                                        ),
+
+                                        # Download Analysis Card
+                                        html.Div(style={
+                                            'background': 'linear-gradient(135deg, #2563eb 0%, #1E3A5F 100%)',
+                                            'padding': '20px',
+                                            'borderRadius': '10px',
+                                            'boxShadow': '0 4px 6px rgba(37, 99, 235, 0.1)'
+                                        }, children=[
+                                            html.H4(
+                                                content.get('download.analysis_card.title', 'Download Full Analysis'),
+                                                style={
+                                                    'fontSize': '18px',
+                                                    'fontWeight': '600',
+                                                    'color': 'white',
+                                                    'marginTop': '0',
+                                                    'marginBottom': '10px'
+                                                }
+                                            ),
+                                            html.P(
+                                                content.get('download.analysis_card.description', 'Export detailed calculations, assumptions and sensitivity analyses in CSV format'),
+                                                style={
+                                                    'fontSize': '13px',
+                                                    'color': 'rgba(255, 255, 255, 0.9)',
+                                                    'marginBottom': '14px',
+                                                    'lineHeight': '1.5'
+                                                }
+                                            ),
+                                            html.Button(
+                                                content.get('download.analysis_card.button_text', 'Download Current Calculations'),
+                                                id='download-analysis-button',
+                                                n_clicks=0,
+                                                style={
+                                                    'backgroundColor': 'white',
+                                                    'color': '#1E3A5F',
+                                                    'border': 'none',
+                                                    'padding': '10px 18px',
+                                                    'borderRadius': '6px',
+                                                    'fontSize': '13px',
+                                                    'fontWeight': '600',
+                                                    'cursor': 'pointer',
+                                                    'transition': 'all 0.2s',
+                                                    'boxShadow': '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                                    'width': '100%'
+                                                }
+                                            ),
+                                            dcc.Download(id='download-analysis-csv')
+                                        ])
                                     ]
                                 )
                             ]),
 
                             # Sensitivity Analysis Section Header
-                            html.H3('Sensitivity Analysis', style={
-                                'fontSize': '24px',
-                                'fontWeight': '600',
-                                'color': '#1e293b',
-                                'marginTop': '0',
-                                'marginBottom': '8px'
-                            }),
+                            html.H3(
+                                content.get('sensitivity_analysis.title', 'Sensitivity Analysis'),
+                                style={
+                                    'fontSize': '24px',
+                                    'fontWeight': '600',
+                                    'color': '#1e293b',
+                                    'marginTop': '0',
+                                    'marginBottom': '8px'
+                                }
+                            ),
+                            html.P(
+                                content.get('sensitivity_analysis.description', ''),
+                                style={
+                                    'fontSize': '14px',
+                                    'color': '#6b7280',
+                                    'marginBottom': '24px',
+                                    'lineHeight': '1.6'
+                                }
+                            ),
 
-                            # Sensitivity Analysis Graphs (2x2 Grid)
-                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '24px', 'marginBottom': '48px'}, children=[
-                                # Row 1
+                            # Sensitivity Analysis Graphs (One per row with descriptions)
+
+                            # Felony Rate Sensitivity
+                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '60% 40%', 'gap': '24px', 'marginBottom': '32px'}, children=[
                                 html.Div(className='chart-container', children=[
                                     dcc.Graph(id='sensitivity-felony-rate')
                                 ]),
-                                html.Div(className='chart-container', children=[
-                                    dcc.Graph(id='sensitivity-detainee-population')
-                                ]),
-                                # Row 2
-                                html.Div(className='chart-container', children=[
-                                    dcc.Graph(id='sensitivity-crime-effect')
-                                ]),
-                                html.Div(className='chart-container', children=[
-                                    dcc.Graph(id='sensitivity-length-of-stay')
+                                html.Div(className='chart-container', style={'display': 'flex', 'alignItems': 'center'}, children=[
+                                    html.Div(children=[
+                                        html.H4(
+                                            content.get('sensitivity_analysis.felony_rate.title', 'Felony Rate Sensitivity'),
+                                            style={
+                                                'fontSize': '16px',
+                                                'fontWeight': '600',
+                                                'color': '#1e293b',
+                                                'marginTop': '0',
+                                                'marginBottom': '12px'
+                                            }
+                                        ),
+                                        html.P(
+                                            content.get('sensitivity_analysis.felony_rate.description', 'This chart shows how MVPF changes when varying the felony rate assumption while holding all other parameters constant.'),
+                                            style={
+                                                'fontSize': '14px',
+                                                'color': '#4b5563',
+                                                'lineHeight': '1.6',
+                                                'margin': '0'
+                                            }
+                                        )
+                                    ])
                                 ])
                             ]),
 
-                            # Parameter Sensitivity Chart
-                            html.Div(className='chart-container', style={'marginBottom': '24px'}, children=[
-                                dcc.Graph(id='parameter-comparison-chart')
+                            # Detainee Population Sensitivity
+                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '60% 40%', 'gap': '24px', 'marginBottom': '32px'}, children=[
+                                html.Div(className='chart-container', children=[
+                                    dcc.Graph(id='sensitivity-detainee-population')
+                                ]),
+                                html.Div(className='chart-container', style={'display': 'flex', 'alignItems': 'center'}, children=[
+                                    html.Div(children=[
+                                        html.H4(
+                                            content.get('sensitivity_analysis.detainee_population.title', 'Detainee Population Sensitivity'),
+                                            style={
+                                                'fontSize': '16px',
+                                                'fontWeight': '600',
+                                                'color': '#1e293b',
+                                                'marginTop': '0',
+                                                'marginBottom': '12px'
+                                            }
+                                        ),
+                                        html.P(
+                                            content.get('sensitivity_analysis.detainee_population.description', 'This chart shows how MVPF changes when varying the detainee population multiplier while holding all other parameters constant.'),
+                                            style={
+                                                'fontSize': '14px',
+                                                'color': '#4b5563',
+                                                'lineHeight': '1.6',
+                                                'margin': '0'
+                                            }
+                                        )
+                                    ])
+                                ])
+                            ]),
+
+                            # Crime Effect Sensitivity
+                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '60% 40%', 'gap': '24px', 'marginBottom': '32px'}, children=[
+                                html.Div(className='chart-container', children=[
+                                    dcc.Graph(id='sensitivity-crime-effect')
+                                ]),
+                                html.Div(className='chart-container', style={'display': 'flex', 'alignItems': 'center'}, children=[
+                                    html.Div(children=[
+                                        html.H4(
+                                            content.get('sensitivity_analysis.crime_effect.title', 'Crime Effect Sensitivity'),
+                                            style={
+                                                'fontSize': '16px',
+                                                'fontWeight': '600',
+                                                'color': '#1e293b',
+                                                'marginTop': '0',
+                                                'marginBottom': '12px'
+                                            }
+                                        ),
+                                        html.P(
+                                            content.get('sensitivity_analysis.crime_effect.description', 'This chart shows how MVPF changes when varying the crime effect assumption while holding all other parameters constant.'),
+                                            style={
+                                                'fontSize': '14px',
+                                                'color': '#4b5563',
+                                                'lineHeight': '1.6',
+                                                'margin': '0'
+                                            }
+                                        )
+                                    ])
+                                ])
+                            ]),
+
+                            # Length of Stay Sensitivity
+                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '60% 40%', 'gap': '24px', 'marginBottom': '48px'}, children=[
+                                html.Div(className='chart-container', children=[
+                                    dcc.Graph(id='sensitivity-length-of-stay')
+                                ]),
+                                html.Div(className='chart-container', style={'display': 'flex', 'alignItems': 'center'}, children=[
+                                    html.Div(children=[
+                                        html.H4(
+                                            content.get('sensitivity_analysis.length_of_stay.title', 'Length of Stay Sensitivity'),
+                                            style={
+                                                'fontSize': '16px',
+                                                'fontWeight': '600',
+                                                'color': '#1e293b',
+                                                'marginTop': '0',
+                                                'marginBottom': '12px'
+                                            }
+                                        ),
+                                        html.P(
+                                            content.get('sensitivity_analysis.length_of_stay.description', 'This chart shows how MVPF changes when varying the average length of stay while holding all other parameters constant.'),
+                                            style={
+                                                'fontSize': '14px',
+                                                'color': '#4b5563',
+                                                'lineHeight': '1.6',
+                                                'margin': '0'
+                                            }
+                                        )
+                                    ])
+                                ])
                             ])
                         ])
                     ]),
@@ -1525,73 +1679,62 @@ app.layout = html.Div(className='app-container', children=[
                                     'textAlign': 'center'
                                 }),
 
-                                html.Div(
-                                    style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '24px'},
-                                    children=[
-                                        # Left column
-                                        html.Div(children=[
-                                            html.H4(
-                                                content.get('mvpf_explainer.what_is_mvpf.heading', 'What is MVPF?'),
-                                                style={
-                                                    'fontSize': '16px',
-                                                    'fontWeight': '600',
-                                                    'color': '#374151',
-                                                    'marginTop': '0',
-                                                    'marginBottom': '12px'
-                                                }
-                                            ),
-                                            html.P(
-                                                content.get('mvpf_explainer.what_is_mvpf.description', 'The Marginal Value of Public Funds (MVPF) is a metric that measures the social welfare benefit of a policy per dollar of government spending.'),
-                                                style={
-                                                    'color': '#4b5563',
-                                                    'fontSize': '14px',
-                                                    'lineHeight': '1.6',
-                                                    'margin': '0'
-                                                }
-                                            ),
-                                            html.Div(children=[
-                                                html.H4(
-                                                    content.get('mvpf_explainer.applying_to_detention.heading', 'Applying MVPF to detention'),
-                                                    style={
-                                                        'fontSize': '16px',
-                                                        'fontWeight': '600',
-                                                        'color': '#374151',
-                                                        'marginTop': '1',
-                                                        'marginBottom': '12px'
-                                                    }
-                                                ),
-                                                html.P(
-                                                    content.get('mvpf_explainer.applying_to_detention.paragraph1', 'Most MVPF work looks at policies where the person subject to the policy is also the main beneficiary.'),
-                                                    style={
-                                                        'color': '#4b5563',
-                                                        'fontSize': '14px',
-                                                        'lineHeight': '1.6',
-                                                        'margin': '0',
-                                                    }
-                                                ),
-                                                html.P(
-                                                    content.get('mvpf_explainer.applying_to_detention.paragraph2', 'Most studies on detention focus on marginal changes.'),
-                                                    style={
-                                                        'color': '#4b5563',
-                                                        'fontSize': '14px',
-                                                        'lineHeight': '1.6',
-                                                        'marginTop': '1',
-                                                        'marginBottom': '12px'
-                                                    }
-                                                ),
-                                                html.P(
-                                                    content.get('mvpf_explainer.applying_to_detention.paragraph3'),
-                                                    style={
-                                                        'color': '#374151',
-                                                        'fontSize': '14px',
-                                                        'lineHeight': '1.6',
-                                                        'marginTop': '0',
-                                                        'marginBottom': '12px',
-                                                    }
-                                                )
-                                            ])
-                                        ])
-                                    ]
+                                html.H4(
+                                    content.get('mvpf_explainer.what_is_mvpf.heading', 'What is MVPF?'),
+                                    style={
+                                        'fontSize': '16px',
+                                        'fontWeight': '600',
+                                        'color': '#374151',
+                                        'marginTop': '0',
+                                        'marginBottom': '12px'
+                                    }
+                                ),
+                                html.P(
+                                    content.get('mvpf_explainer.what_is_mvpf.description', 'The Marginal Value of Public Funds (MVPF) is a metric that measures the social welfare benefit of a policy per dollar of government spending.'),
+                                    style={
+                                        'color': '#4b5563',
+                                        'fontSize': '14px',
+                                        'lineHeight': '1.6',
+                                        'margin': '0 0 24px 0'
+                                    }
+                                ),
+
+                                html.H4(
+                                    content.get('mvpf_explainer.applying_to_detention.heading', 'Applying MVPF to detention'),
+                                    style={
+                                        'fontSize': '16px',
+                                        'fontWeight': '600',
+                                        'color': '#374151',
+                                        'marginTop': '0',
+                                        'marginBottom': '12px'
+                                    }
+                                ),
+                                html.P(
+                                    content.get('mvpf_explainer.applying_to_detention.paragraph1', 'Most MVPF work looks at policies where the person subject to the policy is also the main beneficiary.'),
+                                    style={
+                                        'color': '#4b5563',
+                                        'fontSize': '14px',
+                                        'lineHeight': '1.6',
+                                        'margin': '0 0 12px 0',
+                                    }
+                                ),
+                                html.P(
+                                    content.get('mvpf_explainer.applying_to_detention.paragraph2', 'Most studies on detention focus on marginal changes.'),
+                                    style={
+                                        'color': '#4b5563',
+                                        'fontSize': '14px',
+                                        'lineHeight': '1.6',
+                                        'margin': '0 0 12px 0'
+                                    }
+                                ),
+                                html.P(
+                                    content.get('mvpf_explainer.applying_to_detention.paragraph3'),
+                                    style={
+                                        'color': '#374151',
+                                        'fontSize': '14px',
+                                        'lineHeight': '1.6',
+                                        'margin': '0 0 24px 0',
+                                    }
                                 ),
 
                                 # Methodology section (visual equation + top-justified + in-page links)
@@ -2127,13 +2270,16 @@ app.layout = html.Div(className='app-container', children=[
 
                             # Scenarios section
                             html.Div(className='chart-container', style={'background': '#f8fafc', 'marginTop': '32px'}, children=[
-                                html.H3('Scenarios', style={
-                                    'fontSize': '20px',
-                                    'fontWeight': '600',
-                                    'color': '#1e293b',
-                                    'marginBottom': '16px',
-                                    'marginTop': '0'
-                                }),
+                                html.H3(
+                                    content.get('mvpf_explainer.scenarios_heading', 'Scenarios'),
+                                    style={
+                                        'fontSize': '20px',
+                                        'fontWeight': '600',
+                                        'color': '#1e293b',
+                                        'marginBottom': '16px',
+                                        'marginTop': '0'
+                                    }
+                                ),
                                 html.P(
                                     content.get('alt_scenarios.paragraph_1', ''),
                                     style={
@@ -2255,20 +2401,24 @@ app.layout = html.Div(className='app-container', children=[
                             # Parameters section
                             html.Div(className='chart-container', style={'background': '#f8fafc', 'marginTop': '32px'},
                                      children=[
-                                         html.H3('Analysis Parameters', style={
-                                             'fontSize': '20px',
-                                             'fontWeight': '600',
-                                             'color': '#1e293b',
-                                             'marginBottom': '16px',
-                                             'marginTop': '0'
-                                         }),
+                                         html.H3(
+                                             content.get('mvpf_explainer.analysis_parameters.heading', 'Analysis Parameters'),
+                                             style={
+                                                 'fontSize': '20px',
+                                                 'fontWeight': '600',
+                                                 'color': '#1e293b',
+                                                 'marginBottom': '16px',
+                                                 'marginTop': '0'
+                                             }
+                                         ),
                                          html.P(
-                                             'You can adjust several parameters that act as multipliers to the components in the MVPF set-up. These inputs scale the numerator and denominator components of the MVPF and let you test how sensitive the results are to policy or system changes. The defaults for each parameter capture the picture of Cook County Jail in 2018. The other options available are outer bounds for sensitivity analysis, and some alternatives based on our broad review of the literature.',
+                                             content.get('mvpf_explainer.analysis_parameters.description', 'You can adjust several parameters that act as multipliers to the components in the MVPF set-up. These inputs scale the numerator and denominator components of the MVPF and let you test how sensitive the results are to policy or system changes. The defaults for each parameter capture the picture of Cook County Jail in 2018. The other options available are outer bounds for sensitivity analysis, and some alternatives based on our broad review of the literature.'),
                                              style={
                                                  'fontSize': '15px',
                                                  'color': '#4b5563',
                                                  'marginBottom': '20px'
-                                             }),
+                                             }
+                                         ),
 
                                          html.Div(
                                              style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '16px'},
@@ -2421,17 +2571,20 @@ app.layout = html.Div(className='app-container', children=[
 
                             # Limitations section
                             html.Div(style={'marginBottom': '0'}, children=[
-                                html.H3('Limitations and Considerations', style={
-                                    'fontSize': '20px',
-                                    'fontWeight': '600',
-                                    'color': '#374151',
-                                    'marginTop': '0',
-                                    'marginBottom': '12px'
-                                }),
-                                html.P(
-                                    'This dashboard is a structured way to translate assumptions into an MVPF for pretrial detention. It is not a definitive estimate of detention’s “true” social value.',
+                                html.H3(
+                                    content.get('mvpf_explainer.limitations.heading', 'Limitations and Considerations'),
                                     style={
-                                        'fontSize': '15px',
+                                        'fontSize': '18px',
+                                        'fontWeight': '600',
+                                        'color': '#374151',
+                                        'marginTop': '0',
+                                        'marginBottom': '12px'
+                                    }
+                                ),
+                                html.P(
+                                    content.get('mvpf_explainer.limitations.intro', 'This dashboard is a structured way to translate assumptions into an MVPF for pretrial detention. It is not a definitive estimate of detention\'s "true" social value.'),
+                                    style={
+                                        'fontSize': '12px',
                                         'color': '#4b5563',
                                         'lineHeight': '1.8',
                                         'marginBottom': '12px'
@@ -2441,23 +2594,20 @@ app.layout = html.Div(className='app-container', children=[
                                     style={'fontSize': '15px', 'color': '#4b5563', 'lineHeight': '1.8',
                                            'marginBottom': '16px'},
                                     children=[
-                                        html.Li(
-                                            'Normative choices drive results: the largest source of variation is how detainee harm is monetized (RHV vs WTP) and whether additional community spillovers are added.'),
-                                        html.Li(
-                                            'Crime impacts are uncertain and context-dependent; in this dashboard, crime effects can affect both the numerator (social harms/benefits) and the denominator (public costs or savings).'),
-                                        html.Li(
-                                            'Local transferability is limited: baseline costs and operating conditions are anchored to Cook County Jail in 2018 and may not generalize to other years or jurisdictions.'),
-                                        html.Li(
-                                            'Component coverage is incomplete: the MVPF includes only impacts with usable estimates, so some downstream, distributional, or hard-to-monetize effects may be missing.'),
-                                        html.Li(
-                                            'Interpret outputs as sensitivity analysis (“what the MVPF would be if these assumptions held”), not as a prediction of what will happen under a policy change.')
+                                        html.Li(item) for item in content.get('mvpf_explainer.limitations.items', [
+                                            'Normative choices drive results: the largest source of variation is how detainee harm is monetized (RHV vs WTP) and whether additional community spillovers are added.',
+                                            'Crime impacts are uncertain and context-dependent; in this dashboard, crime effects can affect both the numerator (social harms/benefits) and the denominator (public costs or savings).',
+                                            'Local transferability is limited: baseline costs and operating conditions are anchored to Cook County Jail in 2018 and may not generalize to other years or jurisdictions.',
+                                            'Component coverage is incomplete: the MVPF includes only impacts with usable estimates, so some downstream, distributional, or hard-to-monetize effects may be missing.',
+                                            'Interpret outputs as sensitivity analysis ("what the MVPF would be if these assumptions held"), not as a prediction of what will happen under a policy change.'
+                                        ])
                                     ]
                                 ),
                                 html.P(
                                     'This tool is designed to inform policy discussions and should be used alongside other evidence, '
                                     'stakeholder input, and contextual knowledge about Cook County Jail operations.',
                                     style={
-                                        'fontSize': '15px',
+                                        'fontSize': '12px',
                                         'color': '#4b5563',
                                         'lineHeight': '1.8',
                                         'margin': '0',
@@ -2481,79 +2631,77 @@ app.layout = html.Div(className='app-container', children=[
                         'backgroundColor': 'white'
                     }, children=[
                         html.Div(style={'padding': '24px 0', 'maxWidth': '900px', 'margin': '0 auto'}, children=[
-                            html.Div(className='chart-container', children=[
-                                # Data Sources Section
-                                html.H2(content.get('about.data_sources.title', 'Data Sources'), style={
-                                    'fontSize': '18px',
-                                    'fontWeight': 'bold',
-                                    'color': '#1e293b',
-                                    'marginTop': '0',
-                                    'marginBottom': '16px'
-                                }),
-                                html.P(content.get('about.data_sources.content', ''), style={
-                                    'fontSize': '12px',
-                                    'color': '#4b5563',
-                                    'lineHeight': '1.8',
-                                    'marginBottom': '32px'
-                                }),
+                            # Data Sources Section
+                            html.H2(content.get('about.data_sources.title', 'Data Sources'), style={
+                                'fontSize': '18px',
+                                'fontWeight': 'bold',
+                                'color': '#1e293b',
+                                'marginTop': '0',
+                                'marginBottom': '16px'
+                            }),
+                            html.P(content.get('about.data_sources.content', ''), style={
+                                'fontSize': '12px',
+                                'color': '#4b5563',
+                                'lineHeight': '1.8',
+                                'marginBottom': '32px'
+                            }),
 
-                                # About Cook County Jail Section
-                                html.H2(content.get('about.about_ccj.title', 'About Cook County Jail'), style={
-                                    'fontSize': '18px',
-                                    'fontWeight': 'bold',
-                                    'color': '#1e293b',
-                                    'marginTop': '0',
-                                    'marginBottom': '16px'
-                                }),
-                                html.P(content.get('about.about_ccj.content', ''), style={
-                                    'fontSize': '12px',
-                                    'color': '#4b5563',
-                                    'lineHeight': '1.8',
-                                    'marginBottom': '32px'
-                                }),
+                            # About Cook County Jail Section
+                            html.H2(content.get('about.about_ccj.title', 'About Cook County Jail'), style={
+                                'fontSize': '18px',
+                                'fontWeight': 'bold',
+                                'color': '#1e293b',
+                                'marginTop': '0',
+                                'marginBottom': '16px'
+                            }),
+                            html.P(content.get('about.about_ccj.content', ''), style={
+                                'fontSize': '12px',
+                                'color': '#4b5563',
+                                'lineHeight': '1.8',
+                                'marginBottom': '32px'
+                            }),
 
-                                # Contact Section
-                                html.H2(content.get('about.contact.title', 'Contact'), style={
-                                    'fontSize': '18px',
-                                    'fontWeight': 'bold',
-                                    'color': '#1e293b',
-                                    'marginTop': '0',
-                                    'marginBottom': '16px'
-                                }),
-                                html.P(content.get('about.contact.content', ''), style={
-                                    'fontSize': '12px',
-                                    'color': '#4b5563',
-                                    'lineHeight': '1.8',
-                                    'marginBottom': '32px'
-                                }),
+                            # Contact Section
+                            html.H2(content.get('about.contact.title', 'Contact'), style={
+                                'fontSize': '18px',
+                                'fontWeight': 'bold',
+                                'color': '#1e293b',
+                                'marginTop': '0',
+                                'marginBottom': '16px'
+                            }),
+                            html.P(content.get('about.contact.content', ''), style={
+                                'fontSize': '12px',
+                                'color': '#4b5563',
+                                'lineHeight': '1.8',
+                                'marginBottom': '32px'
+                            }),
 
-                                # Acknowledgements Section
-                                html.H2(content.get('about.acknowledgements.title', 'Acknowledgements'), style={
-                                    'fontSize': '18px',
-                                    'fontWeight': 'bold',
-                                    'color': '#1e293b',
-                                    'marginTop': '0',
-                                    'marginBottom': '16px'
-                                }),
-                                html.P(content.get('about.acknowledgements.development', ''), style={
-                                    'fontSize': '12px',
-                                    'color': '#4b5563',
-                                    'lineHeight': '1.8',
-                                    'marginBottom': '16px'
-                                }),
-                                html.P(content.get('about.acknowledgements.framework', ''), style={
-                                    'fontSize': '12px',
-                                    'color': '#4b5563',
-                                    'lineHeight': '1.8',
-                                    'marginBottom': '16px'
-                                }),
-                                html.P(content.get('about.acknowledgements.data_access', ''), style={
-                                    'fontSize': '12px',
-                                    'color': '#4b5563',
-                                    'lineHeight': '1.8',
-                                    'marginBottom': '48px'
-                                })
-                            ])
+                            # Acknowledgements Section
+                            html.H2(content.get('about.acknowledgements.title', 'Acknowledgements'), style={
+                                'fontSize': '18px',
+                                'fontWeight': 'bold',
+                                'color': '#1e293b',
+                                'marginTop': '0',
+                                'marginBottom': '16px'
+                            }),
+                            html.P(content.get('about.acknowledgements.development', ''), style={
+                                'fontSize': '12px',
+                                'color': '#4b5563',
+                                'lineHeight': '1.8',
+                                'marginBottom': '16px'
+                            }),
+                            html.P(content.get('about.acknowledgements.framework', ''), style={
+                                'fontSize': '12px',
+                                'color': '#4b5563',
+                                'lineHeight': '1.8',
+                                'marginBottom': '16px'
+                            }),
+                            html.P(content.get('about.acknowledgements.data_access', ''), style={
+                                'fontSize': '12px',
+                                'color': '#4b5563',
+                                'lineHeight': '1.8',
+                                'marginBottom': '48px'
+                            })
                         ])
                     ])
                 ]),
@@ -2738,12 +2886,12 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
 
     return html.Div(className='kpi-card', children=[
         html.Div(className='kpi-header', children=[
-            html.H2('MVPF Score', className='kpi-title')
+            html.H2(content.get('kpi_card.title', 'MVPF Score'), className='kpi-title')
         ]),
 
         html.Div([
             html.Span(f"{mvpf:.4f}", className='kpi-value'),
-            html.Span('ratio', className='kpi-ratio')
+            html.Span(content.get('kpi_card.ratio_label', 'ratio'), className='kpi-ratio')
         ]),
 
         html.Div(className='kpi-interpretation', style={
@@ -2766,8 +2914,8 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
             ]),
 
             html.P(
-                'This indicates the program delivers more value than its cost.' if mvpf > 1
-                else 'Consider reviewing program efficiency.',
+                content.get('kpi_card.interpretation_positive', 'This indicates the program delivers more value than its cost.') if mvpf > 1
+                else content.get('kpi_card.interpretation_negative', 'Consider reviewing program efficiency.'),
                 style={
                     'marginTop': '0',
                     'marginBottom': '16px',
@@ -2779,13 +2927,16 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
             ),
 
             html.Div(style={'marginTop': '16px', 'paddingTop': '16px', 'borderTop': '1px solid #bfdbfe'}, children=[
-                html.H4('How to Interpret', style={
-                    'fontSize': '14px',
-                    'fontWeight': '600',
-                    'color': '#1e3a8a',
-                    'marginTop': '0',
-                    'marginBottom': '12px'
-                }),
+                html.H4(
+                    content.get('interpretation_card.title', 'How to Interpret'),
+                    style={
+                        'fontSize': '14px',
+                        'fontWeight': '600',
+                        'color': '#1e3a8a',
+                        'marginTop': '0',
+                        'marginBottom': '12px'
+                    }
+                ),
                 html.Ul(
                     style={
                         'margin': '0',
@@ -2795,11 +2946,11 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
                         'lineHeight': '1.8'
                     },
                     children=[
-                        html.Li([html.Strong('MVPF ≥ 2.5:'), ' Very high social return on investment']),
-                        html.Li([html.Strong('MVPF > 1:'), ' Program delivers more value than it costs']),
-                        html.Li([html.Strong('MVPF = 1:'), ' Program value equals its cost']),
-                        html.Li([html.Strong('MVPF < 1:'), ' Program costs more than the value it provides']),
-                        html.Li([html.Strong('MVPF < 0:'), ' Indicates program delivers net harm'])
+                        html.Li([html.Strong(content.get('interpretation_card.levels.very_high.threshold', 'MVPF ≥ 2.5:')), ' ' + content.get('interpretation_card.levels.very_high.description', 'Very high social return on investment')]),
+                        html.Li([html.Strong(content.get('interpretation_card.levels.positive.threshold', 'MVPF > 1:')), ' ' + content.get('interpretation_card.levels.positive.description', 'Program delivers more value than it costs')]),
+                        html.Li([html.Strong(content.get('interpretation_card.levels.neutral.threshold', 'MVPF = 1:')), ' ' + content.get('interpretation_card.levels.neutral.description', 'Program value equals its cost')]),
+                        html.Li([html.Strong(content.get('interpretation_card.levels.negative.threshold', 'MVPF < 1:')), ' ' + content.get('interpretation_card.levels.negative.description', 'Program costs more than the value it provides')]),
+                        html.Li([html.Strong(content.get('interpretation_card.levels.harmful.threshold', 'MVPF < 0:')), ' ' + content.get('interpretation_card.levels.harmful.description', 'Indicates program delivers net harm')])
                     ]
                 )
             ])
@@ -2808,7 +2959,7 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
         # Calculation row -  above components
         html.Div(className='kpi-calculation', style={'marginTop': '12px', 'marginBottom': '24px', 'paddingTop': '0', 'borderTop': 'none'}, children=[
             html.P([
-                html.Strong('Calculation: '),
+                html.Strong(content.get('kpi_card.calculation_label', 'Calculation: ')),
                 f"MVPF = (${int(result['detainee_values']):,} + ${int(result['society_values']):,}) / ${int(result['govt_cost']):,} = {mvpf:.4f}"
             ], style={'margin': '0',
                       'fontSize': '20px',})
@@ -2821,19 +2972,19 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
                 html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'alignItems': 'flex-start'}, children=[
                     html.Div(children=[
                         html.A(href='#detainee-values-section', className='kpi-component-link', children=[
-                            html.H4('Values for Detainees')
+                            html.H4(content.get('kpi_card.components.detainee.title', 'Values for Detainees'))
                         ]),
                         html.P(f"${int(result['detainee_values']):,}", style={'color': '#2563eb', 'margin': '0'})
                     ]),
                     # Parameters on the right
                     html.Div(style={'textAlign': 'right', 'fontSize': '11px', 'color': '#6b7280'}, children=[
-                        html.Div([html.Span('Felony Rate: ', style={'fontWeight': '500'}), f"{params['fel_rate']:.1%}"]),
-                        html.Div([html.Span('Population Mult: ', style={'fontWeight': '500'}), f"{params['n_detainees_mult']:.0%}"])
+                        html.Div([html.Span(content.get('kpi_card.parameter_labels.felony_rate', 'Felony Rate: '), style={'fontWeight': '500'}), f"{params['fel_rate']:.1%}"]),
+                        html.Div([html.Span(content.get('kpi_card.parameter_labels.population_mult', 'Population Mult: '), style={'fontWeight': '500'}), f"{params['n_detainees_mult']:.0%}"])
                     ])
                 ]),
                 # Subcomponents list
                 html.Div(style={'marginTop': '12px', 'paddingTop': '8px', 'borderTop': '1px solid #e5e7eb'}, children=[
-                    html.Span('Subcomponents:', style={'fontSize': '11px', 'fontWeight': '600', 'color': '#374151', 'textTransform': 'uppercase'}),
+                    html.Span(content.get('kpi_card.subcomponents_label', 'Subcomponents:'), style={'fontSize': '11px', 'fontWeight': '600', 'color': '#374151', 'textTransform': 'uppercase'}),
                     html.Div(children=detainee_subs)
                 ])
             ]),
@@ -2842,19 +2993,19 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
                 html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'alignItems': 'flex-start'}, children=[
                     html.Div(children=[
                         html.A(href='#society-values-section', className='kpi-component-link', children=[
-                            html.H4('Value for Society')
+                            html.H4(content.get('kpi_card.components.society.title', 'Value for Society'))
                         ]),
                         html.P(f"${int(result['society_values']):,}", style={'color': '#16a34a', 'margin': '0'})
                     ]),
                     # Parameters on the right
                     html.Div(style={'textAlign': 'right', 'fontSize': '11px', 'color': '#6b7280'}, children=[
-                        html.Div([html.Span('Community Mult: ', style={'fontWeight': '500'}), f"{params['n_society_mult']:.0%}"]),
-                        html.Div([html.Span('Length of Stay: ', style={'fontWeight': '500'}), f"{params['los_days']:.0f} days"])
+                        html.Div([html.Span(content.get('kpi_card.parameter_labels.community_mult', 'Community Mult: '), style={'fontWeight': '500'}), f"{params['n_society_mult']:.0%}"]),
+                        html.Div([html.Span(content.get('kpi_card.parameter_labels.length_of_stay', 'Length of Stay: '), style={'fontWeight': '500'}), f"{params['los_days']:.0f} days"])
                     ])
                 ]),
                 # Subcomponents list
                 html.Div(style={'marginTop': '12px', 'paddingTop': '8px', 'borderTop': '1px solid #e5e7eb'}, children=[
-                    html.Span('Subcomponents:', style={'fontSize': '11px', 'fontWeight': '600', 'color': '#374151', 'textTransform': 'uppercase'}),
+                    html.Span(content.get('kpi_card.subcomponents_label', 'Subcomponents:'), style={'fontSize': '11px', 'fontWeight': '600', 'color': '#374151', 'textTransform': 'uppercase'}),
                     html.Div(children=society_subs)
                 ])
             ]),
@@ -2863,19 +3014,19 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
                 html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'alignItems': 'flex-start'}, children=[
                     html.Div(children=[
                         html.A(href='#government-cost-section', className='kpi-component-link', children=[
-                            html.H4('Government Costs')
+                            html.H4(content.get('kpi_card.components.government.title', 'Government Costs'))
                         ]),
                         html.P(f"${int(result['govt_cost']):,}", style={'color': '#dc2626', 'margin': '0'})
                     ]),
                     # Parameters on the right
                     html.Div(style={'textAlign': 'right', 'fontSize': '11px', 'color': '#6b7280'}, children=[
-                        html.Div([html.Span('Population Mult: ', style={'fontWeight': '500'}), f"{params['n_detainees_mult']:.0%}"]),
-                        html.Div([html.Span('Length of Stay: ', style={'fontWeight': '500'}), f"{params['los_days']:.0f} days"])
+                        html.Div([html.Span(content.get('kpi_card.parameter_labels.population_mult', 'Population Mult: '), style={'fontWeight': '500'}), f"{params['n_detainees_mult']:.0%}"]),
+                        html.Div([html.Span(content.get('kpi_card.parameter_labels.length_of_stay', 'Length of Stay: '), style={'fontWeight': '500'}), f"{params['los_days']:.0f} days"])
                     ])
                 ]),
                 # Subcomponents list
                 html.Div(style={'marginTop': '12px', 'paddingTop': '8px', 'borderTop': '1px solid #e5e7eb'}, children=[
-                    html.Span('Subcomponents:', style={'fontSize': '11px', 'fontWeight': '600', 'color': '#374151', 'textTransform': 'uppercase'}),
+                    html.Span(content.get('kpi_card.subcomponents_label', 'Subcomponents:'), style={'fontSize': '11px', 'fontWeight': '600', 'color': '#374151', 'textTransform': 'uppercase'}),
                     html.Div(children=govt_subs)
                 ])
             ])
@@ -2883,16 +3034,255 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
     ])
 
 
+def _build_kpi_card_split(result, mvpf, badge_color, badge_text_color, label, params):
+    """Build the KPI card split into two components: score display and detailed components."""
+
+    # Build subcomponent lists for each main component
+    detainee_subs = []
+    for name, value in result.get('detainee_breakdown', {}).items():
+        detainee_subs.append(
+            html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'fontSize': '12px', 'color': '#6b7280', 'marginTop': '4px'}, children=[
+                html.Span(name, style={'maxWidth': '60%'}),
+                html.Span(f"${int(value):,}", style={'fontWeight': '500', 'color': '#2563eb'})
+            ])
+        )
+
+    society_subs = []
+    for name, value in result.get('society_breakdown', {}).items():
+        society_subs.append(
+            html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'fontSize': '12px', 'color': '#6b7280', 'marginTop': '4px'}, children=[
+                html.Span(name, style={'maxWidth': '60%'}),
+                html.Span(f"${int(value):,}", style={'fontWeight': '500', 'color': '#16a34a'})
+            ])
+        )
+
+    govt_subs = []
+    for name, value in result.get('govt_breakdown', {}).items():
+        govt_subs.append(
+            html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'fontSize': '12px', 'color': '#6b7280', 'marginTop': '4px'}, children=[
+                html.Span(name, style={'maxWidth': '60%'}),
+                html.Span(f"${int(value):,}", style={'fontWeight': '500', 'color': '#dc2626'})
+            ])
+        )
+
+    # First component: Score display (to be centered)
+    kpi_score = html.Div(className='kpi-card', style={'maxWidth': '800px', 'margin': '0 auto'}, children=[
+        html.Div(className='kpi-header', children=[
+            html.H2(content.get('kpi_card.title', 'MVPF Score'), className='kpi-title')
+        ]),
+
+        html.Div([
+            html.Span(f"{mvpf:.4f}", className='kpi-value'),
+            html.Span(content.get('kpi_card.ratio_label', 'ratio'), className='kpi-ratio')
+        ]),
+
+        html.Div(className='kpi-interpretation', style={
+            'marginTop': '24px',
+            'padding': '20px',
+            'background': '#f0f9ff',
+            'borderRadius': '8px',
+            'border': '1px solid #bfdbfe'
+        }, children=[
+            html.Div(style={'marginBottom': '12px'}, children=[
+                html.Span(label, className='kpi-badge', style={
+                    'backgroundColor': badge_color,
+                    'color': badge_text_color,
+                    'display': 'inline-block',
+                    'padding': '6px 14px',
+                    'borderRadius': '9999px',
+                    'fontSize': '14px',
+                    'fontWeight': '600'
+                })
+            ]),
+
+            html.P(
+                content.get('kpi_card.interpretation_positive', 'This indicates the program delivers more value than its cost.') if mvpf > 1
+                else content.get('kpi_card.interpretation_negative', 'Consider reviewing program efficiency.'),
+                style={
+                    'marginTop': '0',
+                    'marginBottom': '16px',
+                    'color': '#1e3a8a',
+                    'fontSize': '14px',
+                    'lineHeight': '1.6',
+                    'fontWeight': '500'
+                }
+            ),
+
+            html.Div(style={'marginTop': '16px', 'paddingTop': '16px', 'borderTop': '1px solid #bfdbfe'}, children=[
+                html.H4(
+                    content.get('interpretation_card.title', 'How to Interpret'),
+                    style={
+                        'fontSize': '14px',
+                        'fontWeight': '600',
+                        'color': '#1e3a8a',
+                        'marginTop': '0',
+                        'marginBottom': '12px'
+                    }
+                ),
+                html.Ul(
+                    style={
+                        'margin': '0',
+                        'paddingLeft': '20px',
+                        'color': '#1e40af',
+                        'fontSize': '13px',
+                        'lineHeight': '1.8'
+                    },
+                    children=[
+                        html.Li([html.Strong(content.get('interpretation_card.levels.very_high.threshold', 'MVPF ≥ 2.5:')), ' ' + content.get('interpretation_card.levels.very_high.description', 'Very high social return on investment')]),
+                        html.Li([html.Strong(content.get('interpretation_card.levels.positive.threshold', 'MVPF > 1:')), ' ' + content.get('interpretation_card.levels.positive.description', 'Program delivers more value than it costs')]),
+                        html.Li([html.Strong(content.get('interpretation_card.levels.neutral.threshold', 'MVPF = 1:')), ' ' + content.get('interpretation_card.levels.neutral.description', 'Program value equals its cost')]),
+                        html.Li([html.Strong(content.get('interpretation_card.levels.negative.threshold', 'MVPF < 1:')), ' ' + content.get('interpretation_card.levels.negative.description', 'Program costs more than the value it provides')]),
+                        html.Li([html.Strong(content.get('interpretation_card.levels.harmful.threshold', 'MVPF < 0:')), ' ' + content.get('interpretation_card.levels.harmful.description', 'Indicates program delivers net harm')])
+                    ]
+                )
+            ])
+        ])
+    ])
+
+    # Second component: Calculation and component details (to go below "how to use this result")
+    kpi_components = html.Div(className='kpi-card', style={'background': 'transparent'}, children=[
+        # Calculation row
+        html.Div(className='kpi-calculation', style={'marginBottom': '24px', 'padding': '20px', 'background': '#f8f9fa', 'borderRadius': '8px'}, children=[
+            html.Div(children=[
+                html.H4(content.get('kpi_card.calculation_label', 'Calculation'), style={
+                    'fontSize': '18px',
+                    'fontWeight': '600',
+                    'color': '#374151',
+                    'marginTop': '0',
+                    'marginBottom': '16px'
+                }),
+                html.Div(style={'fontSize': '16px', 'lineHeight': '1.8', 'color': '#1f2937'}, children=[
+                    html.Div([
+                        html.Span('MVPF = (', style={'fontWeight': '500'}),
+                        html.Span('Detainee Values', style={'color': '#2563eb', 'fontWeight': '600'}),
+                        html.Span(' + ', style={'fontWeight': '500'}),
+                        html.Span('Society Values', style={'color': '#16a34a', 'fontWeight': '600'}),
+                        html.Span(') / ', style={'fontWeight': '500'}),
+                        html.Span('Government Costs', style={'color': '#dc2626', 'fontWeight': '600'})
+                    ], style={'marginBottom': '8px'}),
+                    html.Div([
+                        html.Span('MVPF = (', style={'fontWeight': '500'}),
+                        html.Span(f"${int(result['detainee_values']):,}", style={'color': '#2563eb', 'fontWeight': '600'}),
+                        html.Span(' + ', style={'fontWeight': '500'}),
+                        html.Span(f"${int(result['society_values']):,}", style={'color': '#16a34a', 'fontWeight': '600'}),
+                        html.Span(') / ', style={'fontWeight': '500'}),
+                        html.Span(f"${int(result['govt_cost']):,}", style={'color': '#dc2626', 'fontWeight': '600'})
+                    ], style={'marginBottom': '8px'}),
+                    html.Div([
+                        html.Span('MVPF = ', style={'fontWeight': '500'}),
+                        html.Span(f"{mvpf:.4f}", style={'fontSize': '20px', 'fontWeight': '700', 'color': '#1f2937'})
+                    ])
+                ])
+            ])
+        ]),
+
+        # Component sections in 3-column grid
+        html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': '16px'}, children=[
+            # Detainee Values Component
+            html.Div(className='kpi-component', children=[
+                html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'alignItems': 'flex-start'}, children=[
+                    html.Div(children=[
+                        html.A(href='#detainee-values-section', className='kpi-component-link', children=[
+                            html.H4(content.get('kpi_card.components.detainee.title', 'Values for Detainees'))
+                        ]),
+                        html.P(f"${int(result['detainee_values']):,}", style={'color': '#2563eb', 'margin': '0'})
+                    ]),
+                    # Parameters on the right
+                    html.Div(style={'textAlign': 'right', 'fontSize': '11px', 'color': '#6b7280'}, children=[
+                        html.Div([html.Span(content.get('kpi_card.parameter_labels.felony_rate', 'Felony Rate: '), style={'fontWeight': '500'}), f"{params['fel_rate']:.1%}"]),
+                        html.Div([html.Span(content.get('kpi_card.parameter_labels.population_mult', 'Population Mult: '), style={'fontWeight': '500'}), f"{params['n_detainees_mult']:.0%}"])
+                    ])
+                ]),
+                # Subcomponents list
+                html.Div(style={'marginTop': '12px', 'paddingTop': '8px', 'borderTop': '1px solid #e5e7eb'}, children=[
+                    html.Span(content.get('kpi_card.subcomponents_label', 'Subcomponents:'), style={'fontSize': '11px', 'fontWeight': '600', 'color': '#374151', 'textTransform': 'uppercase'}),
+                    html.Div(children=detainee_subs)
+                ])
+            ]),
+            # Society Values Component
+            html.Div(className='kpi-component', children=[
+                html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'alignItems': 'flex-start'}, children=[
+                    html.Div(children=[
+                        html.A(href='#society-values-section', className='kpi-component-link', children=[
+                            html.H4(content.get('kpi_card.components.society.title', 'Value for Society'))
+                        ]),
+                        html.P(f"${int(result['society_values']):,}", style={'color': '#16a34a', 'margin': '0'})
+                    ]),
+                    # Parameters on the right
+                    html.Div(style={'textAlign': 'right', 'fontSize': '11px', 'color': '#6b7280'}, children=[
+                        html.Div([html.Span(content.get('kpi_card.parameter_labels.community_mult', 'Community Mult: '), style={'fontWeight': '500'}), f"{params['n_society_mult']:.0%}"]),
+                        html.Div([html.Span(content.get('kpi_card.parameter_labels.length_of_stay', 'Length of Stay: '), style={'fontWeight': '500'}), f"{params['los_days']:.0f} days"])
+                    ])
+                ]),
+                # Subcomponents list
+                html.Div(style={'marginTop': '12px', 'paddingTop': '8px', 'borderTop': '1px solid #e5e7eb'}, children=[
+                    html.Span(content.get('kpi_card.subcomponents_label', 'Subcomponents:'), style={'fontSize': '11px', 'fontWeight': '600', 'color': '#374151', 'textTransform': 'uppercase'}),
+                    html.Div(children=society_subs)
+                ])
+            ]),
+            # Government Costs Component
+            html.Div(className='kpi-component', children=[
+                html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'alignItems': 'flex-start'}, children=[
+                    html.Div(children=[
+                        html.A(href='#government-cost-section', className='kpi-component-link', children=[
+                            html.H4(content.get('kpi_card.components.government.title', 'Government Costs'))
+                        ]),
+                        html.P(f"${int(result['govt_cost']):,}", style={'color': '#dc2626', 'margin': '0'})
+                    ]),
+                    # Parameters on the right
+                    html.Div(style={'textAlign': 'right', 'fontSize': '11px', 'color': '#6b7280'}, children=[
+                        html.Div([html.Span(content.get('kpi_card.parameter_labels.population_mult', 'Population Mult: '), style={'fontWeight': '500'}), f"{params['n_detainees_mult']:.0%}"]),
+                        html.Div([html.Span(content.get('kpi_card.parameter_labels.length_of_stay', 'Length of Stay: '), style={'fontWeight': '500'}), f"{params['los_days']:.0f} days"])
+                    ])
+                ]),
+                # Subcomponents list
+                html.Div(style={'marginTop': '12px', 'paddingTop': '8px', 'borderTop': '1px solid #e5e7eb'}, children=[
+                    html.Span(content.get('kpi_card.subcomponents_label', 'Subcomponents:'), style={'fontSize': '11px', 'fontWeight': '600', 'color': '#374151', 'textTransform': 'uppercase'}),
+                    html.Div(children=govt_subs)
+                ])
+            ])
+        ]),
+
+        # Download button at the bottom of KPI components
+        html.Div(style={'marginTop': '24px', 'display': 'flex', 'justifyContent': 'center'}, children=[
+            html.Button(
+                content.get('download.button_text', 'Download Current Calculations'),
+                id='btn-download-csv',
+                n_clicks=0,
+                className='download-button',
+                style={
+                    'backgroundColor': '#1E3A5F',
+                    'color': 'white',
+                    'border': 'none',
+                    'borderRadius': '6px',
+                    'padding': '12px 24px',
+                    'fontSize': '14px',
+                    'fontWeight': '600',
+                    'cursor': 'pointer',
+                    'transition': 'all 0.2s',
+                    'boxShadow': '0 2px 4px rgba(0, 0, 0, 0.1)'
+                }
+            ),
+            dcc.Download(id='download-dataframe-csv')
+        ])
+    ])
+
+    return kpi_score, kpi_components
+
+
 def _build_interpretation_card():
     """Build the interpretation guide card component."""
     return html.Div(className='kpi-card', children=[
-        html.H4('How to Interpret', style={
-            'fontSize': '16px',
-            'fontWeight': '600',
-            'color': '#374151',
-            'marginTop': '0',
-            'marginBottom': '12px'
-        }),
+        html.H4(
+            content.get('interpretation_card.title', 'How to Interpret'),
+            style={
+                'fontSize': '16px',
+                'fontWeight': '600',
+                'color': '#374151',
+                'marginTop': '0',
+                'marginBottom': '12px'
+            }
+        ),
         html.Ul(
             style={
                 'margin': '0',
@@ -2902,18 +3292,18 @@ def _build_interpretation_card():
                 'lineHeight': '1.8'
             },
             children=[
-                html.Li([html.Strong('MVPF ≥ 2.5:'), ' Very high social return on investment']),
-                html.Li([html.Strong('MVPF > 1:'), ' Program delivers more value than it costs']),
-                html.Li([html.Strong('MVPF = 1:'), ' Program value equals its cost']),
-                html.Li([html.Strong('MVPF < 1:'), ' Program costs more than the value it provides']),
-                html.Li([html.Strong('MVPF < 0:'), ' Indicates program delivers net harm'])
+                html.Li([html.Strong(content.get('interpretation_card.levels.very_high.threshold', 'MVPF ≥ 2.5:')), ' ' + content.get('interpretation_card.levels.very_high.description', 'Very high social return on investment')]),
+                html.Li([html.Strong(content.get('interpretation_card.levels.positive.threshold', 'MVPF > 1:')), ' ' + content.get('interpretation_card.levels.positive.description', 'Program delivers more value than it costs')]),
+                html.Li([html.Strong(content.get('interpretation_card.levels.neutral.threshold', 'MVPF = 1:')), ' ' + content.get('interpretation_card.levels.neutral.description', 'Program value equals its cost')]),
+                html.Li([html.Strong(content.get('interpretation_card.levels.negative.threshold', 'MVPF < 1:')), ' ' + content.get('interpretation_card.levels.negative.description', 'Program costs more than the value it provides')]),
+                html.Li([html.Strong(content.get('interpretation_card.levels.harmful.threshold', 'MVPF < 0:')), ' ' + content.get('interpretation_card.levels.harmful.description', 'Indicates program delivers net harm')])
             ]
         )
     ])
 
 
 def _build_benchmark_chart(current_mvpf, benchmarks):
-    """Build the benchmark comparison bar chart."""
+    """Build the benchmark comparison bar chart (vertical orientation)."""
     # Prepare data: current MVPF first, then benchmarks
     names = ['Current MVPF for CCJ']
     values = [current_mvpf]
@@ -2923,50 +3313,52 @@ def _build_benchmark_chart(current_mvpf, benchmarks):
         bench_mvpf = float(benchmark['mvpf_value'])
         description = benchmark['Description']
         # Shorten long names for chart labels
-        short_name = description if len(description) <= 25 else description[:22] + '...'
+        short_name = description if len(description) <= 40 else description[:37] + '...'
         names.append(short_name)
         values.append(bench_mvpf)
         # Color based on positive/negative
         colors.append('#16a34a' if bench_mvpf >= 0 else '#dc2626')
 
-    # Create bar chart
+    # Create horizontal bar chart (vertical orientation)
     fig = go.Figure(data=[
         go.Bar(
-            x=names,
-            y=values,
+            y=names,
+            x=values,
+            orientation='h',
             marker_color=colors,
             text=[f"{v:.2f}" for v in values],
             textposition='outside',
-            textfont=dict(size=11)
+            textfont=dict(size=11, color='#374151'),
+            cliponaxis=False  # Prevent text from being clipped
         )
     ])
 
-    # Calculate y-axis range
+    # Calculate x-axis range with extra padding for text labels
     min_val = min(values)
     max_val = max(values)
-    padding = max(abs(max_val), abs(min_val)) * 0.15
-    y_range = [min(0, min_val - padding), max(0, max_val + padding)]
+    padding = max(abs(max_val), abs(min_val)) * 0.3  # Increased padding for text visibility
+    x_range = [min(0, min_val - padding), max(0, max_val + padding)]
 
     fig.update_layout(
         title=None,
-        xaxis_title='',
-        yaxis_title='MVPF',
-        yaxis_range=y_range,
+        xaxis_title='MVPF',
+        yaxis_title='',
+        xaxis_range=x_range,
         paper_bgcolor='white',
         plot_bgcolor='#f9fafb',
         font=dict(family='system-ui', size=11),
-        margin=dict(t=20, b=80, l=50, r=20),
+        margin=dict(t=20, b=40, l=250, r=100),  # Increased right margin for text labels
         showlegend=False,
-        xaxis_tickangle=-35,
-        height=280
+        height=max(450, len(names) * 50),  # Increased height for better spacing
+        yaxis=dict(autorange='reversed')  # Put Current MVPF at top
     )
 
-    # Add horizontal line at y=0
-    fig.add_hline(y=0, line_dash="solid", line_color="#9ca3af", line_width=1)
+    # Add vertical line at x=0
+    fig.add_vline(x=0, line_dash="solid", line_color="#9ca3af", line_width=1)
 
-    # Add horizontal line at y=1 (break-even point)
-    fig.add_hline(y=1, line_dash="dash", line_color="#f59e0b", line_width=1,
-                  annotation_text="Break-even", annotation_position="right")
+    # Add vertical line at x=1 (break-even point)
+    fig.add_vline(x=1, line_dash="dash", line_color="#f59e0b", line_width=1,
+                  annotation_text="Break-even", annotation_position="top")
 
     return fig
 
@@ -2983,6 +3375,7 @@ def _build_benchmark_card(current_mvpf):
         bench_mvpf = float(benchmark['mvpf_value'])
         description = benchmark['Description']
         source_link = benchmark['source_link']
+        benchmark_id = benchmark['Id']
 
         # Calculate comparison
         if current_mvpf != 0:
@@ -3010,19 +3403,35 @@ def _build_benchmark_card(current_mvpf):
 
         # Format comparison text
         if is_better:
-            comparison_text = f"-{abs(pct_diff):.0f}X" if pct_diff != 0 else "Same"
+            comparison_text = f"-{abs(pct_diff):.2f}X" if pct_diff != 0 else "Same"
         else:
-            comparison_text = f"+{abs(pct_diff):.0f}X" if pct_diff != 0 else "Same"
+            comparison_text = f"+{abs(pct_diff):.2f}X" if pct_diff != 0 else "Same"
 
         # Get first source link if multiple
         first_link = source_link.split(',')[0].strip()
 
-        tile = html.Div(className='benchmark-tile', children=[
+        # Get description from content.json
+        bench_description = content.get(f'benchmark_descriptions.{benchmark_id}', '')
+
+        tile = html.Div(className='benchmark-tile', style={
+            'marginBottom': '16px',
+            'padding': '16px',
+            'background': 'white',
+            'borderRadius': '8px',
+            'border': '1px solid #e5e7eb'
+        }, children=[
             html.Div(className='benchmark-tile-header', children=[
                 html.Span(f"{bench_mvpf:.2f}", className=f'benchmark-tile-value {value_class}'),
                 html.Span(comparison_text, className=f'benchmark-tile-comparison {comparison_class}')
             ]),
             html.Div(className='benchmark-tile-name', children=description),
+            html.P(bench_description, style={
+                'fontSize': '13px',
+                'color': '#6b7280',
+                'marginTop': '8px',
+                'marginBottom': '12px',
+                'lineHeight': '1.5'
+            }),
             html.A(
                 'View Source',
                 href=first_link,
@@ -3033,29 +3442,43 @@ def _build_benchmark_card(current_mvpf):
         benchmark_tiles.append(tile)
 
     return html.Div(className='kpi-card', children=[
-        html.H3('Comparative Benchmarking', style={
-            'fontSize': '24px',
-            'fontWeight': '600',
-            'color': 'white',
-            'marginBottom': '8px',
-            'marginTop': '0',
-            'textAlign': 'center',
-        }),
-        html.P([
-            'Comparing the the actual MVPF values of selected government programs, interventions, and policy initiatives across different domains, and the impact of how 1 US dollar is spent on Cook County Jail comparing to spending on these initiatives.'
-        ], style={
-            'fontSize': '14px',
-            'color': 'white',
-            'marginBottom': '16px',
-            'fontWeight': '400'
-        }),
-        # Benchmark comparison chart
-        dcc.Graph(
-            figure=benchmark_chart,
-            config={'displayModeBar': False}
-        ),
-        # Benchmark tiles grid
-        html.Div(className='benchmark-grid', style={'marginTop': '16px'}, children=benchmark_tiles)
+        # Header section
+        html.Div(children=[
+            html.H3(
+                content.get('benchmark_card.title', 'Comparative Benchmarking'),
+                style={
+                    'fontSize': '24px',
+                    'fontWeight': '600',
+                    'color': 'white',
+                    'marginBottom': '8px',
+                    'marginTop': '0',
+                    'textAlign': 'center',
+                }
+            ),
+            html.P(
+                content.get('benchmark_card.description', 'Comparing the the actual MVPF values of selected government programs, interventions, and policy initiatives across different domains, and the impact of how 1 US dollar is spent on Cook County Jail comparing to spending on these initiatives.'),
+                style={
+                    'fontSize': '14px',
+                    'color': 'white',
+                    'marginBottom': '24px',
+                    'fontWeight': '400'
+                }
+            )
+        ]),
+
+        # Two-column layout: Chart on left (65%), Single column of tiles on right (35%)
+        html.Div(style={'display': 'grid', 'gridTemplateColumns': '65% 35%', 'gap': '24px'}, children=[
+            # Left: Benchmark comparison chart
+            html.Div(style={'background': 'white', 'borderRadius': '8px', 'padding': '16px'}, children=[
+                dcc.Graph(
+                    figure=benchmark_chart,
+                    config={'displayModeBar': False}
+                )
+            ]),
+
+            # Right: Benchmark tiles in single column
+            html.Div(style={'overflowY': 'auto', 'maxHeight': '700px'}, children=benchmark_tiles)
+        ])
     ])
 
 
@@ -3066,7 +3489,10 @@ def _build_numerator_chart(result):
 
     fig = go.Figure(data=[
         go.Bar(
-            x=['Detainee Values', 'Society Values'],
+            x=[
+                content.get('charts.numerator_chart.labels.detainee_values', 'Detainee Values'),
+                content.get('charts.numerator_chart.labels.society_values', 'Society Values')
+            ],
             y=[det_val, soc_val],
             marker_color=['#3b82f6', '#10b981'],
             text=[
@@ -3078,9 +3504,9 @@ def _build_numerator_chart(result):
     ])
 
     fig.update_layout(
-        title='Willingness to Pay (MVPF numerator value)',
+        title=content.get('charts.numerator_chart.title', 'Willingness to Pay (MVPF numerator value)'),
         xaxis_title='',
-        yaxis_title='Value ($)',
+        yaxis_title=content.get('charts.numerator_chart.y_axis', 'Value ($)'),
         paper_bgcolor='#f8fafc',
         plot_bgcolor='#ffffff',
         font=dict(family='system-ui', size=12),
@@ -3103,7 +3529,10 @@ def _build_denominator_chart(result):
 
     fig = go.Figure(data=[
         go.Bar(
-            x=['Aggregated Value', 'Government Cost'],
+            x=[
+                content.get('charts.denominator_chart.labels.aggregated_value', 'Aggregated Value'),
+                content.get('charts.denominator_chart.labels.government_cost', 'Government Cost')
+            ],
             y=[numerator, gov_val],
             marker_color=[numerator_color, '#ef4444'],
             text=[f"${int(numerator):,}", f"${int(gov_val):,}"],
@@ -3112,9 +3541,9 @@ def _build_denominator_chart(result):
     ])
 
     fig.update_layout(
-        title='Marginal Value to Government Costs Comparison',
+        title=content.get('charts.denominator_chart.title', 'Marginal Value to Government Costs Comparison'),
         xaxis_title='',
-        yaxis_title='Value ($)',
+        yaxis_title=content.get('charts.denominator_chart.y_axis', 'Value ($)'),
         paper_bgcolor='#f8fafc',
         plot_bgcolor='#ffffff',
         font=dict(family='system-ui', size=12),
@@ -3332,6 +3761,21 @@ def _build_sensitivity_analysis_chart(parameter_name, param_values, base_det_p1,
 
     variations = ['below', 'average', 'above']
 
+    # Create descriptive x-axis labels with actual parameter values
+    x_labels = []
+    for variation in variations:
+        value = param_values[variation]
+        if parameter_name == 'Felony Rate':
+            x_labels.append(f"{value:.0%}")
+        elif parameter_name == 'Detainee Population':
+            x_labels.append(f"{value:.0%}")
+        elif parameter_name == 'Length of Stay':
+            x_labels.append(f"{value:.0f} days")
+        elif parameter_name == 'Crime Effect':
+            x_labels.append(f"{value:+.0f}%")
+        else:
+            x_labels.append(f"{value:.1f}")
+
     fig = go.Figure()
 
     for scenario in scenarios:
@@ -3347,13 +3791,15 @@ def _build_sensitivity_analysis_chart(parameter_name, param_values, base_det_p1,
                 result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, param_values[variation], base_soc_p2, crime_effect=crime_effect)
             elif parameter_name == 'Length of Stay':
                 result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, base_soc_p1, param_values[variation], crime_effect=crime_effect)
+            elif parameter_name == 'Crime Effect':
+                result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, base_soc_p1, base_soc_p2, crime_effect=param_values[variation])
             else:
                 result = {'mvpf': 0}
 
             mvpf_values.append(result['mvpf'])
 
         fig.add_trace(go.Scatter(
-            x=variations,
+            x=x_labels,
             y=mvpf_values,
             mode='lines+markers',
             name=scenario_labels[scenario],
@@ -3625,10 +4071,10 @@ def register_callbacks(app):
 
     @app.callback(
         [Output('kpi-card', 'children'),
+         Output('kpi-components', 'children'),
          Output('benchmark-card', 'children'),
          Output('numerator-chart', 'figure'),
          Output('denominator-chart', 'figure'),
-         Output('parameter-comparison-chart', 'figure'),
          Output('scenario-comparison-chart', 'figure')],
         [Input('btn-calculate', 'n_clicks')],
         [State('scenario-selector', 'data'),
@@ -3674,14 +4120,13 @@ def register_callbacks(app):
             badge_color, badge_text_color, label = '#fee2e2', '#dc2626', 'Poor'
 
         # Build components
-        kpi_card = _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params)
+        kpi_score, kpi_components = _build_kpi_card_split(result, mvpf, badge_color, badge_text_color, label, params)
         benchmark_card = _build_benchmark_card(mvpf)
         numerator_fig = _build_numerator_chart(result)
         denominator_fig = _build_denominator_chart(result)
-        param_comparison_fig = _build_parameter_comparison_chart(scenario, det_p1, det_p2, soc_p1, soc_p2, det_baseline, crime_effect)
         scenario_comparison_fig = _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2, det_baseline, crime_effect)
 
-        return kpi_card, benchmark_card, numerator_fig, denominator_fig, param_comparison_fig, scenario_comparison_fig
+        return kpi_score, kpi_components, benchmark_card, numerator_fig, denominator_fig, scenario_comparison_fig
 
     # -------------------------------------------------------------------------
     # Sensitivity Analysis Callback for Tab 3
@@ -3854,6 +4299,161 @@ def register_callbacks(app):
 
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         filename = f'mvpf_results_{scenario}_{timestamp}.csv'
+
+        return dict(content=csv_string, filename=filename)
+
+    # -------------------------------------------------------------------------
+    # Download Full Analysis Callback
+    # -------------------------------------------------------------------------
+
+    @app.callback(
+        Output('download-analysis-csv', 'data'),
+        Input('download-analysis-button', 'n_clicks'),
+        [State('scenario-selector', 'data'),
+         State('detainee-param1', 'value'),
+         State('detainee-param2', 'value'),
+         State('society-param2', 'value')],
+        prevent_initial_call=True
+    )
+    def download_full_analysis(n_clicks, scenario, det_p1, det_p2, soc_p2):
+        """Generate and download comprehensive CSV with calculations and sensitivity analyses."""
+        if n_clicks is None or n_clicks == 0:
+            return None
+
+        # Convert string parameters from State to floats
+        det_p1 = float(det_p1) if det_p1 is not None else 0.7
+        det_p2 = float(det_p2) if det_p2 is not None else 1.0
+        soc_p2 = float(soc_p2) if soc_p2 is not None else 70
+        soc_p1 = 1.0  # Default value for community size multiplier
+
+        # Calculate main result
+        params = _convert_dropdown_to_params(
+            fel_rate_sel=det_p1,
+            n_detainees_sel=det_p2,
+            n_society_sel=soc_p1,
+            los_days_sel=soc_p2
+        )
+        result = calculator.calculate(scenario, params)
+
+        # Create CSV in memory
+        output = io.StringIO()
+        writer = csv.writer(output)
+
+        # Section 1: Current Calculations
+        writer.writerow(['CURRENT MVPF CALCULATION'])
+        writer.writerow(['Scenario', scenario])
+        writer.writerow(['Timestamp', datetime.now().strftime('%Y-%m-%d %H:%M:%S')])
+        writer.writerow([])
+
+        writer.writerow(['PARAMETERS'])
+        writer.writerow(['Parameter', 'Value'])
+        writer.writerow(['Felony Rate', f"{params['fel_rate']:.1%}"])
+        writer.writerow(['Detainee Population Multiplier', f"{params['n_detainees_mult']:.0%}"])
+        writer.writerow(['Community Size Multiplier', f"{params['n_society_mult']:.0%}"])
+        writer.writerow(['Length of Stay (days)', f"{params['los_days']:.0f}"])
+        writer.writerow(['Crime Effect', f"{params.get('crime_effect', 0):+.0f}%"])
+        writer.writerow([])
+
+        writer.writerow(['MAIN RESULTS'])
+        writer.writerow(['Metric', 'Value'])
+        writer.writerow(['MVPF', f"{result['mvpf']:.4f}"])
+        writer.writerow(['Detainee Values', f"${result['detainee_values']:,.2f}"])
+        writer.writerow(['Society Values', f"${result['society_values']:,.2f}"])
+        writer.writerow(['Government Costs', f"${result['govt_cost']:,.2f}"])
+        writer.writerow([])
+
+        writer.writerow(['DETAINEE BREAKDOWN'])
+        writer.writerow(['Component', 'Value'])
+        for name, value in result.get('detainee_breakdown', {}).items():
+            writer.writerow([name, f"${value:,.2f}"])
+        writer.writerow([])
+
+        writer.writerow(['SOCIETY BREAKDOWN'])
+        writer.writerow(['Component', 'Value'])
+        for name, value in result.get('society_breakdown', {}).items():
+            writer.writerow([name, f"${value:,.2f}"])
+        writer.writerow([])
+
+        writer.writerow(['GOVERNMENT BREAKDOWN'])
+        writer.writerow(['Component', 'Value'])
+        for name, value in result.get('govt_breakdown', {}).items():
+            writer.writerow([name, f"${value:,.2f}"])
+        writer.writerow([])
+        writer.writerow([])
+
+        # Section 2: Sensitivity Analyses
+        writer.writerow(['SENSITIVITY ANALYSES'])
+        writer.writerow([])
+
+        # Felony Rate Sensitivity
+        writer.writerow(['FELONY RATE SENSITIVITY'])
+        writer.writerow(['Variation', 'Value', 'MVPF'])
+        for variation in ['below', 'average', 'above']:
+            test_params = params.copy()
+            test_params['fel_rate'] = fel_rate_param.dropdown_map[variation]
+            test_result = calculator.calculate(scenario, test_params)
+            writer.writerow([
+                variation.capitalize(),
+                f"{test_params['fel_rate']:.0%}",
+                f"{test_result['mvpf']:.4f}"
+            ])
+        writer.writerow([])
+
+        # Detainee Population Sensitivity
+        writer.writerow(['DETAINEE POPULATION SENSITIVITY'])
+        writer.writerow(['Variation', 'Value', 'MVPF'])
+        for variation in ['below', 'average', 'above']:
+            test_params = params.copy()
+            test_params['n_detainees_mult'] = n_detainees_param.dropdown_map[variation]
+            test_result = calculator.calculate(scenario, test_params)
+            writer.writerow([
+                variation.capitalize(),
+                f"{test_params['n_detainees_mult']:.0%}",
+                f"{test_result['mvpf']:.4f}"
+            ])
+        writer.writerow([])
+
+        # Length of Stay Sensitivity
+        writer.writerow(['LENGTH OF STAY SENSITIVITY'])
+        writer.writerow(['Variation', 'Value (days)', 'MVPF'])
+        for variation in ['below', 'average', 'above']:
+            test_params = params.copy()
+            test_params['los_days'] = los_days_param.dropdown_map[variation]
+            test_result = calculator.calculate(scenario, test_params)
+            writer.writerow([
+                variation.capitalize(),
+                f"{test_params['los_days']:.0f}",
+                f"{test_result['mvpf']:.4f}"
+            ])
+        writer.writerow([])
+
+        # Crime Effect Sensitivity
+        writer.writerow(['CRIME EFFECT SENSITIVITY'])
+        writer.writerow(['Variation', 'Value (%)', 'MVPF'])
+        crime_effects = {'below': -4, 'average': 0, 'above': 14}
+        for variation in ['below', 'average', 'above']:
+            test_params = params.copy()
+            test_result = _calculate_mvpf(scenario, det_p1, det_p2, soc_p1, soc_p2, crime_effect=crime_effects[variation])
+            writer.writerow([
+                variation.capitalize(),
+                f"{crime_effects[variation]:+.0f}",
+                f"{test_result['mvpf']:.4f}"
+            ])
+        writer.writerow([])
+        writer.writerow([])
+
+        # Section 3: Scenario Comparisons
+        writer.writerow(['SCENARIO COMPARISONS'])
+        writer.writerow(['Scenario', 'MVPF'])
+        for test_scenario in ['baseline', 'most conservative', 'least conservative']:
+            test_result = calculator.calculate(test_scenario, params)
+            writer.writerow([test_scenario.title(), f"{test_result['mvpf']:.4f}"])
+
+        csv_string = output.getvalue()
+        output.close()
+
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f'mvpf_full_analysis_{scenario.replace(" ", "_")}_{timestamp}.csv'
 
         return dict(content=csv_string, filename=filename)
 

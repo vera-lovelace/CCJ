@@ -3,23 +3,50 @@
     "title": " MVPF Analysis Dashboard",
     "subtitle": "Understanding the Marginal Value of Pre-Trial Detainment"
   },
+  "navigation": {
+    "home": "Home",
+    "benchmarking": "Comparative Benchmarking",
+    "mvpf_explained": "MVPF Explained",
+    "about": "About"
+  },
   "landing": {
-    "welcome_title": "Welcome to the MVPF Analysis Dashboard"
+    "welcome_title": "Welcome to the MVPF Analysis Dashboard",
+    "explore_heading": "Explore the Dashboard",
+    "calculator_card": {
+      "title": "Calculator",
+      "description": "View the MVPF calculation, key performance indicators, and comparison charts showing detainee values, society values, and government costs."
+    },
+    "scenario_analysis_card": {
+      "title": "Scenario Analysis",
+      "description": "Compare different policy scenarios and analyze parameter sensitivity to understand how changes in assumptions affect MVPF outcomes."
+    },
+    "benchmarking_card": {
+      "title": "Comparative Benchmarking",
+      "description": "Compare Cook County Jail MVPF against other government programs and policy initiatives to contextualize the value of public spending."
+    }
   },
   "info_tile": {
     "heading": "What is MVPF?",
     "description": "The Marginal Value of Public Funds (MVPF) is a metric that measures the social welfare benefit of a policy per dollar of government spending. It is a ratio that represents how much value beneficiaries receive relative to what the policy costs. [link to MIT page]",
     "formula_label": "Applying MVPF to detention",
-    "formula": "Most MVPF work looks at policies where the person subject to the policy is also the main beneficiary, such as cash transfers. Detention is different. Jail is imposed on detainees but is justified as benefiting the general public. That is why this tool tracks both Detainee effects and broader Society effects when calculating the MVPF of detention.",
-    "application_label": "Our application of MVPF to Cook County Jail",
+    "formula": "Most MVPF work looks at policies where the person subject to the policy is also the main beneficiary, such as cash transfers. Detention is different. Jail is imposed on detainees but is justified as benefiting the general public. That is why this tool tracks both Detainee effects and broader Society effects when calculating the MVPF of detention.  \n Understanding MVPF requires not just technical knowledge, but also careful consideration of the ethical and empirical challenges inherent in valuing complex social outcomes. We hope this tool facilitates more informed and nuanced discussions about pre-trial detention policy. ",
+    "application_label": "Our Approach to Cook County Jail",
     "application": "In most MVPF work, people plug in causal estimates for how behavior changes at the intensive margin (for example, working a bit more or less when a benefit changes). For Cook County Jail, we do not have credible intensive-margin estimates for detention, and the policy questions we are interested in are about the extensive margin and the scale of the jail itself: who is detained at all, for how long, and what level of funding or even continued operation is justified. It uses the full annual costs of operating the jail and the full set of impacts on people who are detained to summarize those tradeoffs in an MVPF-style framework. This CCJ calculator is built to help you see how assumptions about extensive-margin harms and benefits feed into both the numerator and the denominator, using 2018 jail spending as the benchmark.  For a fuller discussion of this choice and its limits, see the longer explanation [link to MVPF Explained]."
   },
   "tabs": {
     "overview": "Calculation",
-    "scenarios": "Compare alternative scenarios"
+    "scenarios": "Compare alternative scenarios",
+    "benchmarking": "Comparative Benchmarking",
+    "mvpf_explained": "MVPF Explained",
+    "about": "About"
   },
   "download": {
-    "button_text": "Download Current Calculations (CSV)"
+    "button_text": "Download Current Calculations (CSV)",
+    "analysis_card": {
+      "title": "Download Full Analysis",
+      "description": "Export detailed calculations, assumptions and sensitivity analyses in CSV format",
+      "button_text": "Download Current Calculations"
+    }
   },
 
 
@@ -89,11 +116,17 @@
       "fair": "Fair",
       "poor": "Poor"
     },
-    "calculation_label": "Calculation:",
+    "calculation_label": "Calculation: ",
     "interpretation_positive": "This indicates the program delivers more value than its cost.",
     "interpretation_negative": "Consider reviewing program efficiency.",
     "subcomponents_label": "Subcomponents:",
     "parameters_label": "Parameters:",
+    "parameter_labels": {
+      "felony_rate": "Felony Rate: ",
+      "population_mult": "Population Mult: ",
+      "community_mult": "Community Mult: ",
+      "length_of_stay": "Length of Stay: "
+    },
     "components": {
       "detainee": {
         "title": "Values for Detainees",
@@ -146,6 +179,7 @@
   "benchmark_card": {
     "title": "Comparative Benchmarking",
     "subtitle": "CCJ program relative to federal programs:",
+    "description": "Comparing the the actual MVPF values of selected government programs, interventions, and policy initiatives across different domains, and the impact of how 1 US dollar is spent on Cook County Jail comparing to spending on these initiatives.",
     "source": "Source: Policy benchmarks based on comparative MVPF analysis",
     "comparisons": [
       {
@@ -170,6 +204,14 @@
       }
     ]
   },
+  "benchmark_descriptions": {
+    "ssi_adults": "Federal program providing cash assistance to low-income disabled adults to meet basic needs.",
+    "food_stamps_crime": "Analysis of how SNAP benefits reduce crime rates by addressing food insecurity and economic stress.",
+    "police_station_closures": "Study examining the impact of closing police stations on crime rates and community safety in the UK.",
+    "mandated_mental_health": "Court-ordered mental health treatment programs for individuals in the criminal justice system.",
+    "HTC_single_phaseout_begin": "Tax credit for higher education expenses with income phase-out provisions for single filers.",
+    "AOTC_joint_phaseout_begin": "Education tax credit for college expenses with income-based phase-out for joint filers."
+  },
   "charts": {
     "main_components": {
       "title": "MVPF Main Components (Absolute values)",
@@ -184,10 +226,43 @@
       "y_axis_label": "Net Value ($) ",
       "legend": [ ],
       "description": "Bar graph showing how each main MVPF component is broken down into its subcomponents, with values indicating the contribution of each subcomponent to the overall Detainee, Society, and Government totals."
+    },
+    "numerator_chart": {
+      "title": "Willingness to Pay (MVPF numerator value)",
+      "y_axis": "Value ($)",
+      "labels": {
+        "detainee_values": "Detainee Values",
+        "society_values": "Society Values"
+      }
+    },
+    "denominator_chart": {
+      "title": "Marginal Value to Government Costs Comparison",
+      "y_axis": "Value ($)",
+      "labels": {
+        "aggregated_value": "Aggregated Value",
+        "government_cost": "Government Cost"
+      }
     }
   },
   "mvpf_explainer": {
     "section_title": "Understanding MVPF",
+    "scenarios_heading": "Scenarios",
+    "analysis_parameters": {
+      "heading": "Analysis Parameters",
+      "description": "You can adjust several parameters that act as multipliers to the components in the MVPF set-up. These inputs scale the numerator and denominator components of the MVPF and let you test how sensitive the results are to policy or system changes. The defaults for each parameter capture the picture of Cook County Jail in 2018. The other options available are outer bounds for sensitivity analysis, and some alternatives based on our broad review of the literature."
+    },
+    "limitations": {
+      "heading": "Limitations and Considerations",
+      "intro": "This dashboard is a structured way to translate assumptions into an MVPF for pretrial detention. It is not a definitive estimate of detention's \"true\" social value.",
+      "items": [
+        "Normative choices drive results: the largest source of variation is how detainee harm is monetized (RHV vs WTP) and whether additional community spillovers are added.",
+        "Crime impacts are uncertain and context-dependent; in this dashboard, crime effects can affect both the numerator (social harms/benefits) and the denominator (public costs or savings).",
+        "Local transferability is limited: baseline costs and operating conditions are anchored to Cook County Jail in 2018 and may not generalize to other years or jurisdictions.",
+        "Component coverage is incomplete: the MVPF includes only impacts with usable estimates, so some downstream, distributional, or hard-to-monetize effects may be missing.",
+        "Marginal vs. average effects: we use annual totals rather than clean intensive-margin estimates, so the MVPF should be interpreted as a comprehensive assessment of extensive-margin policy rather than a traditional marginal policy change.",
+        "Parameter interactions: changing multiple parameters at once can produce compounding effects that are not always intuitive or linear."
+      ]
+    },
     "what_is_mvpf": {
       "heading": "What is MVPF?",
       "description": "The Marginal Value of Public Funds (MVPF) is a metric that measures the social welfare benefit of a policy per dollar of government spending. It represents how much value beneficiaries receive relative to what the policy costs. [link to MIT page]"
@@ -326,6 +401,26 @@
           "explanation": "An optional component that captures changes in government spending associated with changes in crime induced by detention. This component is off in the baseline and is only activated when the Crime Effect assumption parameter is turned on. We value these costs or savings using McCollister (2008) government cost estimates, which translate changes in crime into public-sector expenditures such as policing, courts, and corrections. Values are scaled by crime type, so shifts toward felonies versus misdemeanors have larger fiscal effects. \n\nThis component moves in lockstep with the crime effect in the numerator: if detention is assumed to reduce crime, government costs fall and the MVPF becomes less negative; if detention is assumed to increase crime, government costs rise and the MVPF becomes more negative."
         }
       }
+    }
+  },
+  "sensitivity_analysis": {
+    "title": "Sensitivity Analysis",
+    "description": "This section lets you see how the MVPF for pretrial detention changes when you vary one parameter at a time, holding all else equal. The visualizations show how different assumptions about felony rate, detainee population, crime effects, and length of stay shift the overall result. Use this tab to see which conclusions are robust across parameter changes and which depend heavily on specific assumptions.",
+    "felony_rate": {
+      "title": "Felony Rate Sensitivity",
+      "description": "This chart shows how the MVPF changes when varying the felony rate assumption while holding all other parameters constant. The felony rate represents the percentage of detainees who would have committed a felony if not detained. Higher felony rates suggest greater crime prevention value from detention, which can increase the MVPF by reducing societal costs of crime."
+    },
+    "detainee_population": {
+      "title": "Detainee Population Sensitivity",
+      "description": "This chart shows how the MVPF changes when varying the detainee population multiplier while holding all other parameters constant. The population multiplier scales the baseline number of detainees, allowing you to assess how different jail population sizes affect the cost-effectiveness of pretrial detention. Changes in population directly affect both the total costs and total impacts."
+    },
+    "crime_effect": {
+      "title": "Crime Effect Sensitivity",
+      "description": "This chart shows how the MVPF changes when varying the crime effect assumption while holding all other parameters constant. The crime effect represents the percentage change in crime rates attributable to detention. Negative values indicate crime increases (due to destabilization), zero indicates no effect, and positive values indicate crime decreases (due to incapacitation). This parameter affects both social benefits and government costs."
+    },
+    "length_of_stay": {
+      "title": "Length of Stay Sensitivity",
+      "description": "This chart shows how the MVPF changes when varying the average length of stay while holding all other parameters constant. Length of stay measures how many days, on average, individuals spend in pretrial detention. Longer stays increase both the harms to detainees and the operating costs to government, while potentially providing more time for crime prevention effects."
     }
   },
   "placeholders": {
