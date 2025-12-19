@@ -1151,8 +1151,8 @@ app.layout = html.Div(className='app-container', children=[
                                     }
                                 ),
 
-                                # Parameter Jumbotrons Grid
-                                html.Div(className='jumbotron-grid', style={'marginBottom': '24px'}, children=[
+                                # Parameter Jumbotrons Grid - Row 1
+                                html.Div(className='jumbotron-grid', style={'marginBottom': '24px', 'gridTemplateColumns': 'repeat(3, 1fr)'}, children=[
                                     # Jumbotron 1: Felony Rate
                                     html.Div(className='jumbotron', children=[
                                         html.Div(className='jumbotron-icon', style={'background': '#dbeafe'}, children=[
@@ -1163,13 +1163,13 @@ app.layout = html.Div(className='app-container', children=[
                                         html.P(content.get('controls.felony_rate.tooltip', fel_rate_param.description), className='jumbotron-description'),
                                         dcc.Slider(
                                             id='detainee-param1',
-                                            min=0.5,
+                                            min=0.1,
                                             max=1.0,
                                             value=0.7,
                                             marks={
-                                                0.5: {'label': '50%', 'style': {'fontSize': '11px'}},
-                                                0.7: {'label': '70%', 'style': {'fontSize': '11px'}},
-                                                1.0: {'label': '100%', 'style': {'fontSize': '11px'}}
+                                                0.5: {'label': '50%', 'style': {'fontSize': '8px'}},
+                                                0.7: {'label': '70%', 'style': {'fontSize': '8px'}},
+                                                1.0: {'label': '100%', 'style': {'fontSize': '8px'}}
                                             },
                                             step=0.01,
                                             tooltip={'placement': 'bottom', 'always_visible': False}
@@ -1209,32 +1209,38 @@ app.layout = html.Div(className='app-container', children=[
                                                     'boxSizing': 'border-box'
                                                 }
                                             )
-                                        ]),
-
-                                        # Population Multiplier Slider
-                                        html.Label('Population Multiplier:', style={
-                                            'fontSize': '12px',
-                                            'fontWeight': '500',
-                                            'color': '#374151',
-                                            'marginBottom': '8px',
-                                            'display': 'block'
-                                        }),
-                                        dcc.Slider(
-                                            id='detainee-param2',
-                                            min=0.8,
-                                            max=1.2,
-                                            value=1.0,
-                                            marks={
-                                                0.8: {'label': '80%', 'style': {'fontSize': '11px'}},
-                                                1.0: {'label': '100%', 'style': {'fontSize': '11px'}},
-                                                1.2: {'label': '120%', 'style': {'fontSize': '11px'}}
-                                            },
-                                            step=0.01,
-                                            tooltip={'placement': 'bottom', 'always_visible': False}
-                                        )
+                                        ])
                                     ]),
 
-                                    # Jumbotron 3: Crime Effect
+                                    # Jumbotron 3: Length of Stay
+                                    html.Div(className='jumbotron', children=[
+                                        html.Div(className='jumbotron-icon', style={'background': '#fee2e2'}, children=[
+                                            html.Span('D', style={'color': '#dc2626', 'fontWeight': '700'})
+                                        ]),
+                                        html.H4(content.get('controls.length_of_stay.title', 'Length of Stay'), className='jumbotron-title'),
+                                        html.P(id='los-days-value', children=f"{los_days_param.default_value:.0f} days", className='jumbotron-value'),
+                                        html.P(content.get('controls.length_of_stay.tooltip', los_days_param.description), className='jumbotron-description'),
+                                        dcc.Slider(
+                                            id='society-param2',
+                                            min=1,
+                                            max=365,
+                                            value=70,
+                                            marks={
+                                                1: {'label': '1', 'style': {'fontSize': '8px'}},
+                                                70: {'label': '70', 'style': {'fontSize': '8px'}},
+                                                203: {'label': '203', 'style': {'fontSize': '8px'}},
+                                                365: {'label': '365', 'style': {'fontSize': '8px'}},
+
+                                            },
+                                            step=1,
+                                            tooltip={'placement': 'bottom', 'always_visible': False}
+                                        )
+                                    ])
+                                ]),
+
+                                # Parameter Jumbotrons Grid - Row 2: Crime Effect
+                                html.Div(className='jumbotron-grid', style={'marginBottom': '24px', 'gridTemplateColumns': '1fr'}, children=[
+                                    # Jumbotron: Crime Effect
                                     html.Div(className='jumbotron', children=[
                                         html.Div(className='jumbotron-icon', style={'background': '#fef2f2'}, children=[
                                             html.Span('⚠️', style={'color': '#dc2626'})
@@ -1254,29 +1260,6 @@ app.layout = html.Div(className='app-container', children=[
                                                 14: {'label': '14 (Large Increase)', 'style': {'fontSize': '8px'}}
                                             },
                                             step=None,
-                                            tooltip={'placement': 'bottom', 'always_visible': False}
-                                        )
-                                    ]),
-
-                                    # Jumbotron 4: Length of Stay
-                                    html.Div(className='jumbotron', children=[
-                                        html.Div(className='jumbotron-icon', style={'background': '#fee2e2'}, children=[
-                                            html.Span('D', style={'color': '#dc2626', 'fontWeight': '700'})
-                                        ]),
-                                        html.H4(content.get('controls.length_of_stay.title', 'Length of Stay'), className='jumbotron-title'),
-                                        html.P(id='los-days-value', children=f"{los_days_param.default_value:.0f} days", className='jumbotron-value'),
-                                        html.P(content.get('controls.length_of_stay.tooltip', los_days_param.description), className='jumbotron-description'),
-                                        dcc.Slider(
-                                            id='society-param2',
-                                            min=60,
-                                            max=203,
-                                            value=70,
-                                            marks={
-                                                60: {'label': '60', 'style': {'fontSize': '11px'}},
-                                                70: {'label': '70', 'style': {'fontSize': '11px'}},
-                                                203: {'label': '203', 'style': {'fontSize': '11px'}}
-                                            },
-                                            step=1,
                                             tooltip={'placement': 'bottom', 'always_visible': False}
                                         )
                                     ])
@@ -4060,14 +4043,12 @@ def register_callbacks(app):
 
     @app.callback(
         Output('detainee-population-value', 'children'),
-        [Input('detainee-param2', 'value'),
-         Input('detainee-baseline-input', 'value')]
+        Input('detainee-baseline-input', 'value')
     )
-    def update_detainee_display(multiplier, baseline):
-        """Update displayed detainee population based on baseline and multiplier."""
+    def update_detainee_display(baseline):
+        """Update displayed detainee population based on baseline value."""
         baseline_value = baseline if baseline is not None else n_detainees_param.base_value
-        calculated_value = baseline_value * multiplier
-        return f"{calculated_value:,.0f}"
+        return f"{baseline_value:,.0f}"
 
     @app.callback(
         Output('los-days-value', 'children'),
@@ -4101,16 +4082,15 @@ def register_callbacks(app):
         [Input('btn-calculate', 'n_clicks')],
         [State('scenario-selector', 'data'),
          State('detainee-param1', 'value'),
-         State('detainee-param2', 'value'),
          State('detainee-baseline-input', 'value'),
          State('society-param2', 'value'),
          State('crime-effect-slider', 'value')]
     )
-    def update_dashboard(n_clicks, scenario, det_p1, det_p2, det_baseline, soc_p2, crime_effect):
+    def update_dashboard(n_clicks, scenario, det_p1, det_baseline, soc_p2, crime_effect):
         """Main callback to update all dashboard components."""
         # Convert string parameters from State to floats
         det_p1 = float(det_p1) if det_p1 is not None else 0.7
-        det_p2 = float(det_p2) if det_p2 is not None else 1.0
+        det_p2 = 1.0
         det_baseline = float(det_baseline) if det_baseline is not None else n_detainees_base_param.default_value
         soc_p2 = float(soc_p2) if soc_p2 is not None else 70
         crime_effect = float(crime_effect) if crime_effect is not None else 0
@@ -4161,15 +4141,14 @@ def register_callbacks(app):
          Output('sensitivity-length-of-stay', 'figure')],
         [Input('btn-calculate', 'n_clicks')],
         [State('detainee-param1', 'value'),
-         State('detainee-param2', 'value'),
          State('society-param2', 'value'),
          State('crime-effect-slider', 'value')]
     )
-    def update_sensitivity_analysis(n_clicks, det_p1, det_p2, soc_p2, crime_effect):
+    def update_sensitivity_analysis(n_clicks, det_p1, soc_p2, crime_effect):
         """Update sensitivity analysis graphs for baseline, most conservative, and least conservative scenarios."""
         # Convert string parameters from State to floats
         det_p1 = float(det_p1) if det_p1 is not None else 0.7
-        det_p2 = float(det_p2) if det_p2 is not None else 1.0
+        det_p2 = 1.0
         soc_p2 = float(soc_p2) if soc_p2 is not None else 70
         crime_effect = float(crime_effect) if crime_effect is not None else 0
 
@@ -4292,18 +4271,17 @@ def register_callbacks(app):
         Input('btn-download-csv', 'n_clicks'),
         [State('scenario-selector', 'data'),
          State('detainee-param1', 'value'),
-         State('detainee-param2', 'value'),
          State('society-param2', 'value')],
         prevent_initial_call=True
     )
-    def download_csv(n_clicks, scenario, det_p1, det_p2, soc_p2):
+    def download_csv(n_clicks, scenario, det_p1, soc_p2):
         """Generate and download CSV file with current MVPF results."""
         if n_clicks is None or n_clicks == 0:
             return None
 
         # Convert string parameters from State to floats
         det_p1 = float(det_p1) if det_p1 is not None else 0.7
-        det_p2 = float(det_p2) if det_p2 is not None else 1.0
+        det_p2 = 1.0
         soc_p2 = float(soc_p2) if soc_p2 is not None else 70
 
         # Use default value for community size multiplier
@@ -4333,18 +4311,17 @@ def register_callbacks(app):
         Input('download-analysis-button', 'n_clicks'),
         [State('scenario-selector', 'data'),
          State('detainee-param1', 'value'),
-         State('detainee-param2', 'value'),
          State('society-param2', 'value')],
         prevent_initial_call=True
     )
-    def download_full_analysis(n_clicks, scenario, det_p1, det_p2, soc_p2):
+    def download_full_analysis(n_clicks, scenario, det_p1, soc_p2):
         """Generate and download comprehensive CSV with calculations and sensitivity analyses."""
         if n_clicks is None or n_clicks == 0:
             return None
 
         # Convert string parameters from State to floats
         det_p1 = float(det_p1) if det_p1 is not None else 0.7
-        det_p2 = float(det_p2) if det_p2 is not None else 1.0
+        det_p2 = 1.0
         soc_p2 = float(soc_p2) if soc_p2 is not None else 70
         soc_p1 = 1.0  # Default value for community size multiplier
 
