@@ -1336,7 +1336,30 @@ app.layout = html.Div(className='app-container', children=[
                                 html.Div(className='chart-container', children=[
                                     dcc.Graph(id='denominator-chart')
                                 ])
+                            ]),
+                            #Min and Max MVPFs Card
+                            html.Div(className='chart-container', style={
+                                'background': 'white',
+                                'marginTop': '24px',
+                                'marginBottom': '24px',
+                                'padding': '20px'
+                            }, children=[
+                                html.P(
+                                    "CCJ 2018 highest MVPF (within-default range): Lower-Bound Valuation + crime decreases; all other parameters at CCJ 2018 defaults.\n"
+                                    "CCJ 2018 lowest MVPF (within-default range): Upper-Bound Valuation + maximum crime increase; all other parameters at CCJ 2018 defaults.\n"
+                                    "Highest MVPF (global max): Lower-Bound Valuation + crime decreases + felony mix = 0% + LoS = 1 day + detainee population = minimum.\n"
+                                    "Lowest MVPF (global min): Upper-Bound Valuation + maximum crime increase + felony mix = 100% + LoS = 365 days + detainee population = maximum.",
+                                    style={
+                                        'fontSize': '14px',
+                                        'color': '#4b5563',
+                                        'lineHeight': '1.6',
+                                        'margin': '0',
+                                        'whiteSpace': 'pre-line',
+                                        'textAlign': 'left'
+                                    }
+                                )
                             ])
+
                         ])
                     ]),
 
