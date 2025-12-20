@@ -9,8 +9,10 @@ This project provides tools for analyzing detention facility policies through:
 1. **MVPF Calculator** - Economic framework for evaluating detention policy costs and benefits across multiple scenarios
 2. **Interactive Dashboard** - Plotly Dash application with real-time parameter adjustment and visualization
 3. **Scenario Analysis** - Compare baseline, reform, and expansion scenarios with configurable parameters
+4. **Benchmark Comparisons** - Compare results with other MVPF-based policies and interventions
 
-Data and code to support the Cook County Jail project for the "Building Data Products for Public Impact" course (INFO 290, Fall 2025, UC Berkeley).
+Data tool for Cook County Jail was developed as part of the 'Building Data Products for Public Impact' clinic led by Diag Davenport at the University of California, Berkeley. 
+It is intended to support evidence-based policymaking and research on criminal justice reform. We gratefully acknowledge the contributions of researchers, data scientists, and policy experts who made this work possible.
 
 
 ## 🔬 Methodology
@@ -67,69 +69,23 @@ The platform includes the following pre-configured scenarios:
 - **Baseline**: Current operations with neutral parameters
 - **Conservative Approach**: Focus on government costs and limited societal benefits
 - **Least Conservative Approach**: Emphasizing detainee and societal benefits
-- **Reduced Crime Scenario**: Increased societal benefits from crime reduction
-- **Increased Crime Scenario**: Decreased societal benefits from capacity reductions
-- **Pre-Trial Diversion Program**: Reduced detention through community programs
-- **Bail Reform**: Reduced pre-trial detention via bail reform
-- **Facility Capacity Expansion**: Increased capacity to handle larger population
+
 
 ### Key Parameters
 
 Dashboard parameters are CSV-driven with dropdown options:
-- **Felony Rate**: Below average / Average / Above average
-- **Length of Stay**: Short (days) / Average / Long (days)
+- **Felony Rate**: 10-100%
+- **Length of Stay**: 1 to 365 days
 - **Detainee Population Multiplier**: Adjusts total affected population
-- **Society Size Multiplier**: Adjusts community impact scale
+- **Crime Effect**: Adjusts the assumed impact of detention on future crime rate of detainees.
 
 
-## 🚀 Getting Started
+##  Acknowledgments
 
-### Running the Dashboard
-
-```bash
-python Dashboard.py
-```
-
-Then open your browser to `http://localhost:8050`
-
-## 📁 Project Structure
-
-```
-CCJ/
-├── Dashboard.py               # Main Plotly Dash application
-├── mvpf_calculator.py         # Core MVPF calculation engine
-├── parameters.py              # Parameter registry and management
-├── scenarios.py               # Scenario management system
-├── subcomponents.py           # Subcomponent registry
-├── content_loader.py          # Content management
-├── graphs.py                  # Visualization helpers
-├── helpers.py                 # Utility functions
-├── cpi_adjuster.py            # CPI inflation adjustment
-├── Data/
-│   ├── subcomponent_values.csv      # Component cost/benefit values
-│   ├── parameter_values.csv         # Parameter definitions
-│   ├── parameter_mapping.csv        # Parameter-to-component mapping
-│   ├── alternative_calculations.json # Scenario definitions
-│   ├── mvpf_comparisons.csv         # Benchmark comparisons
-│   └── CPI.csv                      # CPI adjustment data
-└── Content/                   # Dashboard content and descriptions
-```
-
-## 🤝 Contributing
-
-Contributions are welcome! Areas for enhancement:
-
-- Enhanced temporal validation of various detention facilities across the US
-- Additional MVPF components
-- Dashboard improvements
-- Documentation and examples
-
-## 🙏 Acknowledgments
-
-- Research on detention facility length of stay prediction
-- MVPF methodology and economic evaluation frameworks
-- Plotly Dash for visualization capabilities
-
+- We acknowledge the foundational research in criminal justice, welfare economics, and public policy that informs our methodology.
+- We thank Cook County government agencies for providing access to administrative data and operational information.
+- This project also benefited from open-source software tools and libraries that enable interactive data visualization and analysis.
 ---
 
-**Note**: This is a research tool for policy analysis. Results should be interpreted carefully with domain expertise and validated with subject matter experts before use in decision-making.
+**Disclaimer**: This is a research tool for policy analysis. Results should be interpreted carefully with domain expertise and validated with subject matter experts before use in decision-making.
+The views and findings presented in this tool are those of the authors and do not necessarily reflect the official positions or policies of Cook County government, funding organizations, or affiliated institutions. All estimates should be interpreted as analytical tools to inform discussion rather than definitive policy prescriptions.
