@@ -41,6 +41,15 @@ class MVPFCalculator:
         for _, row in weight_rows.iterrows():
             self.weights[row['row_var']] = float(row['selected_value'])
 
+        # Build lookup dictionaries for fast O(1) access (avoids repeated DataFrame filtering)
+        self.name_lookup = {}  # row_var -> name
+        self.row_lookup = {}   # row_var -> full row data
+
+        for _, row in self.values.iterrows():
+            row_var = row['row_var']
+            self.name_lookup[row_var] = row['name']
+            self.row_lookup[row_var] = row
+
         print(f"✓ Loaded {len(self.values)} values, {len(self.scenario_manager.scenarios)} scenarios")
         print(f"✓ Loaded weights: n_detainees={self.weights.get('n_detainees', 0):,.0f}, "
               f"los_days={self.weights.get('los_days', 0):.0f}, "
@@ -113,8 +122,8 @@ class MVPFCalculator:
         for row_var in row_var_list:
             value = self._calc_one(row_var, params)
 
-            # Get name from dataframe
-            name = self.values[self.values['row_var'] == row_var]['name'].values[0]
+            # Get name from lookup dict (O(1) instead of O(n) DataFrame filtering)
+            name = self.name_lookup[row_var]
 
             total += value
             breakdown[name] = value
@@ -123,8 +132,8 @@ class MVPFCalculator:
 
     def _calc_one(self, row_var, params):
         """Calculate one subcomponent."""
-        # Get row from dataframe
-        row = self.values[self.values['row_var'] == row_var].iloc[0]
+        # Get row from lookup dict (O(1) instead of O(n) DataFrame filtering)
+        row = self.row_lookup[row_var]
 
         # SPECIAL CASE: gov_crime_prevention uses weighted average of min/max based on fel_rate
         if row_var == 'gov_crime_prevention':

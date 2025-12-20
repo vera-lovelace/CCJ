@@ -9,8 +9,6 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 import json
 
-from mvpf_calculator import MVPFCalculator
-
 
 class ScenarioManager:
     """

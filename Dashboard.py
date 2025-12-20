@@ -16,6 +16,22 @@ import io
 from content_loader import ContentManager
 from mvpf_calculator import MVPFCalculator
 from parameters import ParameterRegistry
+from formatting import (
+    Colors,
+    FontSizes,
+    Spacing,
+    LineHeights,
+    Borders,
+    BorderRadius,
+    CommonStyles,
+    Gradients,
+    format_currency,
+    format_mvpf,
+    get_mvpf_rating,
+    FONT_SIZES,
+    BODY_TEXT_STYLE,
+    HEADER_2_STYLE
+)
 
 
 def load_benchmarks(data_dir='Data'):
@@ -33,6 +49,9 @@ calculator = MVPFCalculator(data_dir='Data')
 
 # Initialize parameter registry to get CSV-based dropdown options
 param_registry = ParameterRegistry(data_dir='Data')
+
+# Load benchmarks once at startup and cache (avoids repeated CSV reads)
+benchmarks = load_benchmarks()
 
 # Get parameter definitions for dropdown generation
 fel_rate_param = param_registry.params['fel_rate']
@@ -71,119 +90,97 @@ app = dash.Dash(__name__, suppress_callback_exceptions=True)
 server = app.server
 
 
-# Font size constants
-FONT_SIZES = {
-      'h1': '32px',
-      'h2': '28px',
-      'h3': '24px',
-      'h4': '20px',
-      'body': '14px',
-      'small': '10px',
-      'label': '12px'
-}
-
-  # Reusable style dictionaries
-BODY_TEXT_STYLE = {
-      'fontSize': FONT_SIZES['body'],
-      'color': '#4b5563',
-      'lineHeight': '1.8'
-}
-
-HEADER_2_STYLE = {
-      'fontSize': FONT_SIZES['h2'],
-      'fontWeight': 'bold',
-      'color': '#1e293b',
-      'marginBottom': '16px'
-}
+# Style constants are now imported from formatting.py module
+# This ensures consistent styling across the entire application
 
 
 # Custom CSS for styling
-app.index_string = '''
+app.index_string = f'''
 <!DOCTYPE html>
 <html>
     <head>
-        {%metas%}
-        <title>{%title%}</title>
-        {%favicon%}
-        {%css%}
+        {{%metas%}}
+        <title>{{%title%}}</title>
+        {{%favicon%}}
+        {{%css%}}
         <style>
-            body {
+            body {{
                 font-family: system-ui, -apple-system, sans-serif;
                 margin: 0;
-                background: linear-gradient(to bottom right, #f8fafc, #f1f5f9);
-            }
-            .main-container {
+                background: linear-gradient(to bottom right, {Colors.GRAY_100}, {Colors.GRAY_200});
+            }}
+            .main-container {{
                 max-width: 1280px;
                 margin: 0 auto;
-                padding: 24px;
-            }
-            .sidebar {
-                background: #2C5F6F;
+                padding: {Spacing.XXL};
+            }}
+            .sidebar {{
+                background: {Colors.TEAL_PRIMARY};
                 border-radius: 8px;
-                padding: 20px;
+                padding: {Spacing.XL};
                 box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-                margin-bottom: 24px;
-            }
-            .info-tile {
-                background: #eff6ff;
-                border-left: 4px solid #3b82f6;
-                padding: 16px;
+                margin-bottom: {Spacing.XXL};
+            }}
+            .info-tile {{
+                background: {Colors.PRIMARY_BLUE_LIGHTER};
+                border-left: {Borders.EXTRA_THICK} solid {Colors.PRIMARY_BLUE};
+                padding: {Spacing.LG};
                 border-radius: 8px;
-                margin-bottom: 24px;
-            }
-            .info-tile h3 {
-                color: #1e3a8a;
+                margin-bottom: {Spacing.XXL};
+            }}
+            .info-tile h3 {{
+                color: {Colors.NAVY_LIGHT};
                 font-weight: 600;
-                margin: 0 0 8px 0;
-                font-size: 16px;
-            }
-            .info-tile p, .info-tile ul {
-                color: #1e40af;
-                font-size: 14px;
-                line-height: 1.5;
-                margin: 8px 0;
-            }
-            .info-tile ul {
-                margin-left: 8px;
+                margin: 0 0 {Spacing.SM} 0;
+                font-size: {FontSizes.H5};
+            }}
+            .info-tile p, .info-tile ul {{
+                color: {Colors.NAVY_LIGHTER};
+                font-size: {FontSizes.BODY};
+                line-height: {LineHeights.NORMAL};
+                margin: {Spacing.SM} 0;
+            }}
+            .info-tile ul {{
+                margin-left: {Spacing.SM};
                 padding-left: 0;
-            }
-            .info-tile li {
-                font-size: 12px;
-                margin: 4px 0;
-            }
-            .info-tile strong {
+            }}
+            .info-tile li {{
+                font-size: {FontSizes.LABEL};
+                margin: {Spacing.XS} 0;
+            }}
+            .info-tile strong {{
                 font-weight: 600;
-            }
-            .control-section h3 {
+            }}
+            .control-section h3 {{
                 font-weight: 600;
-                color: #1e293b;
-                margin: 0 0 12px 0;
-                font-size: 16px;
-            }
-            .control-group {
-                margin-bottom: 16px;
-            }
-            .control-label {
+                color: {Colors.NAVY_DARK};
+                margin: 0 0 {Spacing.MD} 0;
+                font-size: {FontSizes.H5};
+            }}
+            .control-group {{
+                margin-bottom: {Spacing.LG};
+            }}
+            .control-label {{
                 display: block;
-                font-size: 14px;
+                font-size: {FontSizes.BODY};
                 font-weight: 500;
-                color: #374151;
-                margin-bottom: 8px;
-            }
-            .label-with-info {
+                color: {Colors.GRAY_900};
+                margin-bottom: {Spacing.SM};
+            }}
+            .label-with-info {{
                 display: flex;
                 align-items: center;
                 gap: 6px;
-                margin-bottom: 8px;
-            }
-            .info-icon {
+                margin-bottom: {Spacing.SM};
+            }}
+            .info-icon {{
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                width: 16px;
-                height: 16px;
+                width: {Spacing.LG};
+                height: {Spacing.LG};
                 border-radius: 50%;
-                background: #3b82f6;
+                background: {Colors.PRIMARY_BLUE};
                 color: white;
                 font-size: 11px;
                 font-weight: 600;
@@ -191,344 +188,344 @@ app.index_string = '''
                 flex-shrink: 0;
                 position: relative;
                 z-index: 1;
-            }
-            .info-icon:hover {
+            }}
+            .info-icon:hover {{
                 z-index: 10000;
-            }
-            .info-icon:hover::after {
+            }}
+            .info-icon:hover::after {{
                 content: attr(data-tooltip);
                 position: absolute;
-                left: 24px;
+                left: {Spacing.XXL};
                 top: 50%;
                 transform: translateY(-50%);
-                background: #1e293b;
+                background: {Colors.NAVY_DARK};
                 color: white;
-                padding: 8px 12px;
+                padding: {Spacing.SM} {Spacing.MD};
                 border-radius: 6px;
-                font-size: 12px;
+                font-size: {FontSizes.LABEL};
                 font-weight: 400;
                 line-height: 1.4;
                 width: 220px;
                 z-index: 1000;
                 box-shadow: 0 4px 6px rgba(0,0,0,0.2);
                 white-space: normal;
-            }
-            .info-icon:hover::before {
+            }}
+            .info-icon:hover::before {{
                 content: '';
                 position: absolute;
-                left: 20px;
+                left: {Spacing.XL};
                 top: 50%;
                 transform: translateY(-50%);
                 width: 0;
                 height: 0;
                 border-top: 6px solid transparent;
                 border-bottom: 6px solid transparent;
-                border-right: 6px solid #1e293b;
+                border-right: 6px solid {Colors.NAVY_DARK};
                 z-index: 10002;
-            }
-            .Select-control, .dash-dropdown {
-                font-size: 14px !important;
-            }
-            .baseline-switch {
+            }}
+            .Select-control, .dash-dropdown {{
+                font-size: {FontSizes.BODY} !important;
+            }}
+            .baseline-switch {{
                 background: white;
                 border-radius: 8px;
-                padding: 16px;
+                padding: {Spacing.LG};
                 box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-                margin-bottom: 24px;
+                margin-bottom: {Spacing.XXL};
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-            }
-            .baseline-label {
-                font-size: 14px;
+            }}
+            .baseline-label {{
+                font-size: {FontSizes.BODY};
                 font-weight: 500;
-                color: #374151;
-            }
-            .button-group {
+                color: {Colors.GRAY_900};
+            }}
+            .button-group {{
                 display: flex;
-                gap: 8px;
-            }
-            .baseline-button {
-                padding: 8px 16px;
+                gap: {Spacing.SM};
+            }}
+            .baseline-button {{
+                padding: {Spacing.SM} {Spacing.LG};
                 border-radius: 8px;
-                font-size: 14px;
+                font-size: {FontSizes.BODY};
                 font-weight: 500;
                 cursor: pointer;
                 border: none;
                 transition: all 0.2s;
-            }
-            .baseline-button-active {
-                background: #2563eb;
+            }}
+            .baseline-button-active {{
+                background: {Colors.PRIMARY_BLUE_DARK};
                 color: white;
-            }
-            .baseline-button-inactive {
-                background: #e5e7eb;
-                color: #374151;
-            }
-            .baseline-button-inactive:hover {
-                background: #d1d5db;
-            }
-            .kpi-card {
-                background: #1E3A5F;
+            }}
+            .baseline-button-inactive {{
+                background: {Colors.GRAY_300};
+                color: {Colors.GRAY_900};
+            }}
+            .baseline-button-inactive:hover {{
+                background: {Colors.GRAY_400};
+            }}
+            .kpi-card {{
+                background: {Colors.NAVY_MEDIUM};
                 border-radius: 8px;
-                padding: 32px;
+                padding: {Spacing.XXXL};
                 box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                margin-bottom: 24px;
-            }
-            .kpi-header {
+                margin-bottom: {Spacing.XXL};
+            }}
+            .kpi-header {{
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                margin-bottom: 16px;
-            }
-            .kpi-title {
-                font-size: 24px;
+                margin-bottom: {Spacing.LG};
+            }}
+            .kpi-title {{
+                font-size: {FontSizes.H3};
                 font-weight: 600;
                 color: white;
                 text-align: center;
-            }
-            .kpi-badge {
-                padding: 4px 12px;
+            }}
+            .kpi-badge {{
+                padding: {Spacing.XS} {Spacing.MD};
                 border-radius: 9999px;
-                font-size: 14px;
+                font-size: {FontSizes.BODY};
                 font-weight: 600;
-            }
-            .kpi-value {
+            }}
+            .kpi-value {{
                 font-size: 60px;
                 font-weight: bold;
                 color: white;
                 line-height: 1;
-                margin-bottom: 24px;
+                margin-bottom: {Spacing.XXL};
                 text-align: center;
-            }
-            .kpi-ratio {
-                font-size: 24px;
-                color: #6b7280;
-                margin-left: 8px;
+            }}
+            .kpi-ratio {{
+                font-size: {FontSizes.H3};
+                color: {Colors.GRAY_600};
+                margin-left: {Spacing.SM};
                 textAlign: center;
-            }
-            .kpi-components {
+            }}
+            .kpi-components {{
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
-                gap: 16px;
-                margin: 24px 0;
-            }
-            .kpi-component {
-                background: #f9fafb;
+                gap: {Spacing.LG};
+                margin: {Spacing.XXL} 0;
+            }}
+            .kpi-component {{
+                background: {Colors.GRAY_50};
                 border-radius: 12px;
-                padding: 20px;
-                border: 2px solid #e5e7eb;
+                padding: {Spacing.XL};
+                border: {Borders.MEDIUM} solid {Colors.GRAY_300};
                 transition: all 0.2s;
-            }
-            .kpi-component:hover {
-                border-color: #3b82f6;
+            }}
+            .kpi-component:hover {{
+                border-color: {Colors.PRIMARY_BLUE};
                 box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);
-            }
-            .kpi-component-link {
+            }}
+            .kpi-component-link {{
                 text-decoration: none;
                 color: inherit;
                 display: block;
-            }
-            .kpi-component h4 {
+            }}
+            .kpi-component h4 {{
                 font-size: 13px;
-                color: #6b7280;
-                margin: 0 0 12px 0;
+                color: {Colors.GRAY_600};
+                margin: 0 0 {Spacing.MD} 0;
                 font-weight: 500;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
-            }
-            .kpi-component-link h4 {
-                color: #3b82f6;
+            }}
+            .kpi-component-link h4 {{
+                color: {Colors.PRIMARY_BLUE};
                 cursor: pointer;
-            }
-            .kpi-component-link:hover h4 {
+            }}
+            .kpi-component-link:hover h4 {{
                 text-decoration: underline;
-            }
-            .kpi-component p {
+            }}
+            .kpi-component p {{
                 font-size: 28px;
                 font-weight: 700;
-                margin: 0 0 8px 0;
+                margin: 0 0 {Spacing.SM} 0;
                 line-height: 1;
-            }
-            .kpi-component span {
-                font-size: 12px;
-                color: #9ca3af;
+            }}
+            .kpi-component span {{
+                font-size: {FontSizes.LABEL};
+                color: {Colors.GRAY_500};
                 font-weight: 400;
-            }
-            .kpi-calculation {
-                margin-top: 24px;
-                padding-top: 24px;
-                border-top: 1px solid #e5e7eb;
+            }}
+            .kpi-calculation {{
+                margin-top: {Spacing.XXL};
+                padding-top: {Spacing.XXL};
+                border-top: {Borders.THIN} solid {Colors.GRAY_300};
                 font-size: 13px;
-                color: #6b7280;
-            }
-            .kpi-interpretation {
-                margin-top: 24px;
-                padding: 16px;
-                background: #f9fafb;
+                color: {Colors.GRAY_600};
+            }}
+            .kpi-interpretation {{
+                margin-top: {Spacing.XXL};
+                padding: {Spacing.LG};
+                background: {Colors.GRAY_50};
                 border-radius: 8px;
-            }
-            .kpi-interpretation p {
-                color: #374151;
-                font-size: 14px;
+            }}
+            .kpi-interpretation p {{
+                color: {Colors.GRAY_900};
+                font-size: {FontSizes.BODY};
                 margin: 0;
-                line-height: 1.5;
-            }
-            .chart-container {
+                line-height: {LineHeights.NORMAL};
+            }}
+            .chart-container {{
                 background: white;
                 border-radius: 8px;
-                padding: 24px;
+                padding: {Spacing.XXL};
                 box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-                margin-bottom: 24px;
-            }
-            .loading-text {
-                font-size: 32px;
-                color: #9ca3af;
-            }
-            .jumbotron {
+                margin-bottom: {Spacing.XXL};
+            }}
+            .loading-text {{
+                font-size: {Spacing.XXXL};
+                color: {Colors.GRAY_500};
+            }}
+            .jumbotron {{
                 background: white;
                 border-radius: 12px;
-                padding: 24px;
+                padding: {Spacing.XXL};
                 box-shadow: 0 4px 6px rgba(0,0,0,0.07);
-                border: 1px solid #e5e7eb;
+                border: {Borders.THIN} solid {Colors.GRAY_300};
                 transition: all 0.2s ease;
-            }
-            .jumbotron:hover {
+            }}
+            .jumbotron:hover {{
                 box-shadow: 0 8px 12px rgba(0,0,0,0.1);
-                border-color: #3b82f6;
-            }
-            .jumbotron-icon {
+                border-color: {Colors.PRIMARY_BLUE};
+            }}
+            .jumbotron-icon {{
                 width: 48px;
                 height: 48px;
                 border-radius: 12px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 24px;
-                margin-bottom: 16px;
-            }
-            .jumbotron-title {
-                font-size: 14px;
+                font-size: {FontSizes.H3};
+                margin-bottom: {Spacing.LG};
+            }}
+            .jumbotron-title {{
+                font-size: {FontSizes.BODY};
                 font-weight: 600;
-                color: #374151;
-                margin: 0 0 4px 0;
+                color: {Colors.GRAY_900};
+                margin: 0 0 {Spacing.XS} 0;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
-            }
-            .jumbotron-value {
+            }}
+            .jumbotron-value {{
                 font-size: 28px;
                 font-weight: 700;
-                color: #1e293b;
-                margin: 0 0 8px 0;
-                line-height: 1.2;
-            }
-            .jumbotron-description {
-                font-size: 12px;
-                color: #6b7280;
-                margin: 0 0 16px 0;
+                color: {Colors.NAVY_DARK};
+                margin: 0 0 {Spacing.SM} 0;
+                line-height: {LineHeights.TIGHT};
+            }}
+            .jumbotron-description {{
+                font-size: {FontSizes.LABEL};
+                color: {Colors.GRAY_600};
+                margin: 0 0 {Spacing.LG} 0;
                 line-height: 1.4;
-            }
-            .jumbotron-grid {
+            }}
+            .jumbotron-grid {{
                 display: grid;
                 grid-template-columns: repeat(4, 1fr);
-                gap: 16px;
-                margin-bottom: 24px;
-            }
-            @media (max-width: 1200px) {
-                .jumbotron-grid {
+                gap: {Spacing.LG};
+                margin-bottom: {Spacing.XXL};
+            }}
+            @media (max-width: 1200px) {{
+                .jumbotron-grid {{
                     grid-template-columns: repeat(2, 1fr);
-                }
-            }
-            @media (max-width: 768px) {
-                .jumbotron-grid {
+                }}
+            }}
+            @media (max-width: 768px) {{
+                .jumbotron-grid {{
                     grid-template-columns: 1fr;
-                }
-            }
-            .benchmark-grid {
+                }}
+            }}
+            .benchmark-grid {{
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-                margin-top: 16px;
-            }
-            @media (max-width: 900px) {
-                .benchmark-grid {
+                gap: {Spacing.MD};
+                margin-top: {Spacing.LG};
+            }}
+            @media (max-width: 900px) {{
+                .benchmark-grid {{
                     grid-template-columns: 1fr;
-                }
-            }
-            .benchmark-tile {
-                background: #f9fafb;
+                }}
+            }}
+            .benchmark-tile {{
+                background: {Colors.GRAY_50};
                 border-radius: 8px;
-                padding: 16px;
-                border: 1px solid #e5e7eb;
+                padding: {Spacing.LG};
+                border: {Borders.THIN} solid {Colors.GRAY_300};
                 transition: all 0.2s ease;
-            }
-            .benchmark-tile:hover {
-                border-color: #3b82f6;
+            }}
+            .benchmark-tile:hover {{
+                border-color: {Colors.PRIMARY_BLUE};
                 box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
-            }
-            .benchmark-tile-header {
+            }}
+            .benchmark-tile-header {{
                 display: flex;
                 justify-content: space-between;
                 align-items: flex-start;
-                margin-bottom: 8px;
-            }
-            .benchmark-tile-value {
-                font-size: 24px;
+                margin-bottom: {Spacing.SM};
+            }}
+            .benchmark-tile-value {{
+                font-size: {FontSizes.H3};
                 font-weight: 700;
                 line-height: 1;
-            }
-            .benchmark-tile-value.positive {
-                color: #16a34a;
-            }
-            .benchmark-tile-value.negative {
-                color: #dc2626;
-            }
-            .benchmark-tile-comparison {
-                font-size: 12px;
+            }}
+            .benchmark-tile-value.positive {{
+                color: {Colors.SUCCESS_GREEN};
+            }}
+            .benchmark-tile-value.negative {{
+                color: {Colors.ERROR_RED};
+            }}
+            .benchmark-tile-comparison {{
+                font-size: {FontSizes.LABEL};
                 font-weight: 600;
-                padding: 4px 8px;
+                padding: {Spacing.XS} {Spacing.SM};
                 border-radius: 9999px;
-            }
-            .benchmark-tile-comparison.better {
-                background: #dcfce7;
-                color: #16a34a;
-            }
-            .benchmark-tile-comparison.worse {
-                background: #fee2e2;
-                color: #dc2626;
-            }
-            .benchmark-tile-name {
+            }}
+            .benchmark-tile-comparison.better {{
+                background: {Colors.SUCCESS_LIGHT};
+                color: {Colors.SUCCESS_GREEN};
+            }}
+            .benchmark-tile-comparison.worse {{
+                background: {Colors.ERROR_LIGHT};
+                color: {Colors.ERROR_RED};
+            }}
+            .benchmark-tile-name {{
                 font-size: 13px;
                 font-weight: 500;
-                color: #374151;
-                margin-bottom: 4px;
+                color: {Colors.GRAY_900};
+                margin-bottom: {Spacing.XS};
                 line-height: 1.3;
-            }
-            .benchmark-tile-link {
+            }}
+            .benchmark-tile-link {{
                 font-size: 11px;
-                color: #3b82f6;
+                color: {Colors.PRIMARY_BLUE};
                 text-decoration: none;
                 display: inline-flex;
                 align-items: center;
-                gap: 4px;
-            }
-            .benchmark-tile-link:hover {
+                gap: {Spacing.XS};
+            }}
+            .benchmark-tile-link:hover {{
                 text-decoration: underline;
-            }
-            .landing-nav-card:hover {
-                border-color: #3b82f6 !important;
+            }}
+            .landing-nav-card:hover {{
+                border-color: {Colors.PRIMARY_BLUE} !important;
                 box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2) !important;
                 transform: translateY(-4px);
-            }
+            }}
             /* Left Sidebar Navigation */
-            .app-container {
+            .app-container {{
                 display: flex;
                 min-height: 100vh;
-                background: linear-gradient(to bottom right, #f8fafc, #f1f5f9);
-            }
-            .left-sidebar {
+                background: linear-gradient(to bottom right, {Colors.GRAY_100}, {Colors.GRAY_200});
+            }}
+            .left-sidebar {{
                 width: 240px;
-                background: #1E3A5F;
+                background: {Colors.NAVY_MEDIUM};
                 box-shadow: 2px 0 8px rgba(0,0,0,0.1);
                 position: fixed;
                 left: 0;
@@ -536,96 +533,96 @@ app.index_string = '''
                 height: 100vh;
                 overflow-y: auto;
                 z-index: 1000;
-                padding: 24px 0;
-            }
-            .sidebar-header {
-                padding: 0 20px 20px 20px;
-                border-bottom: 1px solid #e5e7eb;
-                margin-bottom: 20px;
-            }
-            .sidebar-header h2 {
+                padding: {Spacing.XXL} 0;
+            }}
+            .sidebar-header {{
+                padding: 0 {Spacing.XL} {Spacing.XL} {Spacing.XL};
+                border-bottom: {Borders.THIN} solid {Colors.GRAY_300};
+                margin-bottom: {Spacing.XL};
+            }}
+            .sidebar-header h2 {{
                 font-size: 18px;
                 font-weight: 700;
-                color: #1e293b;
-                margin: 0 0 4px 0;
-            }
-            .sidebar-header p {
-                font-size: 12px;
-                color: #64748b;
+                color: {Colors.NAVY_DARK};
+                margin: 0 0 {Spacing.XS} 0;
+            }}
+            .sidebar-header p {{
+                font-size: {FontSizes.LABEL};
+                color: {Colors.GRAY_700};
                 margin: 0;
-            }
-            .nav-menu {
+            }}
+            .nav-menu {{
                 list-style: none;
                 margin: 0;
                 padding: 0;
-            }
-            .nav-item {
+            }}
+            .nav-item {{
                 margin: 0;
-            }
-            .nav-button {
+            }}
+            .nav-button {{
                 display: flex;
                 align-items: center;
                 width: 100%;
-                padding: 12px 20px;
+                padding: {Spacing.MD} {Spacing.XL};
                 border: none;
                 background: transparent;
-                color: #64748b;
-                font-size: 14px;
+                color: {Colors.GRAY_700};
+                font-size: {FontSizes.BODY};
                 font-weight: 500;
                 cursor: pointer;
                 transition: all 0.2s;
                 text-align: left;
-                gap: 12px;
-            }
-            .nav-button:hover {
-                background: #f8fafc;
-                color: #1E3A5F;
-            }
-            .nav-button.active {
-                background: #eff6ff;
-                color: #2563eb;
-                border-right: 3px solid #2563eb;
+                gap: {Spacing.MD};
+            }}
+            .nav-button:hover {{
+                background: {Colors.GRAY_100};
+                color: {Colors.NAVY_MEDIUM};
+            }}
+            .nav-button.active {{
+                background: {Colors.PRIMARY_BLUE_LIGHTER};
+                color: {Colors.PRIMARY_BLUE_DARK};
+                border-right: 3px solid {Colors.PRIMARY_BLUE_DARK};
                 font-weight: 600;
-            }
-            .nav-icon {
+            }}
+            .nav-icon {{
                 font-size: 18px;
-                width: 24px;
+                width: {Spacing.XXL};
                 text-align: center;
-            }
-            .main-content {
+            }}
+            .main-content {{
                 margin-left: 240px;
                 flex: 1;
-                padding: 24px;
+                padding: {Spacing.XXL};
                 max-width: calc(100% - 240px);
-            }
-            @media (max-width: 768px) {
-                .left-sidebar {
+            }}
+            @media (max-width: 768px) {{
+                .left-sidebar {{
                     width: 200px;
-                }
-                .main-content {
+                }}
+                .main-content {{
                     margin-left: 200px;
                     max-width: calc(100% - 200px);
-                }
-            }
+                }}
+            }}
             /* Hide the horizontal tabs navigation bar */
-            .custom-tabs-container .tabs__container {
+            .custom-tabs-container .tabs__container {{
                 display: none !important;
-            }
-            .custom-tabs > div:first-child {
+            }}
+            .custom-tabs > div:first-child {{
                 display: none !important;
-            }
-             .custom-tabs .tab {
+            }}
+             .custom-tabs .tab {{
                 display: none !important;
-            }
+            }}
 
         </style>
     </head>
     <body>
-        {%app_entry%}
+        {{%app_entry%}}
         <footer>
-            {%config%}
-            {%scripts%}
-            {%renderer%}
+            {{%config%}}
+            {{%scripts%}}
+            {{%renderer%}}
         </footer>
     </body>
 </html>
@@ -640,15 +637,15 @@ app.layout = html.Div(className='app-container', children=[
     html.Div(className='left-sidebar', children=[
         html.Div(className='sidebar-header', children=[
             html.H2(content.get('header.title', 'MVPF Analysis Dashboard'), style={
-                'fontSize': '24px',
+                'fontSize': FontSizes.H3,
                 'fontWeight': '700',
                 'color': 'white',
-                'margin': '0 0 8px 0'
+                'margin': f'0 0 {Spacing.SM} 0'
             }),
             html.P(content.get('header.subtitle', 'Marginal Value of Public Funds Calculation'), style={
-                'fontSize': '12px',
+                'fontSize': FontSizes.LABEL,
                 'color': 'white',
-                'margin': '0 0 16px 0',
+                'margin': f'0 0 {Spacing.LG} 0',
                 'lineHeight': '1.4'
             })
         ]),
@@ -680,34 +677,34 @@ app.layout = html.Div(className='app-container', children=[
                 dcc.Tabs(id='main-tabs', value='tab-landing', parent_className='custom-tabs-container', className='custom-tabs', children=[
                     # Tab 0: Landing Page
                     dcc.Tab(label='Home', value='tab-landing', style={
-                        'padding': '12px 24px',
+                        'padding': f'{Spacing.MD} {Spacing.XXL}',
                         'fontWeight': '500',
-                        'fontSize': '14px'
+                        'fontSize': FontSizes.BODY
                     }, selected_style={
-                        'padding': '12px 24px',
+                        'padding': f'{Spacing.MD} {Spacing.XXL}',
                         'fontWeight': '600',
-                        'fontSize': '14px',
-                        'borderTop': '3px solid #3b82f6',
+                        'fontSize': FontSizes.BODY,
+                        'borderTop': f'{Borders.THICK} solid {Colors.PRIMARY_BLUE}',
                         'backgroundColor': 'white'
                     }, children=[
-                        html.Div(style={'padding': '48px 24px', 'maxWidth': '900px', 'margin': '0 auto'}, children=[
+                        html.Div(style={'padding': f'48px {Spacing.XXL}', 'maxWidth': '900px', 'margin': '0 auto'}, children=[
                             # Title
                             html.H1(content.get('landing.welcome_title', 'Welcome to the MVPF Analysis Dashboard'), style={
                                 'fontSize': '36px',
                                 'fontWeight': 'bold',
-                                'color': '#1e293b',
-                                'marginBottom': '24px',
+                                'color': Colors.NAVY_DARK,
+                                'marginBottom': Spacing.XXL,
                                 'textAlign': 'center'
                             }),
 
                             # Purpose section
-                            html.Div(style={'marginBottom': '32px'}, children=[
+                            html.Div(style={'marginBottom': Spacing.XXXL}, children=[
                                 html.H3(content.get('understanding.purpose.title', ''), style={
-                                    'fontSize': '20px',
+                                    'fontSize': FontSizes.H4,
                                     'fontWeight': '600',
-                                    'color': '#374151',
+                                    'color': Colors.GRAY_900,
                                     'marginTop': '0',
-                                    'marginBottom': '12px',
+                                    'marginBottom': Spacing.MD,
                                     'textAlign': 'center'
                                 }),
                                 html.P(
@@ -716,9 +713,9 @@ app.layout = html.Div(className='app-container', children=[
                                                 'for Cook County Jail operations. It enables policymakers, researchers, and stakeholders to evaluate the '
                                                 'social welfare impacts of detention policies through a systematic, data-driven framework.'),
                                     style={
-                                        'fontSize': '16px',
-                                        'color': '#4b5563',
-                                        'lineHeight': '1.8',
+                                        'fontSize': FontSizes.H5,
+                                        'color': Colors.GRAY_800,
+                                        'lineHeight': LineHeights.LOOSE,
                                         'margin': '0'
                                     }
                                 )
@@ -728,20 +725,20 @@ app.layout = html.Div(className='app-container', children=[
                             html.Div(
                                 style={
                                     'background': 'white',
-                                    'padding': '20px',
+                                    'padding': Spacing.XL,
                                     'borderRadius': '8px',
-                                    'marginBottom': '32px',
-                                    'border': '1px solid #e5e7eb'
+                                    'marginBottom': Spacing.XXXL,
+                                    'border': f'{Borders.THIN} solid {Colors.GRAY_300}'
                                 },
                                 children=[
                                     html.H3(
                                         content.get('info_tile.heading', 'About MVPF'),
                                         style={
-                                            'fontSize': '16px',
+                                            'fontSize': FontSizes.H5,
                                             'fontWeight': '600',
-                                            'color': '#374151',
+                                            'color': Colors.GRAY_900,
                                             'marginTop': '0',
-                                            'marginBottom': '8px'
+                                            'marginBottom': Spacing.SM
                                         }
                                     ),
 
@@ -751,10 +748,10 @@ app.layout = html.Div(className='app-container', children=[
                                             'The MVPF measures the ratio of beneficiaries willingness to pay to the net cost to the government'
                                         ),
                                         style={
-                                            'fontSize': '14px',
-                                            'color': '#6b7280',
-                                            'lineHeight': '1.6',
-                                            'margin': '0 0 12px 0'
+                                            'fontSize': FontSizes.BODY,
+                                            'color': Colors.GRAY_600,
+                                            'lineHeight': LineHeights.RELAXED,
+                                            'margin': f'0 0 {Spacing.MD} 0'
                                         }
                                     ),
 
@@ -762,7 +759,7 @@ app.layout = html.Div(className='app-container', children=[
                                         [
                                             html.Strong(
                                                 content.get('info_tile.formula_label', 'Formula:'),
-                                                style={'color': '#374151'}
+                                                style={'color': Colors.GRAY_900}
                                             ),
                                             html.Br(),
                                             content.get(
@@ -771,10 +768,10 @@ app.layout = html.Div(className='app-container', children=[
                                             )
                                         ],
                                         style={
-                                            'fontSize': '14px',
-                                            'color': '#6b7280',
-                                            'lineHeight': '1.6',
-                                            'margin': '0 0 16px 0'
+                                            'fontSize': FontSizes.BODY,
+                                            'color': Colors.GRAY_600,
+                                            'lineHeight': LineHeights.RELAXED,
+                                            'margin': f'0 0 {Spacing.LG} 0'
                                         }
                                     ),
 
@@ -782,9 +779,9 @@ app.layout = html.Div(className='app-container', children=[
                                     dcc.Markdown(
                                         f"**{content.get('info_tile.application_label', 'Our application of MVPF')}**\n\n{content.get('info_tile.application', 'How we apply MVPF to Cook County Jail.')}",
                                         style={
-                                            'fontSize': '14px',
-                                            'color': '#6b7280',
-                                            'lineHeight': '1.6',
+                                            'fontSize': FontSizes.BODY,
+                                            'color': Colors.GRAY_600,
+                                            'lineHeight': LineHeights.RELAXED,
                                             'margin': '0'
                                         }
                                     ),
@@ -794,7 +791,7 @@ app.layout = html.Div(className='app-container', children=[
                             # Description
                             html.Div(style={
 
-                                'padding': '32px',
+                                'padding': Spacing.XXXL,
                                 'borderRadius': '0px',
                                 'marginBottom': '48px',
 
@@ -804,17 +801,17 @@ app.layout = html.Div(className='app-container', children=[
                                     html.Strong('Marginal Value of Public Funds (MVPF)'),
                                     ' for Cook County Jail operations. The MVPF measures the social welfare benefit of a policy per dollar of government spending.'
                                 ], style={
-                                    'fontSize': '16px',
-                                    'color': '#334155',
-                                    'lineHeight': '1.8',
-                                    'marginBottom': '16px'
+                                    'fontSize': FontSizes.H5,
+                                    'color': Colors.GRAY_950,
+                                    'lineHeight': LineHeights.LOOSE,
+                                    'marginBottom': Spacing.LG
                                 }),
                                 html.P(
                                     'Use the tabs below to explore different aspects of the analysis, from high-level overview to detailed scenario comparisons and benchmarking against other government programs.',
                                     style={
-                                        'fontSize': '16px',
-                                        'color': '#334155',
-                                        'lineHeight': '1.8',
+                                        'fontSize': FontSizes.H5,
+                                        'color': Colors.GRAY_950,
+                                        'lineHeight': LineHeights.LOOSE,
                                         'margin': '0'
                                     }
                                 )
@@ -824,23 +821,23 @@ app.layout = html.Div(className='app-container', children=[
                             html.H2(
                                 content.get('landing.explore_heading', 'Explore the Dashboard'),
                                 style={
-                                    'fontSize': '24px',
+                                    'fontSize': FontSizes.H3,
                                     'fontWeight': '600',
-                                    'color': '#1e293b',
-                                    'marginBottom': '24px',
+                                    'color': Colors.NAVY_DARK,
+                                    'marginBottom': Spacing.XXL,
                                     'textAlign': 'center'
                                 }
                             ),
 
-                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': '24px'}, children=[
+                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': Spacing.XXL}, children=[
                                 # Card 1: Overview
                                 html.A(href='#', id='link-to-overview', style={'textDecoration': 'none'}, children=[
                                     html.Div(style={
                                         'backgroundColor': 'white',
-                                        'padding': '32px',
+                                        'padding': Spacing.XXXL,
                                         'borderRadius': '12px',
                                         'boxShadow': '0 4px 6px rgba(0,0,0,0.1)',
-                                        'border': '2px solid transparent',
+                                        'border': f'{Borders.MEDIUM} solid transparent',
                                         'transition': 'all 0.2s',
                                         'cursor': 'pointer'
                                     }, className='landing-nav-card', children=[
@@ -848,29 +845,29 @@ app.layout = html.Div(className='app-container', children=[
                                             'width': '56px',
                                             'height': '56px',
                                             'borderRadius': '12px',
-                                            'backgroundColor': '#dbeafe',
+                                            'backgroundColor': Colors.PRIMARY_BLUE_LIGHT,
                                             'display': 'flex',
                                             'alignItems': 'center',
                                             'justifyContent': 'center',
-                                            'marginBottom': '20px'
+                                            'marginBottom': Spacing.XL
                                         }, children=[
-                                            html.Span('📊', style={'fontSize': '28px'})
+                                            html.Span('📊', style={'fontSize': FontSizes.H2})
                                         ]),
                                         html.H3(
                                             content.get('landing.calculator_card.title', 'Calculator'),
                                             style={
-                                                'fontSize': '20px',
+                                                'fontSize': FontSizes.H4,
                                                 'fontWeight': '600',
-                                                'color': '#1e293b',
-                                                'marginBottom': '12px'
+                                                'color': Colors.NAVY_DARK,
+                                                'marginBottom': Spacing.MD
                                             }
                                         ),
                                         html.P(
                                             content.get('landing.calculator_card.description', 'View the MVPF calculation, key performance indicators, and comparison charts showing detainee values, society values, and government costs.'),
                                             style={
-                                                'fontSize': '14px',
-                                                'color': '#64748b',
-                                                'lineHeight': '1.6',
+                                                'fontSize': FontSizes.BODY,
+                                                'color': Colors.GRAY_700,
+                                                'lineHeight': LineHeights.RELAXED,
                                                 'margin': '0'
                                             }
                                         )
@@ -881,10 +878,10 @@ app.layout = html.Div(className='app-container', children=[
                                 html.A(href='#', id='link-to-scenarios', style={'textDecoration': 'none'}, children=[
                                     html.Div(style={
                                         'backgroundColor': 'white',
-                                        'padding': '32px',
+                                        'padding': Spacing.XXXL,
                                         'borderRadius': '12px',
                                         'boxShadow': '0 4px 6px rgba(0,0,0,0.1)',
-                                        'border': '2px solid transparent',
+                                        'border': f'{Borders.MEDIUM} solid transparent',
                                         'transition': 'all 0.2s',
                                         'cursor': 'pointer'
                                     }, className='landing-nav-card', children=[
@@ -892,29 +889,29 @@ app.layout = html.Div(className='app-container', children=[
                                             'width': '56px',
                                             'height': '56px',
                                             'borderRadius': '12px',
-                                            'backgroundColor': '#fef3c7',
+                                            'backgroundColor': Colors.WARNING_LIGHT,
                                             'display': 'flex',
                                             'alignItems': 'center',
                                             'justifyContent': 'center',
-                                            'marginBottom': '20px'
+                                            'marginBottom': Spacing.XL
                                         }, children=[
-                                            html.Span('🔍', style={'fontSize': '28px'})
+                                            html.Span('🔍', style={'fontSize': FontSizes.H2})
                                         ]),
                                         html.H3(
                                             content.get('landing.scenario_analysis_card.title', 'Scenario Analysis'),
                                             style={
-                                                'fontSize': '20px',
+                                                'fontSize': FontSizes.H4,
                                                 'fontWeight': '600',
-                                                'color': '#1e293b',
-                                                'marginBottom': '12px'
+                                                'color': Colors.NAVY_DARK,
+                                                'marginBottom': Spacing.MD
                                             }
                                         ),
                                         html.P(
                                             content.get('landing.scenario_analysis_card.description', 'Compare different policy scenarios and analyze parameter sensitivity to understand how changes in assumptions affect MVPF outcomes.'),
                                             style={
-                                                'fontSize': '14px',
-                                                'color': '#64748b',
-                                                'lineHeight': '1.6',
+                                                'fontSize': FontSizes.BODY,
+                                                'color': Colors.GRAY_700,
+                                                'lineHeight': LineHeights.RELAXED,
                                                 'margin': '0'
                                             }
                                         )
@@ -925,10 +922,10 @@ app.layout = html.Div(className='app-container', children=[
                                 html.A(href='#', id='link-to-benchmarking', style={'textDecoration': 'none'}, children=[
                                     html.Div(style={
                                         'backgroundColor': 'white',
-                                        'padding': '32px',
+                                        'padding': Spacing.XXXL,
                                         'borderRadius': '12px',
                                         'boxShadow': '0 4px 6px rgba(0,0,0,0.1)',
-                                        'border': '2px solid transparent',
+                                        'border': f'{Borders.MEDIUM} solid transparent',
                                         'transition': 'all 0.2s',
                                         'cursor': 'pointer'
                                     }, className='landing-nav-card', children=[
@@ -936,29 +933,29 @@ app.layout = html.Div(className='app-container', children=[
                                             'width': '56px',
                                             'height': '56px',
                                             'borderRadius': '12px',
-                                            'backgroundColor': '#dcfce7',
+                                            'backgroundColor': Colors.SUCCESS_LIGHT,
                                             'display': 'flex',
                                             'alignItems': 'center',
                                             'justifyContent': 'center',
-                                            'marginBottom': '20px'
+                                            'marginBottom': Spacing.XL
                                         }, children=[
-                                            html.Span('📈', style={'fontSize': '28px'})
+                                            html.Span('📈', style={'fontSize': FontSizes.H2})
                                         ]),
                                         html.H3(
                                             content.get('landing.benchmarking_card.title', 'Comparative Benchmarking'),
                                             style={
-                                                'fontSize': '20px',
+                                                'fontSize': FontSizes.H4,
                                                 'fontWeight': '600',
-                                                'color': '#1e293b',
-                                                'marginBottom': '12px'
+                                                'color': Colors.NAVY_DARK,
+                                                'marginBottom': Spacing.MD
                                             }
                                         ),
                                         html.P(
                                             content.get('landing.benchmarking_card.description', 'Compare Cook County Jail MVPF against other government programs and policy initiatives to contextualize the value of public spending.'),
                                             style={
-                                                'fontSize': '14px',
-                                                'color': '#64748b',
-                                                'lineHeight': '1.6',
+                                                'fontSize': FontSizes.BODY,
+                                                'color': Colors.GRAY_700,
+                                                'lineHeight': LineHeights.RELAXED,
                                                 'margin': '0'
                                             }
                                         )
@@ -970,22 +967,22 @@ app.layout = html.Div(className='app-container', children=[
 
                     # Tab 1: Overview - KPI, Main Chart, Interpretation, Benchmarks
                     dcc.Tab(label=content.get('tabs.overview', 'Calculator'), value='tab-overview', style={
-                        'padding': '12px 24px',
+                        'padding': f'{Spacing.MD} {Spacing.XXL}',
                         'fontWeight': '500',
-                        'fontSize': '14px'
+                        'fontSize': FontSizes.BODY
                     }, selected_style={
-                        'padding': '12px 24px',
+                        'padding': f'{Spacing.MD} {Spacing.XXL}',
                         'fontWeight': '600',
-                        'fontSize': '14px',
-                        'borderTop': '3px solid #3b82f6',
+                        'fontSize': FontSizes.BODY,
+                        'borderTop': f'{Borders.THICK} solid {Colors.PRIMARY_BLUE}',
                         'backgroundColor': 'white'
                     }, children=[
-                        html.Div(style={'padding': '24px 0'}, children=[
+                        html.Div(style={'padding': f'{Spacing.XXL} 0'}, children=[
                             # Overview Tab Description Placeholder
                             html.Div(className='chart-container', style={
 
 
-                                'marginBottom': '24px'
+                                'marginBottom': Spacing.XXL
                             }, children=[
                                 html.H3(
                                     content.get('placeholders.overview_intro.title',
@@ -993,20 +990,20 @@ app.layout = html.Div(className='app-container', children=[
                                     style={
                                         'fontSize': '36px',
                                         'fontWeight': '600',
-                                        'color': '#374151',
+                                        'color': Colors.GRAY_900,
                                         'textAlign': 'center',
                                         'marginTop': '6',
-                                        'marginBottom': '24px'
+                                        'marginBottom': Spacing.XXL
                                     }
                                 ),
                                 html.Div(children=[
                                     html.P(
                                         content.get('placeholders.overview_intro.paragraph1', ''),
                                         style={
-                                            'fontSize': '14px',
+                                            'fontSize': FontSizes.BODY,
 
-                                            'lineHeight': '1.6',
-                                            'margin': '0 0 12px 0',
+                                            'lineHeight': LineHeights.RELAXED,
+                                            'margin': f'0 0 {Spacing.MD} 0',
                                             'whiteSpace': 'pre-line'
                                         }
                                     )
@@ -1014,15 +1011,15 @@ app.layout = html.Div(className='app-container', children=[
                             ]),
 
                             # Scenario Selection Section (Centered)
-                            html.Div(style={'maxWidth': '1200px', 'margin': '0 auto', 'marginBottom': '24px'}, children=[
+                            html.Div(style={'maxWidth': '1200px', 'margin': '0 auto', 'marginBottom': Spacing.XXL}, children=[
                                 html.Div(className='jumbotron', children=[
                                     html.H4(content.get('controls.scenario_selection.title', 'Scenario Selection'), style={
-                                        'fontSize': '24px',
+                                        'fontSize': FontSizes.H3,
                                         'fontWeight': '600',
-                                        'color': '#374151',
+                                        'color': Colors.GRAY_900,
                                         'marginTop': '0',
                                         'textAlign': 'center',
-                                        'marginBottom': '12px',
+                                        'marginBottom': Spacing.MD,
                                         'alignItems': 'center',
                                         'justifyContent': 'center',
                                     }),
@@ -1030,13 +1027,13 @@ app.layout = html.Div(className='app-container', children=[
                                     # Hidden store for selected scenario
                                     dcc.Store(id='scenario-selector', data='baseline'),
                                     # Scenerio Lead-in text
-                                    html.Div(style={'marginBottom': '16px'}, children=[
+                                    html.Div(style={'marginBottom': Spacing.LG}, children=[
                                     html.P(
                                         content.get('placeholders.overview_intro.paragraph2', ''),
                                         style={
-                                            'fontSize': '14px',
-                                            'color': '#4b5563',
-                                            'lineHeight': '1.6',
+                                            'fontSize': FontSizes.BODY,
+                                            'color': Colors.GRAY_800,
+                                            'lineHeight': LineHeights.RELAXED,
                                             'margin': '0 0 10px 0',
                                             'whiteSpace': 'pre-line'
                                         }
@@ -1044,9 +1041,9 @@ app.layout = html.Div(className='app-container', children=[
                                     html.P(
                                         content.get('placeholders.overview_intro.paragraph3', ''),
                                         style={
-                                            'fontSize': '14px',
-                                            'color': '#4b5563',
-                                            'lineHeight': '1.6',
+                                            'fontSize': FontSizes.BODY,
+                                            'color': Colors.GRAY_800,
+                                            'lineHeight': LineHeights.RELAXED,
                                             'margin': '0 0 10px 0',
                                             'whiteSpace': 'pre-line'
                                         }
@@ -1054,9 +1051,9 @@ app.layout = html.Div(className='app-container', children=[
                                     html.P(
                                         content.get('placeholders.overview_intro.paragraph4', ''),
                                         style={
-                                            'fontSize': '14px',
-                                            'color': '#4b5563',
-                                            'lineHeight': '1.6',
+                                            'fontSize': FontSizes.BODY,
+                                            'color': Colors.GRAY_800,
+                                            'lineHeight': LineHeights.RELAXED,
                                             'margin': '0',
                                             'whiteSpace': 'pre-line'
                                         }
@@ -1064,19 +1061,19 @@ app.layout = html.Div(className='app-container', children=[
                                 ]),
 
                                 # Scenario Jumbotrons Grid ( clickable)
-                                html.Div(className='jumbotron-grid', style={'marginBottom': '24px'}, children=[
+                                html.Div(className='jumbotron-grid', style={'marginBottom': Spacing.XXL, 'gridTemplateColumns': 'repeat(3, 1fr)'}, children=[
                                     # Jumbotron 1: Baseline Scenario
                                     html.Button(
                                         id='scenario-btn-baseline',
                                         n_clicks=0,
                                         className='jumbotron scenario-card',
-                                        style={'border': '3px solid #2563eb', 'cursor': 'pointer'},
+                                        style={'border': f'{{Borders.THICK}} solid {Colors.PRIMARY_BLUE_DARK}', 'cursor': 'pointer'},
                                         children=[
-                                            html.Div(className='jumbotron-icon', style={'background': '#dbeafe'}, children=[
-                                                html.Span('📊', style={'color': '#2563eb'})
+                                            html.Div(className='jumbotron-icon', style={'background': Colors.PRIMARY_BLUE_LIGHT}, children=[
+                                                html.Span('📊', style={'color': Colors.PRIMARY_BLUE_DARK})
                                             ]),
                                             html.H4(content.get('scenarios.cards.baseline.title', 'Baseline - Current Operations'), className='jumbotron-title', style={'fontWeight': '700'}),
-                                            html.P(content.get('scenarios.cards.baseline.value', 'Focus on individual harm plus potential criminogenic effects'), className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#2563eb'}),
+                                            html.P(content.get('scenarios.cards.baseline.value', 'Focus on individual harm plus potential criminogenic effects'), className='jumbotron-value', style={'fontSize': FontSizes.BODY, 'fontWeight': '500', 'color': Colors.PRIMARY_BLUE_DARK}),
                                             html.P(content.get('scenarios.cards.baseline.description', 'Choose this if you think detention may worsen public safety'), className='jumbotron-description')
                                         ]
                                     ),
@@ -1086,13 +1083,13 @@ app.layout = html.Div(className='app-container', children=[
                                         id='scenario-btn-most-conservative',
                                         n_clicks=0,
                                         className='jumbotron scenario-card',
-                                        style={'border': '2px solid #e5e7eb', 'cursor': 'pointer'},
+                                        style={'border': f'{{Borders.MEDIUM}} solid {Colors.GRAY_300}', 'cursor': 'pointer'},
                                         children=[
-                                            html.Div(className='jumbotron-icon', style={'background': '#fef3c7'}, children=[
-                                                html.Span('🛡️', style={'color': '#d97706'})
+                                            html.Div(className='jumbotron-icon', style={'background': Colors.WARNING_LIGHT}, children=[
+                                                html.Span('🛡️', style={'color': Colors.WARNING_YELLOW})
                                             ]),
                                             html.H4(content.get('scenarios.cards.most_conservative.title', 'Less Negative Detainee Value - Conservative'), className='jumbotron-title', style={'fontWeight': '700'}),
-                                            html.P(content.get('scenarios.cards.most_conservative.value', 'Focus on conservative valuation of individual harms'), className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#d97706'}),
+                                            html.P(content.get('scenarios.cards.most_conservative.value', 'Focus on conservative valuation of individual harms'), className='jumbotron-value', style={'fontSize': FontSizes.BODY, 'fontWeight': '500', 'color': Colors.WARNING_YELLOW}),
                                             html.P(content.get('scenarios.cards.most_conservative.description', 'Choose this if you believe detainee harm should be valued using smaller, survey-based estimates'), className='jumbotron-description')
                                         ]
                                     ),
@@ -1102,13 +1099,13 @@ app.layout = html.Div(className='app-container', children=[
                                         id='scenario-btn-least-conservative',
                                         n_clicks=0,
                                         className='jumbotron scenario-card',
-                                        style={'border': '2px solid #e5e7eb', 'cursor': 'pointer'},
+                                        style={'border': f'{{Borders.MEDIUM}} solid {Colors.GRAY_300}', 'cursor': 'pointer'},
                                         children=[
-                                            html.Div(className='jumbotron-icon', style={'background': '#dcfce7'}, children=[
-                                                html.Span('🚀', style={'color': '#16a34a'})
+                                            html.Div(className='jumbotron-icon', style={'background': Colors.SUCCESS_LIGHT}, children=[
+                                                html.Span('🚀', style={'color': Colors.SUCCESS_GREEN})
                                             ]),
                                             html.H4(content.get('scenarios.cards.least_conservative.title', 'Least Conservative (lowest MVPF)'), className='jumbotron-title', style={'fontWeight': '700'}),
-                                            html.P(content.get('scenarios.cards.least_conservative.value', 'Focus on broad social harms and criminogenic effects'), className='jumbotron-value', style={'fontSize': '14px', 'fontWeight': '500', 'color': '#16a34a'}),
+                                            html.P(content.get('scenarios.cards.least_conservative.value', 'Focus on broad social harms and criminogenic effects'), className='jumbotron-value', style={'fontSize': FontSizes.BODY, 'fontWeight': '500', 'color': Colors.SUCCESS_GREEN}),
                                             html.P(content.get('scenarios.cards.least_conservative.description', 'Choose this if you think detention harms both individuals and communities and may increase crime'), className='jumbotron-description')
                                         ]
                                     )
@@ -1117,15 +1114,15 @@ app.layout = html.Div(className='app-container', children=[
                             ]),
 
                             # Parameter Lead-in text
-                            html.Div(className='jumbotron', style={'marginTop': '0', 'marginBottom': '24px'}, children=[
+                            html.Div(className='jumbotron', style={'marginTop': '0', 'marginBottom': Spacing.XXL}, children=[
                                 html.H4(
                                     content.get('placeholders.parameter_intro.title', 'Parameter Selection'),
                                     style={
-                                        'fontSize': '24px',
+                                        'fontSize': FontSizes.H3,
                                         'fontWeight': '600',
-                                        'color': '#374151',
+                                        'color': Colors.GRAY_900,
                                         'marginTop': '0',
-                                        'marginBottom': '12px',
+                                        'marginBottom': Spacing.MD,
                                         'textAlign': 'center'
 
                                     }
@@ -1133,20 +1130,20 @@ app.layout = html.Div(className='app-container', children=[
                                 html.P(
                                     content.get('placeholders.parameter_intro.paragraph_1', ''),
                                     style={
-                                        'fontSize': '14px',
-                                        'color': '#4b5563',
-                                        'lineHeight': '1.6',
+                                        'fontSize': FontSizes.BODY,
+                                        'color': Colors.GRAY_800,
+                                        'lineHeight': LineHeights.RELAXED,
                                         'margin': '0',
                                         'whiteSpace': 'pre-line'
                                     }
                                 ),
 
                                 # Parameter Jumbotrons Grid - Row 1
-                                html.Div(className='jumbotron-grid', style={'marginBottom': '24px', 'gridTemplateColumns': 'repeat(3, 1fr)'}, children=[
+                                html.Div(className='jumbotron-grid', style={'marginBottom': Spacing.XXL, 'gridTemplateColumns': 'repeat(3, 1fr)'}, children=[
                                     # Jumbotron 1: Felony Rate
                                     html.Div(className='jumbotron', children=[
-                                        html.Div(className='jumbotron-icon', style={'background': '#dbeafe'}, children=[
-                                            html.Span('%%', style={'color': '#2563eb'})
+                                        html.Div(className='jumbotron-icon', style={'background': Colors.PRIMARY_BLUE_LIGHT}, children=[
+                                            html.Span('%%', style={'color': Colors.PRIMARY_BLUE_DARK})
                                         ]),
                                         html.H4(content.get('controls.felony_rate.title', 'Felony Rate'), className='jumbotron-title'),
                                         html.P(id='felony-rate-value', children=f"{fel_rate_param.default_value:.0%}", className='jumbotron-value'),
@@ -1157,31 +1154,38 @@ app.layout = html.Div(className='app-container', children=[
                                             max=1.0,
                                             value=0.7,
                                             marks={
+                                                0.1: {'label': '10%', 'style': {'fontSize': '8px'}},
+                                                0.2: {'label': '20%', 'style': {'fontSize': '8px'}},
+                                                0.3: {'label': '30%', 'style': {'fontSize': '8px'}},
+                                                0.4: {'label': '40%', 'style': {'fontSize': '8px'}},
                                                 0.5: {'label': '50%', 'style': {'fontSize': '8px'}},
+                                                0.6: {'label': '60%', 'style': {'fontSize': '8px'}},
                                                 0.7: {'label': '70%', 'style': {'fontSize': '8px'}},
+                                                0.8: {'label': '80%', 'style': {'fontSize': '8px'}},
+                                                0.9: {'label': '90%', 'style': {'fontSize': '8px'}},
                                                 1.0: {'label': '100%', 'style': {'fontSize': '8px'}}
                                             },
-                                            step=0.01,
+                                            step=0.05,
                                             tooltip={'placement': 'bottom', 'always_visible': False}
                                         )
                                     ]),
 
                                     # Jumbotron 2: Detainee Population
                                     html.Div(className='jumbotron', children=[
-                                        html.Div(className='jumbotron-icon', style={'background': '#fef3c7'}, children=[
-                                            html.Span('#', style={'color': '#d97706', 'fontWeight': '700'})
+                                        html.Div(className='jumbotron-icon', style={'background': Colors.WARNING_LIGHT}, children=[
+                                            html.Span('#', style={'color': Colors.WARNING_YELLOW, 'fontWeight': '700'})
                                         ]),
                                         html.H4(content.get('controls.detainee_population.title', 'Detainee Population'), className='jumbotron-title'),
                                         html.P(id='detainee-population-value', children=f"{n_detainees_param.base_value:,.0f}", className='jumbotron-value'),
                                         html.P(content.get('controls.detainee_population.tooltip', n_detainees_param.description), className='jumbotron-description'),
 
                                         # Baseline Population Input
-                                        html.Div(style={'marginBottom': '16px'}, children=[
+                                        html.Div(style={'marginBottom': Spacing.LG}, children=[
                                             html.Label('Baseline Population:', style={
-                                                'fontSize': '12px',
+                                                'fontSize': FontSizes.LABEL,
                                                 'fontWeight': '500',
-                                                'color': '#374151',
-                                                'marginBottom': '4px',
+                                                'color': Colors.GRAY_900,
+                                                'marginBottom': Spacing.XS,
                                                 'display': 'block'
                                             }),
                                             dcc.Input(
@@ -1192,9 +1196,9 @@ app.layout = html.Div(className='app-container', children=[
                                                 step=100,
                                                 style={
                                                     'width': '100%',
-                                                    'padding': '8px',
-                                                    'fontSize': '14px',
-                                                    'border': '1px solid #d1d5db',
+                                                    'padding': Spacing.SM,
+                                                    'fontSize': FontSizes.BODY,
+                                                    'border': f'{Borders.THIN} solid {Colors.GRAY_400}',
                                                     'borderRadius': '6px',
                                                     'boxSizing': 'border-box'
                                                 }
@@ -1204,8 +1208,8 @@ app.layout = html.Div(className='app-container', children=[
 
                                     # Jumbotron 3: Length of Stay
                                     html.Div(className='jumbotron', children=[
-                                        html.Div(className='jumbotron-icon', style={'background': '#fee2e2'}, children=[
-                                            html.Span('D', style={'color': '#dc2626', 'fontWeight': '700'})
+                                        html.Div(className='jumbotron-icon', style={'background': Colors.ERROR_LIGHT}, children=[
+                                            html.Span('D', style={'color': Colors.ERROR_RED, 'fontWeight': '700'})
                                         ]),
                                         html.H4(content.get('controls.length_of_stay.title', 'Length of Stay'), className='jumbotron-title'),
                                         html.P(id='los-days-value', children=f"{los_days_param.default_value:.0f} days", className='jumbotron-value'),
@@ -1229,29 +1233,46 @@ app.layout = html.Div(className='app-container', children=[
                                 ]),
 
                                 # Parameter Jumbotrons Grid - Row 2: Crime Effect
-                                html.Div(className='jumbotron-grid', style={'marginBottom': '24px', 'gridTemplateColumns': '1fr'}, children=[
-                                    # Jumbotron: Crime Effect
+                                html.Div(className='jumbotron-grid', style={'marginBottom': Spacing.XXL, 'gridTemplateColumns': '1fr'}, children=[
+                                    # Jumbotron: Crime Effect (Two-column layout)
                                     html.Div(className='jumbotron', children=[
-                                        html.Div(className='jumbotron-icon', style={'background': '#fef2f2'}, children=[
-                                            html.Span('⚠️', style={'color': '#dc2626'})
-                                        ]),
-                                        html.H4(content.get('controls.crime_effect.title', 'Crime Effect'), className='jumbotron-title'),
-                                        html.P(id='crime-effect-value', children='0', className='jumbotron-value'),
-                                        html.P(content.get('controls.crime_effect.description', 'Crime impact multiplier on detention outcomes'), className='jumbotron-description'),
-                                        dcc.Slider(
-                                            id='crime-effect-slider',
-                                            min=-4,
-                                            max=14,
-                                            value=0,
-                                            marks={
-                                                -4: {'label': '-4 (Large Decrease)', 'style': {'fontSize': '8px'}},
-                                                0: {'label': '0 (No Effect)', 'style': {'fontSize': '8px'}},
-                                                5: {'label': '5 (Moderate Increase)', 'style': {'fontSize': '8px'}},
-                                                14: {'label': '14 (Large Increase)', 'style': {'fontSize': '8px'}}
-                                            },
-                                            step=None,
-                                            tooltip={'placement': 'bottom', 'always_visible': False}
-                                        )
+                                        html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 2fr', 'gap': Spacing.XL, 'alignItems': 'center'}, children=[
+                                            # Left column: Explanation text
+                                            html.Div(children=[
+                                                html.P(
+                                                    content.get('controls.crime_effect.explanation', 'Select the assumed impact of detention on future crime rates. The baseline is set to 0% (no effect) based on literature review. You can adjust this to explore how different crime effect assumptions change the MVPF calculation.'),
+                                                    style={
+                                                        'fontSize': FontSizes.BODY,
+                                                        'color': Colors.GRAY_700,
+                                                        'lineHeight': LineHeights.RELAXED,
+                                                        'margin': '0'
+                                                    }
+                                                )
+                                            ]),
+                                            # Right column: Original content (icon, title, value, slider)
+                                            html.Div(children=[
+                                                html.Div(className='jumbotron-icon', style={'background': '#fef2f2'}, children=[
+                                                    html.Span('⚠️', style={'color': Colors.ERROR_RED})
+                                                ]),
+                                                html.H4(content.get('controls.crime_effect.title', 'Crime Effect'), className='jumbotron-title'),
+                                                html.P(id='crime-effect-value', children='0', className='jumbotron-value'),
+                                                html.P(content.get('controls.crime_effect.description', 'Crime impact multiplier on detention outcomes'), className='jumbotron-description'),
+                                                dcc.Slider(
+                                                    id='crime-effect-slider',
+                                                    min=-4,
+                                                    max=14,
+                                                    value=0,
+                                                    marks={
+                                                        -4: {'label': '-4 (Large Decrease)', 'style': {'fontSize': '8px'}},
+                                                        0: {'label': '0 (No Effect)', 'style': {'fontSize': '8px'}},
+                                                        5: {'label': '5 (Moderate Increase)', 'style': {'fontSize': '8px'}},
+                                                        14: {'label': '14 (Large Increase)', 'style': {'fontSize': '8px'}}
+                                                    },
+                                                    step=None,
+                                                    tooltip={'placement': 'bottom', 'always_visible': False}
+                                                )
+                                            ])
+                                        ])
                                     ])
                                 ]),
                             ]),
@@ -1260,19 +1281,19 @@ app.layout = html.Div(className='app-container', children=[
                             html.Div(className='calculate-section', style={
                                 'display': 'flex',
                                 'justifyContent': 'center',
-                                'marginBottom': '32px'
+                                'marginBottom': Spacing.XXXL
                             }, children=[
                                 html.Button(
                                     'Calculate MVPF',
                                     id='btn-calculate',
                                     n_clicks=0,
                                     style={
-                                        'backgroundColor': '#1E3A5F',
+                                        'backgroundColor': Colors.NAVY_MEDIUM,
                                         'color': 'white',
                                         'border': 'none',
                                         'borderRadius': '8px',
                                         'padding': '14px 48px',
-                                        'fontSize': '16px',
+                                        'fontSize': FontSizes.H5,
                                         'fontWeight': '600',
                                         'cursor': 'pointer',
                                         'transition': 'all 0.2s',
@@ -1283,7 +1304,7 @@ app.layout = html.Div(className='app-container', children=[
 
                             # MVPF Score Display (Centered)
                             html.Div(id='kpi-card', style={
-                                'marginBottom': '24px',
+                                'marginBottom': Spacing.XXL,
                                 'display': 'flex',
                                 'justifyContent': 'center'
                             }),
@@ -1291,32 +1312,32 @@ app.layout = html.Div(className='app-container', children=[
                             # MVPF Calculation Purpose Placeholder ("How to use this result")
                             html.Div(className='chart-container', style={
                                 'background': 'white',
-                                'marginBottom': '24px'
+                                'marginBottom': Spacing.XXL
                             }, children=[
                                 html.H3(content.get('placeholders.mvpf_purpose.title', 'Placeholder: Purpose of MVPF Calculation'), style={
-                                    'fontSize': '24px',
+                                    'fontSize': FontSizes.H3,
                                     'fontWeight': 'bold',
-                                    'color': '#374151',
+                                    'color': Colors.GRAY_900,
                                     'marginTop': '0',
-                                    'marginBottom': '12px',
+                                    'marginBottom': Spacing.MD,
                                     'textAlign': 'center',
                                 }),
                                 html.P(
                                     content.get('placeholders.mvpf_purpose.content', 'This section will explain the purpose and methodology of the MVPF calculation, providing context for interpreting the results shown above and the detailed breakdowns below.'),
                                     style={
-                                        'fontSize': '14px',
-                                        'color': '#374151',
-                                        'lineHeight': '1.6',
+                                        'fontSize': FontSizes.BODY,
+                                        'color': Colors.GRAY_900,
+                                        'lineHeight': LineHeights.RELAXED,
                                         'margin': '0'
                                     }
                                 )
                             ]),
 
                             # Calculation and Components Details (below "how to use this result")
-                            html.Div(id='kpi-components', style={'marginBottom': '24px'}),
+                            html.Div(id='kpi-components', style={'marginBottom': Spacing.XXL}),
 
                             # Charts Row: Numerator and Denominator Charts
-                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '24px'}, children=[
+                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': Spacing.XXL}, children=[
                                 # Numerator Chart (Detainee + Society Values)
                                 html.Div(className='chart-container', children=[
                                     dcc.Graph(id='numerator-chart')
@@ -1326,47 +1347,47 @@ app.layout = html.Div(className='app-container', children=[
                                 html.Div(className='chart-container', children=[
                                     dcc.Graph(id='denominator-chart')
                                 ])
-                            ]),
-                            #Min and Max MVPFs Card
-                            html.Div(className='chart-container', style={
-                                'background': 'white',
-                                'marginTop': '24px',
-                                'marginBottom': '24px',
-                                'padding': '20px'
-                            }, children=[
-                                html.P(
-                                    "CCJ 2018 highest MVPF (within-default range): Lower-Bound Valuation + crime decreases; all other parameters at CCJ 2018 defaults.\n"
-                                    "CCJ 2018 lowest MVPF (within-default range): Upper-Bound Valuation + maximum crime increase; all other parameters at CCJ 2018 defaults.\n"
-                                    "Highest MVPF (global max): Lower-Bound Valuation + crime decreases + felony mix = 0% + LoS = 1 day + detainee population = minimum.\n"
-                                    "Lowest MVPF (global min): Upper-Bound Valuation + maximum crime increase + felony mix = 100% + LoS = 365 days + detainee population = maximum.",
-                                    style={
-                                        'fontSize': '14px',
-                                        'color': '#4b5563',
-                                        'lineHeight': '1.6',
-                                        'margin': '0',
-                                        'whiteSpace': 'pre-line',
-                                        'textAlign': 'left'
-                                    }
-                                )
                             ])
+                            # TODO: Min and Max MVPFs Card - Currently hidden for review
+                            # html.Div(className='chart-container', style={
+                            #     'background': 'white',
+                            #     'marginTop': Spacing.XXL,
+                            #     'marginBottom': Spacing.XXL,
+                            #     'padding': Spacing.XL
+                            # }, children=[
+                            #     html.P(
+                            #         "CCJ 2018 highest MVPF (within-default range): Lower-Bound Valuation + crime decreases; all other parameters at CCJ 2018 defaults.\n"
+                            #         "CCJ 2018 lowest MVPF (within-default range): Upper-Bound Valuation + maximum crime increase; all other parameters at CCJ 2018 defaults.\n"
+                            #         "Highest MVPF (global max): Lower-Bound Valuation + crime decreases + felony mix = 0% + LoS = 1 day + detainee population = minimum.\n"
+                            #         "Lowest MVPF (global min): Upper-Bound Valuation + maximum crime increase + felony mix = 100% + LoS = 365 days + detainee population = maximum.",
+                            #         style={
+                            #             'fontSize': FontSizes.BODY,
+                            #             'color': Colors.GRAY_800,
+                            #             'lineHeight': LineHeights.RELAXED,
+                            #             'margin': '0',
+                            #             'whiteSpace': 'pre-line',
+                            #             'textAlign': 'left'
+                            #         }
+                            #     )
+                            # ])
 
                         ])
                     ]),
 
                     # Tab 2: Scenario Analysis - Scenario Selection + Subcomponents Chart
                     dcc.Tab(label=content.get('tabs.scenarios', 'Scenario Analysis'), value='tab-scenarios', style={
-                        'padding': '12px 24px',
+                        'padding': f'{Spacing.MD} {Spacing.XXL}',
                         'fontWeight': '500',
                         'fontSize': '36px',
-                        'color': '#1e293b',
+                        'color': Colors.NAVY_DARK,
                                         'textAlign': 'center',
                                         'marginTop': '6',
-                                        'marginBottom': '24px'
+                                        'marginBottom': Spacing.XXL
                     }, selected_style={
-                        'padding': '12px 24px',
+                        'padding': f'{Spacing.MD} {Spacing.XXL}',
                         'fontWeight': '600',
-                        'fontSize': '14px',
-                        'borderTop': '3px solid #3b82f6',
+                        'fontSize': FontSizes.BODY,
+                        'borderTop': f'{{Borders.THICK}} solid {Colors.PRIMARY_BLUE}',
                         'backgroundColor': 'white',
 
 
@@ -1382,9 +1403,9 @@ app.layout = html.Div(className='app-container', children=[
                                 style={
                                     'fontSize': '36px',
                                     'fontWeight': 'bold',
-                                    'color': '#1e293b',
+                                    'color': Colors.NAVY_DARK,
                                     'textAlign': 'center',
-                                    'margin': '0 0 24px 0'
+                                    'margin': f'0 0 {Spacing.XXL} 0'
                                }
                             ),
 
@@ -1392,7 +1413,7 @@ app.layout = html.Div(className='app-container', children=[
                             html.Div(style={
                                 'display': 'grid',
                                 'gridTemplateColumns': '1fr 1fr',
-                                'gap': '24px',
+                                'gap': Spacing.XXL,
                                 'marginBottom': '48px'
                             }, children=[
                                 # Left column: MVPF Comparison Chart
@@ -1403,9 +1424,9 @@ app.layout = html.Div(className='app-container', children=[
                                 # Right column: Scenarios 3 paragraphs
                                 html.Div(
                                     style={
-                                        'padding': '20px',
+                                        'padding': Spacing.XL,
                                         'borderRadius': '8px',
-                                        'color': '#1e293b',
+                                        'color': Colors.NAVY_DARK,
                                         'display': 'flex',
                                         'flexDirection': 'column',
                                         'justifyContent': 'center'
@@ -1414,35 +1435,35 @@ app.layout = html.Div(className='app-container', children=[
                                         html.P(
                                             content.get('placeholders.alt_scenarios.paragraph_1', ''),
                                             style={
-                                                'fontSize': '14px',
-                                                'color': '#1e293b',
-                                                'margin': '0 0 12px 0',
-                                                'lineHeight': '1.6'
+                                                'fontSize': FontSizes.BODY,
+                                                'color': Colors.NAVY_DARK,
+                                                'margin': f'0 0 {Spacing.MD} 0',
+                                                'lineHeight': LineHeights.RELAXED
                                             }
                                         ),
                                         html.P(
                                             content.get('placeholders.alt_scenarios.paragraph_2', ''),
                                             style={
-                                                'fontSize': '14px',
-                                                'color': '#1e293b',
-                                                'margin': '0 0 12px 0',
-                                                'lineHeight': '1.6'
+                                                'fontSize': FontSizes.BODY,
+                                                'color': Colors.NAVY_DARK,
+                                                'margin': f'0 0 {Spacing.MD} 0',
+                                                'lineHeight': LineHeights.RELAXED
                                             }
                                         ),
                                         html.P(
                                             content.get('placeholders.alt_scenarios.paragraph_3', ''),
                                             style={
-                                                'fontSize': '14px',
-                                                'color': '#1e293b',
-                                                'margin': '0 0 24px 0',
-                                                'lineHeight': '1.6'
+                                                'fontSize': FontSizes.BODY,
+                                                'color': Colors.NAVY_DARK,
+                                                'margin': f'0 0 {Spacing.XXL} 0',
+                                                'lineHeight': LineHeights.RELAXED
                                             }
                                         ),
 
                                         # Download Analysis Card
                                         html.Div(style={
-                                            'background': 'linear-gradient(135deg, #2563eb 0%, #1E3A5F 100%)',
-                                            'padding': '20px',
+                                            'background': 'linear-gradient(135deg, Colors.PRIMARY_BLUE_DARK 0%, Colors.NAVY_MEDIUM 100%)',
+                                            'padding': Spacing.XL,
                                             'borderRadius': '10px',
                                             'boxShadow': '0 4px 6px rgba(37, 99, 235, 0.1)'
                                         }, children=[
@@ -1462,7 +1483,7 @@ app.layout = html.Div(className='app-container', children=[
                                                     'fontSize': '13px',
                                                     'color': 'rgba(255, 255, 255, 0.9)',
                                                     'marginBottom': '14px',
-                                                    'lineHeight': '1.5'
+                                                    'lineHeight': LineHeights.NORMAL
                                                 }
                                             ),
                                             html.Button(
@@ -1471,7 +1492,7 @@ app.layout = html.Div(className='app-container', children=[
                                                 n_clicks=0,
                                                 style={
                                                     'backgroundColor': 'white',
-                                                    'color': '#1E3A5F',
+                                                    'color': Colors.NAVY_MEDIUM,
                                                     'border': 'none',
                                                     'padding': '10px 18px',
                                                     'borderRadius': '6px',
@@ -1493,27 +1514,27 @@ app.layout = html.Div(className='app-container', children=[
                             html.H3(
                                 content.get('sensitivity_analysis.title', 'Sensitivity Analysis'),
                                 style={
-                                    'fontSize': '24px',
+                                    'fontSize': FontSizes.H3,
                                     'fontWeight': '600',
-                                    'color': '#1e293b',
+                                    'color': Colors.NAVY_DARK,
                                     'marginTop': '0',
-                                    'marginBottom': '8px'
+                                    'marginBottom': Spacing.SM
                                 }
                             ),
                             html.P(
                                 content.get('sensitivity_analysis.description', ''),
                                 style={
-                                    'fontSize': '14px',
-                                    'color': '#6b7280',
-                                    'marginBottom': '24px',
-                                    'lineHeight': '1.6'
+                                    'fontSize': FontSizes.BODY,
+                                    'color': Colors.GRAY_600,
+                                    'marginBottom': Spacing.XXL,
+                                    'lineHeight': LineHeights.RELAXED
                                 }
                             ),
 
                             # Sensitivity Analysis Graphs (One per row with descriptions)
 
                             # Felony Rate Sensitivity
-                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '60% 40%', 'gap': '24px', 'marginBottom': '32px'}, children=[
+                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '60% 40%', 'gap': Spacing.XXL, 'marginBottom': Spacing.XXXL}, children=[
                                 html.Div(className='chart-container', children=[
                                     dcc.Graph(id='sensitivity-felony-rate')
                                 ]),
@@ -1522,19 +1543,19 @@ app.layout = html.Div(className='app-container', children=[
                                         html.H4(
                                             content.get('sensitivity_analysis.felony_rate.title', 'Felony Rate Sensitivity'),
                                             style={
-                                                'fontSize': '16px',
+                                                'fontSize': FontSizes.H5,
                                                 'fontWeight': '600',
-                                                'color': '#1e293b',
+                                                'color': Colors.NAVY_DARK,
                                                 'marginTop': '0',
-                                                'marginBottom': '12px'
+                                                'marginBottom': Spacing.MD
                                             }
                                         ),
                                         html.P(
                                             content.get('sensitivity_analysis.felony_rate.description', 'This chart shows how MVPF changes when varying the felony rate assumption while holding all other parameters constant.'),
                                             style={
-                                                'fontSize': '14px',
-                                                'color': '#4b5563',
-                                                'lineHeight': '1.6',
+                                                'fontSize': FontSizes.BODY,
+                                                'color': Colors.GRAY_800,
+                                                'lineHeight': LineHeights.RELAXED,
                                                 'margin': '0'
                                             }
                                         )
@@ -1543,7 +1564,7 @@ app.layout = html.Div(className='app-container', children=[
                             ]),
 
                             # Detainee Population Sensitivity
-                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '60% 40%', 'gap': '24px', 'marginBottom': '32px'}, children=[
+                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '60% 40%', 'gap': Spacing.XXL, 'marginBottom': Spacing.XXXL}, children=[
                                 html.Div(className='chart-container', children=[
                                     dcc.Graph(id='sensitivity-detainee-population')
                                 ]),
@@ -1552,19 +1573,19 @@ app.layout = html.Div(className='app-container', children=[
                                         html.H4(
                                             content.get('sensitivity_analysis.detainee_population.title', 'Detainee Population Sensitivity'),
                                             style={
-                                                'fontSize': '16px',
+                                                'fontSize': FontSizes.H5,
                                                 'fontWeight': '600',
-                                                'color': '#1e293b',
+                                                'color': Colors.NAVY_DARK,
                                                 'marginTop': '0',
-                                                'marginBottom': '12px'
+                                                'marginBottom': Spacing.MD
                                             }
                                         ),
                                         html.P(
                                             content.get('sensitivity_analysis.detainee_population.description', 'This chart shows how MVPF changes when varying the detainee population multiplier while holding all other parameters constant.'),
                                             style={
-                                                'fontSize': '14px',
-                                                'color': '#4b5563',
-                                                'lineHeight': '1.6',
+                                                'fontSize': FontSizes.BODY,
+                                                'color': Colors.GRAY_800,
+                                                'lineHeight': LineHeights.RELAXED,
                                                 'margin': '0'
                                             }
                                         )
@@ -1573,7 +1594,7 @@ app.layout = html.Div(className='app-container', children=[
                             ]),
 
                             # Crime Effect Sensitivity
-                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '60% 40%', 'gap': '24px', 'marginBottom': '32px'}, children=[
+                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '60% 40%', 'gap': Spacing.XXL, 'marginBottom': Spacing.XXXL}, children=[
                                 html.Div(className='chart-container', children=[
                                     dcc.Graph(id='sensitivity-crime-effect')
                                 ]),
@@ -1582,19 +1603,19 @@ app.layout = html.Div(className='app-container', children=[
                                         html.H4(
                                             content.get('sensitivity_analysis.crime_effect.title', 'Crime Effect Sensitivity'),
                                             style={
-                                                'fontSize': '16px',
+                                                'fontSize': FontSizes.H5,
                                                 'fontWeight': '600',
-                                                'color': '#1e293b',
+                                                'color': Colors.NAVY_DARK,
                                                 'marginTop': '0',
-                                                'marginBottom': '12px'
+                                                'marginBottom': Spacing.MD
                                             }
                                         ),
                                         html.P(
                                             content.get('sensitivity_analysis.crime_effect.description', 'This chart shows how MVPF changes when varying the crime effect assumption while holding all other parameters constant.'),
                                             style={
-                                                'fontSize': '14px',
-                                                'color': '#4b5563',
-                                                'lineHeight': '1.6',
+                                                'fontSize': FontSizes.BODY,
+                                                'color': Colors.GRAY_800,
+                                                'lineHeight': LineHeights.RELAXED,
                                                 'margin': '0'
                                             }
                                         )
@@ -1603,7 +1624,7 @@ app.layout = html.Div(className='app-container', children=[
                             ]),
 
                             # Length of Stay Sensitivity
-                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '60% 40%', 'gap': '24px', 'marginBottom': '48px'}, children=[
+                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '60% 40%', 'gap': Spacing.XXL, 'marginBottom': '48px'}, children=[
                                 html.Div(className='chart-container', children=[
                                     dcc.Graph(id='sensitivity-length-of-stay')
                                 ]),
@@ -1612,19 +1633,19 @@ app.layout = html.Div(className='app-container', children=[
                                         html.H4(
                                             content.get('sensitivity_analysis.length_of_stay.title', 'Length of Stay Sensitivity'),
                                             style={
-                                                'fontSize': '16px',
+                                                'fontSize': FontSizes.H5,
                                                 'fontWeight': '600',
-                                                'color': '#1e293b',
+                                                'color': Colors.NAVY_DARK,
                                                 'marginTop': '0',
-                                                'marginBottom': '12px'
+                                                'marginBottom': Spacing.MD
                                             }
                                         ),
                                         html.P(
                                             content.get('sensitivity_analysis.length_of_stay.description', 'This chart shows how MVPF changes when varying the average length of stay while holding all other parameters constant.'),
                                             style={
-                                                'fontSize': '14px',
-                                                'color': '#4b5563',
-                                                'lineHeight': '1.6',
+                                                'fontSize': FontSizes.BODY,
+                                                'color': Colors.GRAY_800,
+                                                'lineHeight': LineHeights.RELAXED,
                                                 'margin': '0'
                                             }
                                         )
@@ -1636,14 +1657,14 @@ app.layout = html.Div(className='app-container', children=[
 
                     # Tab 3: Comparative Benchmarking
                     dcc.Tab(label='Comparative Benchmarking', value='tab-benchmarking', style={
-                        'padding': '12px 24px',
+                        'padding': f'{Spacing.MD} {Spacing.XXL}',
                         'fontWeight': '500',
-                        'fontSize': '14px'
+                        'fontSize': FontSizes.BODY
                     }, selected_style={
-                        'padding': '12px 24px',
+                        'padding': f'{Spacing.MD} {Spacing.XXL}',
                         'fontWeight': '600',
-                        'fontSize': '14px',
-                        'borderTop': '3px solid #3b82f6',
+                        'fontSize': FontSizes.BODY,
+                        'borderTop': f'{{Borders.THICK}} solid {Colors.PRIMARY_BLUE}',
                         'backgroundColor': 'white'
                     }, children=[
                         html.Div(style={'padding': '24px 0'}, children=[
@@ -1654,24 +1675,24 @@ app.layout = html.Div(className='app-container', children=[
 
                     # Tab 4: Descriptions
                     dcc.Tab(label='MVPF Explained', value='tab-descriptions', style={
-                        'padding': '12px 24px',
+                        'padding': f'{Spacing.MD} {Spacing.XXL}',
                         'fontWeight': '500',
-                        'fontSize': '14px'
+                        'fontSize': FontSizes.BODY
                     }, selected_style={
-                        'padding': '12px 24px',
+                        'padding': f'{Spacing.MD} {Spacing.XXL}',
                         'fontWeight': '600',
-                        'fontSize': '14px',
-                        'borderTop': '3px solid #3b82f6',
+                        'fontSize': FontSizes.BODY,
+                        'borderTop': f'{{Borders.THICK}} solid {Colors.PRIMARY_BLUE}',
                         'backgroundColor': 'white'
                     }, children=[
                         html.Div(style={'padding': '24px 0'}, children=[
                             # MVPF Explainer Section
-                            html.Div(className='chart-container', style={'background': '#f8fafc'}, children=[
+                            html.Div(className='chart-container', style={'background': Colors.GRAY_100}, children=[
                                 html.H3(content.get('mvpf_explainer.section_title', 'Understanding MVPF'), style={
-                                    'fontSize': '24px',
+                                    'fontSize': FontSizes.H3,
                                     'fontWeight': 'bold',
-                                    'color': '#1e293b',
-                                    'marginBottom': '16px',
+                                    'color': Colors.NAVY_DARK,
+                                    'marginBottom': Spacing.LG,
                                     'marginTop': '0',
                                     'textAlign': 'center'
                                 }),
@@ -1679,71 +1700,71 @@ app.layout = html.Div(className='app-container', children=[
                                 html.H4(
                                     content.get('mvpf_explainer.what_is_mvpf.heading', 'What is MVPF?'),
                                     style={
-                                        'fontSize': '16px',
+                                        'fontSize': FontSizes.H5,
                                         'fontWeight': '600',
-                                        'color': '#374151',
+                                        'color': Colors.GRAY_900,
                                         'marginTop': '0',
-                                        'marginBottom': '12px'
+                                        'marginBottom': Spacing.MD
                                     }
                                 ),
                                 dcc.Markdown(
                                     content.get('mvpf_explainer.what_is_mvpf.description', 'The Marginal Value of Public Funds (MVPF) is a metric that measures the social welfare benefit of a policy per dollar of government spending.'),
                                     style={
-                                        'color': '#4b5563',
-                                        'fontSize': '14px',
-                                        'lineHeight': '1.6',
-                                        'margin': '0 0 24px 0'
+                                        'color': Colors.GRAY_800,
+                                        'fontSize': FontSizes.BODY,
+                                        'lineHeight': LineHeights.RELAXED,
+                                        'margin': f'0 0 {Spacing.XXL} 0'
                                     }
                                 ),
 
                                 html.H4(
                                     content.get('mvpf_explainer.applying_to_detention.heading', 'Applying MVPF to detention'),
                                     style={
-                                        'fontSize': '16px',
+                                        'fontSize': FontSizes.H5,
                                         'fontWeight': '600',
-                                        'color': '#374151',
+                                        'color': Colors.GRAY_900,
                                         'marginTop': '0',
-                                        'marginBottom': '12px'
+                                        'marginBottom': Spacing.MD
                                     }
                                 ),
                                 html.P(
                                     content.get('mvpf_explainer.applying_to_detention.paragraph1', 'Most MVPF work looks at policies where the person subject to the policy is also the main beneficiary.'),
                                     style={
-                                        'color': '#4b5563',
-                                        'fontSize': '14px',
-                                        'lineHeight': '1.6',
-                                        'margin': '0 0 12px 0',
+                                        'color': Colors.GRAY_800,
+                                        'fontSize': FontSizes.BODY,
+                                        'lineHeight': LineHeights.RELAXED,
+                                        'margin': f'0 0 {Spacing.MD} 0',
                                     }
                                 ),
                                 html.P(
                                     content.get('mvpf_explainer.applying_to_detention.paragraph2', 'Most studies on detention focus on marginal changes.'),
                                     style={
-                                        'color': '#4b5563',
-                                        'fontSize': '14px',
-                                        'lineHeight': '1.6',
-                                        'margin': '0 0 12px 0'
+                                        'color': Colors.GRAY_800,
+                                        'fontSize': FontSizes.BODY,
+                                        'lineHeight': LineHeights.RELAXED,
+                                        'margin': f'0 0 {Spacing.MD} 0'
                                     }
                                 ),
                                 html.P(
                                     content.get('mvpf_explainer.applying_to_detention.paragraph3'),
                                     style={
-                                        'color': '#374151',
-                                        'fontSize': '14px',
-                                        'lineHeight': '1.6',
-                                        'margin': '0 0 24px 0',
+                                        'color': Colors.GRAY_900,
+                                        'fontSize': FontSizes.BODY,
+                                        'lineHeight': LineHeights.RELAXED,
+                                        'margin': f'0 0 {Spacing.XXL} 0',
                                     }
                                 ),
 
                                 # Methodology section (visual equation + top-justified + in-page links)
-                                html.Div(style={'marginBottom': '32px'}, children=[
+                                html.Div(style={'marginBottom': Spacing.XXXL}, children=[
                                     html.H3(
                                         content.get('understanding.methodology.title', 'Methodology'),
                                         style={
-                                            'fontSize': '20px',
+                                            'fontSize': FontSizes.H4,
                                             'fontWeight': '600',
-                                            'color': '#374151',
+                                            'color': Colors.GRAY_900,
                                             'marginTop': '0',
-                                            'marginBottom': '12px'
+                                            'marginBottom': Spacing.MD
                                         }
                                     ),
 
@@ -1754,9 +1775,9 @@ app.layout = html.Div(className='app-container', children=[
                                         ),
                                         style={
                                             'fontSize': '15px',
-                                            'color': '#4b5563',
-                                            'lineHeight': '1.6',
-                                            'marginBottom': '12px'
+                                            'color': Colors.GRAY_800,
+                                            'lineHeight': LineHeights.RELAXED,
+                                            'marginBottom': Spacing.MD
                                         }
                                     ),
 
@@ -1765,42 +1786,42 @@ app.layout = html.Div(className='app-container', children=[
                                         'display': 'grid',
                                         'gridTemplateColumns': '1fr auto 1fr',
                                         'alignItems': 'start',   # top-justify columns
-                                        'gap': '12px',
+                                        'gap': Spacing.MD,
                                         'background': 'white',
-                                        'border': '1px solid #e5e7eb',
+                                        'border': f'{Borders.THIN} solid {Colors.GRAY_300}',
                                         'borderRadius': '10px',
-                                        'padding': '16px',
-                                        'marginBottom': '16px'
+                                        'padding': Spacing.LG,
+                                        'marginBottom': Spacing.LG
                                     }, children=[
                                         # Left: Numerator
                                         html.Div(style={'display': 'flex', 'flexDirection': 'column', 'gap': '10px'}, children=[
                                             html.Div(style={
-                                                'border': '1px solid #cbd5e1',
+                                                'border': f'{Borders.THIN} solid #cbd5e1',
                                                 'borderRadius': '10px',
                                                 'padding': '10px 12px',
-                                                'background': '#f8fafc'
+                                                'background': Colors.GRAY_100
                                             }, children=[
-                                                html.Div('Total Value', style={'fontSize': '12px', 'fontWeight': '700', 'color': '#334155', 'textTransform': 'uppercase', 'letterSpacing': '0.04em'}),
-                                                html.Div('to Detainees and Society', style={'fontSize': '14px', 'fontWeight': '600', 'color': '#0f172a', 'marginTop': '2px'})
+                                                html.Div('Total Value', style={'fontSize': FontSizes.LABEL, 'fontWeight': '700', 'color': Colors.GRAY_950, 'textTransform': 'uppercase', 'letterSpacing': '0.04em'}),
+                                                html.Div('to Detainees and Society', style={'fontSize': FontSizes.BODY, 'fontWeight': '600', 'color': '#0f172a', 'marginTop': '2px'})
                                             ]),
 
                                             # Components within Total Value
-                                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr', 'gap': '8px'}, children=[
-                                                html.Div(style={'borderLeft': '4px solid #3b82f6', 'border': '1px solid #e5e7eb', 'borderRadius': '10px', 'padding': '10px 12px', 'background': 'white'}, children=[
+                                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr', 'gap': Spacing.SM}, children=[
+                                                html.Div(style={'borderLeft': f'{{Borders.EXTRA_THICK}} solid {Colors.PRIMARY_BLUE}', 'border': f'{Borders.THIN} solid {Colors.GRAY_300}', 'borderRadius': '10px', 'padding': '10px 12px', 'background': 'white'}, children=[
                                                     html.A('Detainee Harm', href='#components-breakdown', style={'fontSize': '13px', 'fontWeight': '700', 'color': '#111827', 'textDecoration': 'none', 'cursor': 'pointer'}),
-                                                    html.Div('Harm from time in custody', style={'fontSize': '12px', 'color': '#6b7280', 'marginTop': '2px'})
+                                                    html.Div('Harm from time in custody', style={'fontSize': FontSizes.LABEL, 'color': Colors.GRAY_600, 'marginTop': '2px'})
                                                 ]),
-                                                html.Div(style={'borderLeft': '4px solid #10b981', 'border': '1px solid #e5e7eb', 'borderRadius': '10px', 'padding': '10px 12px', 'background': 'white'}, children=[
+                                                html.Div(style={'borderLeft': f'{Borders.EXTRA_THICK} solid #10b981', 'border': f'{Borders.THIN} solid {Colors.GRAY_300}', 'borderRadius': '10px', 'padding': '10px 12px', 'background': 'white'}, children=[
                                                     html.A('Court Appearance', href='#components-breakdown', style={'fontSize': '13px', 'fontWeight': '700', 'color': '#111827', 'textDecoration': 'none', 'cursor': 'pointer'}),
-                                                    html.Div('Benefits from improved appearance', style={'fontSize': '12px', 'color': '#6b7280', 'marginTop': '2px'})
+                                                    html.Div('Benefits from improved appearance', style={'fontSize': FontSizes.LABEL, 'color': Colors.GRAY_600, 'marginTop': '2px'})
                                                 ]),
-                                                html.Div(style={'borderLeft': '4px solid #ef4444', 'border': '1px solid #e5e7eb', 'borderRadius': '10px', 'padding': '10px 12px', 'background': 'white'}, children=[
+                                                html.Div(style={'borderLeft': f'{Borders.EXTRA_THICK} solid #ef4444', 'border': f'{Borders.THIN} solid {Colors.GRAY_300}', 'borderRadius': '10px', 'padding': '10px 12px', 'background': 'white'}, children=[
                                                     html.A('Crime Effects', href='#components-breakdown', style={'fontSize': '13px', 'fontWeight': '700', 'color': '#111827', 'textDecoration': 'none', 'cursor': 'pointer'}),
-                                                    html.Div('Set to 0 in baseline; adjustable', style={'fontSize': '12px', 'color': '#6b7280', 'marginTop': '2px'})
+                                                    html.Div('Set to 0 in baseline; adjustable', style={'fontSize': FontSizes.LABEL, 'color': Colors.GRAY_600, 'marginTop': '2px'})
                                                 ]),
-                                                html.Div(style={'borderLeft': '4px solid #8b5cf6', 'border': '1px solid #e5e7eb', 'borderRadius': '10px', 'padding': '10px 12px', 'background': 'white'}, children=[
+                                                html.Div(style={'borderLeft': f'{Borders.EXTRA_THICK} solid #8b5cf6', 'border': f'{Borders.THIN} solid {Colors.GRAY_300}', 'borderRadius': '10px', 'padding': '10px 12px', 'background': 'white'}, children=[
                                                     html.A('Community Spillovers', href='#components-breakdown', style={'fontSize': '13px', 'fontWeight': '700', 'color': '#111827', 'textDecoration': 'none', 'cursor': 'pointer'}),
-                                                    html.Div('Optional; depends on scenario', style={'fontSize': '12px', 'color': '#6b7280', 'marginTop': '2px'})
+                                                    html.Div('Optional; depends on scenario', style={'fontSize': FontSizes.LABEL, 'color': Colors.GRAY_600, 'marginTop': '2px'})
                                                 ])
                                             ])
                                         ]),
@@ -1811,32 +1832,32 @@ app.layout = html.Div(className='app-container', children=[
                                             'flexDirection': 'column',
                                             'alignItems': 'center',
                                             'justifyContent': 'flex-start',
-                                            'gap': '8px',
+                                            'gap': Spacing.SM,
                                             'paddingTop': '44px'  # tweak (36-52px) to align with stacks
                                         }, children=[
                                             html.Div('÷', style={'fontSize': '22px', 'fontWeight': '800', 'color': '#111827', 'lineHeight': '1'}),
-                                            html.Div('MVPF', style={'fontSize': '12px', 'fontWeight': '800', 'color': '#374151', 'letterSpacing': '0.06em'})
+                                            html.Div('MVPF', style={'fontSize': FontSizes.LABEL, 'fontWeight': '800', 'color': Colors.GRAY_900, 'letterSpacing': '0.06em'})
                                         ]),
 
                                         # Right: Denominator
                                         html.Div(style={'display': 'flex', 'flexDirection': 'column', 'gap': '10px'}, children=[
                                             html.Div(style={
-                                                'border': '1px solid #cbd5e1',
+                                                'border': f'{Borders.THIN} solid #cbd5e1',
                                                 'borderRadius': '10px',
                                                 'padding': '10px 12px',
-                                                'background': '#f8fafc'
+                                                'background': Colors.GRAY_100
                                             }, children=[
-                                                html.Div('Total Government Cost', style={'fontSize': '12px', 'fontWeight': '700', 'color': '#334155', 'textTransform': 'uppercase', 'letterSpacing': '0.04em'}),
+                                                html.Div('Total Government Cost', style={'fontSize': FontSizes.LABEL, 'fontWeight': '700', 'color': Colors.GRAY_950, 'textTransform': 'uppercase', 'letterSpacing': '0.04em'}),
                                             ]),
 
-                                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr', 'gap': '8px'}, children=[
-                                                html.Div(style={'borderLeft': '4px solid #0ea5e9', 'border': '1px solid #e5e7eb', 'borderRadius': '10px', 'padding': '10px 12px', 'background': 'white'}, children=[
+                                            html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr', 'gap': Spacing.SM}, children=[
+                                                html.Div(style={'borderLeft': f'{Borders.EXTRA_THICK} solid #0ea5e9', 'border': f'{Borders.THIN} solid {Colors.GRAY_300}', 'borderRadius': '10px', 'padding': '10px 12px', 'background': 'white'}, children=[
                                                     html.A('CCJ Operating Costs', href='#components-breakdown', style={'fontSize': '13px', 'fontWeight': '700', 'color': '#111827', 'textDecoration': 'none', 'cursor': 'pointer'}),
-                                                    html.Div('Fixed baseline denominator', style={'fontSize': '12px', 'color': '#6b7280', 'marginTop': '2px'})
+                                                    html.Div('Fixed baseline denominator', style={'fontSize': FontSizes.LABEL, 'color': Colors.GRAY_600, 'marginTop': '2px'})
                                                 ]),
-                                                html.Div(style={'borderLeft': '4px solid #ef4444', 'border': '1px solid #e5e7eb', 'borderRadius': '10px', 'padding': '10px 12px', 'background': 'white'}, children=[
+                                                html.Div(style={'borderLeft': f'{Borders.EXTRA_THICK} solid #ef4444', 'border': f'{Borders.THIN} solid {Colors.GRAY_300}', 'borderRadius': '10px', 'padding': '10px 12px', 'background': 'white'}, children=[
                                                     html.A('Crime Effect-Related Costs/Savings', href='#components-breakdown', style={'fontSize': '13px', 'fontWeight': '700', 'color': '#111827', 'textDecoration': 'none', 'cursor': 'pointer'}),
-                                                    html.Div('Only non-zero when Crime Effect is non-zero', style={'fontSize': '12px', 'color': '#6b7280', 'marginTop': '2px'})
+                                                    html.Div('Only non-zero when Crime Effect is non-zero', style={'fontSize': FontSizes.LABEL, 'color': Colors.GRAY_600, 'marginTop': '2px'})
                                                 ])
                                             ])
                                         ])
@@ -1845,7 +1866,7 @@ app.layout = html.Div(className='app-container', children=[
                                 # Parameter-to-component legend
                                 html.Div(style={
                                     'background': 'white',
-                                    'border': '1px solid #e5e7eb',
+                                    'border': f'{Borders.THIN} solid {Colors.GRAY_300}',
                                     'borderRadius': '10px',
                                     'padding': '14px 16px'
                                 }, children=[
@@ -1853,7 +1874,7 @@ app.layout = html.Div(className='app-container', children=[
                                         'fontSize': '13px',
                                         'fontWeight': '700',
                                         'color': '#111827',
-                                        'marginBottom': '12px'
+                                        'marginBottom': Spacing.MD
                                     }),
 
                                     html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '14px'}, children=[
@@ -1861,7 +1882,7 @@ app.layout = html.Div(className='app-container', children=[
                                         # Detainee Population
                                         html.Div(children=[
                                             html.Div('Detainee Population', style={
-                                                'fontSize': '12px',
+                                                'fontSize': FontSizes.LABEL,
                                                 'fontWeight': '700',
                                                 'color': '#111827',
                                                 'marginBottom': '6px'
@@ -1869,19 +1890,19 @@ app.layout = html.Div(className='app-container', children=[
                                             html.Div(style={'display': 'flex', 'flexWrap': 'wrap', 'gap': '6px'}, children=[
                                                 html.Div('Detainee Harm', style={
                                                     'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
-                                                    'background': '#dbeafe', 'color': '#1e40af'
+                                                    'background': Colors.PRIMARY_BLUE_LIGHT, 'color': '#1e40af'
                                                 }),
                                                 html.Div('Court Appearance', style={
                                                     'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
-                                                    'background': '#dcfce7', 'color': '#166534'
+                                                    'background': Colors.SUCCESS_LIGHT, 'color': '#166534'
                                                 }),
                                                 html.Div('Crime Effect', style={
                                                     'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
-                                                    'background': '#dcfce7', 'color': '#166534'
+                                                    'background': Colors.SUCCESS_LIGHT, 'color': '#166534'
                                                 }),
                                                 html.Div('Community Spillovers', style={
                                                     'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
-                                                    'background': '#dcfce7', 'color': '#166534'
+                                                    'background': Colors.SUCCESS_LIGHT, 'color': '#166534'
                                                 }),
                                                 html.Div('Crime Cost', style={
                                                     'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
@@ -1893,7 +1914,7 @@ app.layout = html.Div(className='app-container', children=[
                                         # Length of Stay
                                         html.Div(children=[
                                             html.Div('Length of Stay', style={
-                                                'fontSize': '12px',
+                                                'fontSize': FontSizes.LABEL,
                                                 'fontWeight': '700',
                                                 'color': '#111827',
                                                 'marginBottom': '6px'
@@ -1901,11 +1922,11 @@ app.layout = html.Div(className='app-container', children=[
                                             html.Div(style={'display': 'flex', 'flexWrap': 'wrap', 'gap': '6px'}, children=[
                                                 html.Div('Detainee Harm', style={
                                                     'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
-                                                    'background': '#dbeafe', 'color': '#1e40af'
+                                                    'background': Colors.PRIMARY_BLUE_LIGHT, 'color': '#1e40af'
                                                 }),
                                                 html.Div('Community Spillovers', style={
                                                     'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
-                                                    'background': '#dcfce7', 'color': '#166534'
+                                                    'background': Colors.SUCCESS_LIGHT, 'color': '#166534'
                                                 })
                                             ])
                                         ]),
@@ -1913,7 +1934,7 @@ app.layout = html.Div(className='app-container', children=[
                                         # Crime Effect
                                         html.Div(children=[
                                             html.Div('Crime Effect Assumption', style={
-                                                'fontSize': '12px',
+                                                'fontSize': FontSizes.LABEL,
                                                 'fontWeight': '700',
                                                 'color': '#111827',
                                                 'marginBottom': '6px'
@@ -1921,7 +1942,7 @@ app.layout = html.Div(className='app-container', children=[
                                             html.Div(style={'display': 'flex', 'flexWrap': 'wrap', 'gap': '6px'}, children=[
                                                 html.Div('Crime Effect', style={
                                                     'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
-                                                    'background': '#dcfce7', 'color': '#166534'
+                                                    'background': Colors.SUCCESS_LIGHT, 'color': '#166534'
                                                 }),
                                                 html.Div('Crime Cost', style={
                                                     'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
@@ -1933,7 +1954,7 @@ app.layout = html.Div(className='app-container', children=[
                                         # Felony Share
                                         html.Div(children=[
                                             html.Div('Felony Share', style={
-                                                'fontSize': '12px',
+                                                'fontSize': FontSizes.LABEL,
                                                 'fontWeight': '700',
                                                 'color': '#111827',
                                                 'marginBottom': '6px'
@@ -1941,7 +1962,7 @@ app.layout = html.Div(className='app-container', children=[
                                             html.Div(style={'display': 'flex', 'flexWrap': 'wrap', 'gap': '6px'}, children=[
                                                 html.Div('Crime Effect', style={
                                                     'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
-                                                    'background': '#dcfce7', 'color': '#166534'
+                                                    'background': Colors.SUCCESS_LIGHT, 'color': '#166534'
                                                 }),
                                                 html.Div('Crime Cost', style={
                                                     'fontSize': '11px', 'padding': '3px 8px', 'borderRadius': '999px',
@@ -1955,33 +1976,33 @@ app.layout = html.Div(className='app-container', children=[
                                 # Components breakdown
                                 html.Div(
                                          id='components-breakdown',
-                                         style={'marginTop': '24px', 'paddingTop': '24px', 'borderTop': '1px solid #e5e7eb'},
+                                         style={'marginTop': Spacing.XXL, 'paddingTop': Spacing.XXL, 'borderTop': f'{{Borders.THIN}} solid {Colors.GRAY_300}'},
                                          children=[
                                              html.H4(content.get('components_breakdown.title', 'Components'), style={
-                                                 'fontSize': '16px',
+                                                 'fontSize': FontSizes.H5,
                                                  'fontWeight': '600',
-                                                 'color': '#374151',
+                                                 'color': Colors.GRAY_900,
                                                  'marginTop': '0',
-                                                 'marginBottom': '16px'
+                                                 'marginBottom': Spacing.LG
                                              }),
                                              html.Div(
-                                                 style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': '16px'},
+                                                 style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': Spacing.LG},
                                                  children=[
                                                      # Detainee Values
                                                      html.Div(
                                                          id='detainee-values-section',
                                                          style={
                                                              'background': 'white',
-                                                             'padding': '20px',
+                                                             'padding': Spacing.XL,
                                                              'borderRadius': '8px',
-                                                             'borderLeft': '4px solid #2563eb'
+                                                             'borderLeft': f'{{Borders.EXTRA_THICK}} solid {Colors.PRIMARY_BLUE_DARK}'
                                                          },
                                                          children=[
                                                              html.H5(content.get('components_breakdown.detainee_values.title', 'Detainee Values'), style={
                                                                  'fontSize': '15px',
                                                                  'fontWeight': '600',
-                                                                 'color': '#2563eb',
-                                                                 'margin': '0 0 12px 0'
+                                                                 'color': Colors.PRIMARY_BLUE_DARK,
+                                                                 'margin': f'0 0 {Spacing.MD} 0'
                                                              }),
 
                                                              html.P(
@@ -1991,10 +2012,10 @@ app.layout = html.Div(className='app-container', children=[
                                                                  'to avoid being detained. This reflects short-term harms, disruptions to work and family life, '
                                                                  'and long-term effects on health, income, and stability.'),
                                                                  style={
-                                                                     'fontSize': '14px',
-                                                                     'color': '#374151',
-                                                                     'margin': '0 0 12px 0',
-                                                                     'lineHeight': '1.6'
+                                                                     'fontSize': FontSizes.BODY,
+                                                                     'color': Colors.GRAY_900,
+                                                                     'margin': f'0 0 {Spacing.MD} 0',
+                                                                     'lineHeight': LineHeights.RELAXED
                                                                  }
                                                              ),
 
@@ -2002,7 +2023,7 @@ app.layout = html.Div(className='app-container', children=[
                                                              html.Div(className='label-with-info', children=[
                                                                  html.Span(content.get('components_breakdown.detainee_values.subcomponents_label', 'Subcomponents'), style={
                                                                      'fontWeight': '500',
-                                                                     'fontSize': '14px'
+                                                                     'fontSize': FontSizes.BODY
                                                                     })
 
                                                                 ]),
@@ -2023,7 +2044,7 @@ app.layout = html.Div(className='app-container', children=[
                                                                                  content.get('components_breakdown.detainee_values.subcomponents.harm_valuation.explanation', ''),
                                                                                  style={
                                                                                      'fontSize': '13px',
-                                                                                     'color': '#6b7280',
+                                                                                     'color': Colors.GRAY_600,
                                                                                      'margin': '6px 0'
                                                                                  }
                                                                              )
@@ -2046,7 +2067,7 @@ app.layout = html.Div(className='app-container', children=[
                                                                                  content.get('components_breakdown.detainee_values.subcomponents.wtp_freedom.explanation', ''),
                                                                                  style={
                                                                                      'fontSize': '13px',
-                                                                                     'color': '#6b7280',
+                                                                                     'color': Colors.GRAY_600,
                                                                                      'margin': '6px 0'
                                                                                  }
                                                                              )
@@ -2062,16 +2083,16 @@ app.layout = html.Div(className='app-container', children=[
                                                          id='society-values-section',
                                                          style={
                                                              'background': 'white',
-                                                             'padding': '20px',
+                                                             'padding': Spacing.XL,
                                                              'borderRadius': '8px',
-                                                             'borderLeft': '4px solid #16a34a'
+                                                             'borderLeft': f'{{Borders.EXTRA_THICK}} solid {Colors.SUCCESS_GREEN}'
                                                          },
                                                          children=[
                                                              html.H5(content.get('components_breakdown.society_values.title', 'Society Values'), style={
                                                                  'fontSize': '15px',
                                                                  'fontWeight': '600',
-                                                                 'color': '#16a34a',
-                                                                 'margin': '0 0 12px 0'
+                                                                 'color': Colors.SUCCESS_GREEN,
+                                                                 'margin': f'0 0 {Spacing.MD} 0'
                                                              }),
 
                                                              html.P(
@@ -2080,17 +2101,17 @@ app.layout = html.Div(className='app-container', children=[
                                                                  'These values summarize the effects felt by people outside the jail and convert those effects into a '
                                                                  'common dollar scale for comparison.'),
                                                                  style={
-                                                                     'fontSize': '14px',
-                                                                     'color': '#374151',
-                                                                     'margin': '0 0 12px 0',
-                                                                     'lineHeight': '1.6'
+                                                                     'fontSize': FontSizes.BODY,
+                                                                     'color': Colors.GRAY_900,
+                                                                     'margin': f'0 0 {Spacing.MD} 0',
+                                                                     'lineHeight': LineHeights.RELAXED
                                                                  }
                                                              ),
 
                                                              html.Div(className='label-with-info', children=[
                                                                  html.Span(content.get('components_breakdown.society_values.subcomponents_label', 'Subcomponents'), style={
                                                                      'fontWeight': '500',
-                                                                     'fontSize': '14px'
+                                                                     'fontSize': FontSizes.BODY
                                                                  }
                                                                 )
                                                              ]
@@ -2112,7 +2133,7 @@ app.layout = html.Div(className='app-container', children=[
                                                                                  content.get('components_breakdown.society_values.subcomponents.crime_prevention.explanation', ''),
                                                                                  style={
                                                                                      'fontSize': '13px',
-                                                                                     'color': '#6b7280'
+                                                                                     'color': Colors.GRAY_600
                                                                                  }
                                                                              )
                                                                          ]
@@ -2134,7 +2155,7 @@ app.layout = html.Div(className='app-container', children=[
                                                                                  content.get('components_breakdown.society_values.subcomponents.court_appearance.explanation', ''),
                                                                                  style={
                                                                                      'fontSize': '13px',
-                                                                                     'color': '#6b7280'
+                                                                                     'color': Colors.GRAY_600
                                                                                  }
                                                                              )
                                                                          ]
@@ -2157,7 +2178,7 @@ app.layout = html.Div(className='app-container', children=[
                                                                                  content.get('components_breakdown.society_values.subcomponents.community_spillovers.explanation', ''),
                                                                                  style={
                                                                                      'fontSize': '13px',
-                                                                                     'color': '#6b7280'
+                                                                                     'color': Colors.GRAY_600
                                                                                  }
                                                                              )
                                                                          ]
@@ -2172,16 +2193,16 @@ app.layout = html.Div(className='app-container', children=[
                                                          id='government-cost-section',
                                                          style={
                                                              'background': 'white',
-                                                             'padding': '20px',
+                                                             'padding': Spacing.XL,
                                                              'borderRadius': '8px',
-                                                             'borderLeft': '4px solid #dc2626'
+                                                             'borderLeft': f'{{Borders.EXTRA_THICK}} solid {Colors.ERROR_RED}'
                                                          },
                                                          children=[
                                                              html.H5(content.get('components_breakdown.government_cost.title', 'Government Cost'), style={
                                                                  'fontSize': '15px',
                                                                  'fontWeight': '600',
-                                                                 'color': '#dc2626',
-                                                                 'margin': '0 0 12px 0'
+                                                                 'color': Colors.ERROR_RED,
+                                                                 'margin': f'0 0 {Spacing.MD} 0'
                                                              }),
 
                                                              html.P(
@@ -2190,17 +2211,17 @@ app.layout = html.Div(className='app-container', children=[
                                                                  'operations, staffing, healthcare, facilities, court processing, and administrative overhead. It represents '
                                                                  'the fiscal cost taxpayers bear to support the current level of detention.'),
                                                                  style={
-                                                                     'fontSize': '14px',
-                                                                     'color': '#374151',
-                                                                     'margin': '0 0 12px 0',
-                                                                     'lineHeight': '1.6'
+                                                                     'fontSize': FontSizes.BODY,
+                                                                     'color': Colors.GRAY_900,
+                                                                     'margin': f'0 0 {Spacing.MD} 0',
+                                                                     'lineHeight': LineHeights.RELAXED
                                                                  }
                                                              ),
 
                                                              html.Div(className='label-with-info', children=[
                                                                  html.Span(content.get('components_breakdown.government_cost.subcomponents_label', 'Subcomponents'), style={
                                                                      'fontWeight': '500',
-                                                                     'fontSize': '14px'
+                                                                     'fontSize': FontSizes.BODY
                                                                  }
                                                                  )
                                                              ]
@@ -2223,7 +2244,7 @@ app.layout = html.Div(className='app-container', children=[
                                                                                  content.get('components_breakdown.government_cost.subcomponents.operational.explanation', ''),
                                                                                  style={
                                                                                      'fontSize': '13px',
-                                                                                     'color': '#6b7280'
+                                                                                     'color': Colors.GRAY_600
                                                                                  }
                                                                              )
                                                                          ]
@@ -2246,7 +2267,7 @@ app.layout = html.Div(className='app-container', children=[
                                                                                  content.get('components_breakdown.government_cost.subcomponents.crime_decrease.explanation', ''),
                                                                                  style={
                                                                                      'fontSize': '13px',
-                                                                                     'color': '#6b7280'
+                                                                                     'color': Colors.GRAY_600
                                                                                  }
                                                                              )
                                                                          ]
@@ -2266,14 +2287,14 @@ app.layout = html.Div(className='app-container', children=[
                                 ]),
 
                             # Scenarios section
-                            html.Div(className='chart-container', style={'background': '#f8fafc', 'marginTop': '32px'}, children=[
+                            html.Div(className='chart-container', style={'background': Colors.GRAY_100, 'marginTop': Spacing.XXXL}, children=[
                                 html.H3(
                                     content.get('mvpf_explainer.scenarios_heading', 'Scenarios'),
                                     style={
-                                        'fontSize': '20px',
+                                        'fontSize': FontSizes.H4,
                                         'fontWeight': '600',
-                                        'color': '#1e293b',
-                                        'marginBottom': '16px',
+                                        'color': Colors.NAVY_DARK,
+                                        'marginBottom': Spacing.LG,
                                         'marginTop': '0'
                                     }
                                 ),
@@ -2281,29 +2302,29 @@ app.layout = html.Div(className='app-container', children=[
                                     content.get('alt_scenarios.paragraph_1', ''),
                                     style={
                                         'fontSize': '15px',
-                                        'color': '#4b5563',
-                                        'marginBottom': '12px'
+                                        'color': Colors.GRAY_800,
+                                        'marginBottom': Spacing.MD
                                     }
                                 ),
                                 html.P(
                                     content.get('alt_scenarios.paragraph_2', ''),
                                     style={
                                         'fontSize': '15px',
-                                        'color': '#4b5563',
-                                        'marginBottom': '12px'
+                                        'color': Colors.GRAY_800,
+                                        'marginBottom': Spacing.MD
                                     }
                                 ),
                                 html.P(
                                     content.get('alt_scenarios.paragraph_3', ''),
                                     style={
                                         'fontSize': '15px',
-                                        'color': '#4b5563',
-                                        'marginBottom': '20px'
+                                        'color': Colors.GRAY_800,
+                                        'marginBottom': Spacing.XL
                                     }
                                 ),
 
                                 html.Div(
-                                    style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': '16px'},
+                                    style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': Spacing.LG},
                                     children=[
                                         # Baseline Scenario
                                         html.Div(
@@ -2311,23 +2332,23 @@ app.layout = html.Div(className='app-container', children=[
                                             className='jumbotron',
                                             style={
                                                 'background': 'white',
-                                                'padding': '20px',
+                                                'padding': Spacing.XL,
                                                 'borderRadius': '8px',
-                                                'borderLeft': '4px solid #2563eb'
+                                                'borderLeft': f'{{Borders.EXTRA_THICK}} solid {Colors.PRIMARY_BLUE_DARK}'
                                             },
                                             children=[
                                                 html.H4(content.get('scenarios_explained.baseline.title', 'Baseline Scenario'), style={
-                                                    'fontSize': '16px',
+                                                    'fontSize': FontSizes.H5,
                                                     'fontWeight': '600',
-                                                    'color': '#2563eb',
-                                                    'margin': '0 0 12px 0'
+                                                    'color': Colors.PRIMARY_BLUE_DARK,
+                                                    'margin': f'0 0 {Spacing.MD} 0'
                                                 }),
                                                 html.P(
                                                     content.get('scenarios_explained.baseline.description', 'Focuses on individual harm to detainees plus potential criminogenic effects of detention.'),
                                                     style={
-                                                        'fontSize': '14px',
-                                                        'color': '#374151',
-                                                        'lineHeight': '1.6',
+                                                        'fontSize': FontSizes.BODY,
+                                                        'color': Colors.GRAY_900,
+                                                        'lineHeight': LineHeights.RELAXED,
                                                         'margin': '0'
                                                     }
                                                 )
@@ -2340,23 +2361,23 @@ app.layout = html.Div(className='app-container', children=[
                                             className='jumbotron',
                                             style={
                                                 'background': 'white',
-                                                'padding': '20px',
+                                                'padding': Spacing.XL,
                                                 'borderRadius': '8px',
-                                                'borderLeft': '4px solid #d97706'
+                                                'borderLeft': f'{Borders.EXTRA_THICK} solid Colors.WARNING_YELLOW'
                                             },
                                             children=[
                                                 html.H4(content.get('scenarios_explained.most_conservative.title', 'Conservative Scenario'), style={
-                                                    'fontSize': '16px',
+                                                    'fontSize': FontSizes.H5,
                                                     'fontWeight': '600',
-                                                    'color': '#d97706',
-                                                    'margin': '0 0 12px 0'
+                                                    'color': Colors.WARNING_YELLOW,
+                                                    'margin': f'0 0 {Spacing.MD} 0'
                                                 }),
                                                 html.P(
                                                     content.get('scenarios_explained.most_conservative.description', 'Uses smaller survey-based estimates to value detainee harm, producing less negative MVPF values.'),
                                                     style={
-                                                        'fontSize': '14px',
-                                                        'color': '#374151',
-                                                        'lineHeight': '1.6',
+                                                        'fontSize': FontSizes.BODY,
+                                                        'color': Colors.GRAY_900,
+                                                        'lineHeight': LineHeights.RELAXED,
                                                         'margin': '0'
                                                     }
                                                 )
@@ -2369,23 +2390,23 @@ app.layout = html.Div(className='app-container', children=[
                                             className='jumbotron',
                                             style={
                                                 'background': 'white',
-                                                'padding': '20px',
+                                                'padding': Spacing.XL,
                                                 'borderRadius': '8px',
-                                                'borderLeft': '4px solid #16a34a'
+                                                'borderLeft': f'{{Borders.EXTRA_THICK}} solid {Colors.SUCCESS_GREEN}'
                                             },
                                             children=[
                                                 html.H4(content.get('scenarios_explained.least_conservative.title', 'Least Conservative Scenario'), style={
-                                                    'fontSize': '16px',
+                                                    'fontSize': FontSizes.H5,
                                                     'fontWeight': '600',
-                                                    'color': '#16a34a',
-                                                    'margin': '0 0 12px 0'
+                                                    'color': Colors.SUCCESS_GREEN,
+                                                    'margin': f'0 0 {Spacing.MD} 0'
                                                 }),
                                                 html.P(
                                                     content.get('scenarios_explained.least_conservative.description', 'Includes broad social harms to communities and families, plus criminogenic effects of detention.'),
                                                     style={
-                                                        'fontSize': '14px',
-                                                        'color': '#374151',
-                                                        'lineHeight': '1.6',
+                                                        'fontSize': FontSizes.BODY,
+                                                        'color': Colors.GRAY_900,
+                                                        'lineHeight': LineHeights.RELAXED,
                                                         'margin': '0'
                                                     }
                                                 )
@@ -2396,15 +2417,15 @@ app.layout = html.Div(className='app-container', children=[
                             ]),
 
                             # Parameters section
-                            html.Div(className='chart-container', style={'background': '#f8fafc', 'marginTop': '32px'},
+                            html.Div(className='chart-container', style={'background': Colors.GRAY_100, 'marginTop': Spacing.XXXL},
                                      children=[
                                          html.H3(
                                              content.get('mvpf_explainer.analysis_parameters.heading', 'Analysis Parameters'),
                                              style={
-                                                 'fontSize': '20px',
+                                                 'fontSize': FontSizes.H4,
                                                  'fontWeight': '600',
-                                                 'color': '#1e293b',
-                                                 'marginBottom': '16px',
+                                                 'color': Colors.NAVY_DARK,
+                                                 'marginBottom': Spacing.LG,
                                                  'marginTop': '0'
                                              }
                                          ),
@@ -2412,40 +2433,40 @@ app.layout = html.Div(className='app-container', children=[
                                              content.get('mvpf_explainer.analysis_parameters.description', 'You can adjust several parameters that act as multipliers to the components in the MVPF set-up. These inputs scale the numerator and denominator components of the MVPF and let you test how sensitive the results are to policy or system changes. The defaults for each parameter capture the picture of Cook County Jail in 2018. The other options available are outer bounds for sensitivity analysis, and some alternatives based on our broad review of the literature.'),
                                              style={
                                                  'fontSize': '15px',
-                                                 'color': '#4b5563',
-                                                 'marginBottom': '20px'
+                                                 'color': Colors.GRAY_800,
+                                                 'marginBottom': Spacing.XL
                                              }
                                          ),
 
                                          html.Div(
-                                             style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '16px'},
+                                             style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': Spacing.LG},
                                              children=[
                                                  # Felony Rate
                                                  html.Div(
                                                      id='parameter-felony-rate',
                                                      className='jumbotron',
-                                                     style={'background': 'white', 'padding': '20px',
-                                                            'borderRadius': '8px', 'borderLeft': '4px solid #3b82f6'},
+                                                     style={'background': 'white', 'padding': Spacing.XL,
+                                                            'borderRadius': '8px', 'borderLeft': f'{{Borders.EXTRA_THICK}} solid {Colors.PRIMARY_BLUE}'},
                                                      children=[
                                                          html.H4(
                                                              content.get('parameters.felony_rate.title', 'Felony Rate'),
-                                                             style={'fontSize': '16px', 'fontWeight': '600',
-                                                                    'color': '#3b82f6', 'margin': '0 0 12px 0'}
+                                                             style={'fontSize': FontSizes.H5, 'fontWeight': '600',
+                                                                    'color': Colors.PRIMARY_BLUE, 'margin': f'0 0 {Spacing.MD} 0'}
                                                          ),
                                                          html.Div(children=[
                                                              html.Div(style={'marginBottom': '10px'}, children=[
                                                                  html.Div(
                                                                      sec.get('label', ''),
-                                                                     style={'fontSize': '12px', 'fontWeight': '700',
-                                                                            'color': '#374151',
+                                                                     style={'fontSize': FontSizes.LABEL, 'fontWeight': '700',
+                                                                            'color': Colors.GRAY_900,
                                                                             'textTransform': 'uppercase',
                                                                             'letterSpacing': '0.04em',
-                                                                            'marginBottom': '4px'}
+                                                                            'marginBottom': Spacing.XS}
                                                                  ),
                                                                  html.P(
                                                                      sec.get('text', ''),
-                                                                     style={'fontSize': '13px', 'color': '#374151',
-                                                                            'lineHeight': '1.5', 'margin': '0'}
+                                                                     style={'fontSize': '13px', 'color': Colors.GRAY_900,
+                                                                            'lineHeight': LineHeights.NORMAL, 'margin': '0'}
                                                                  )
                                                              ])
                                                              for sec in
@@ -2459,29 +2480,29 @@ app.layout = html.Div(className='app-container', children=[
                                                  html.Div(
                                                      id='parameter-detainee-population',
                                                      className='jumbotron',
-                                                     style={'background': 'white', 'padding': '20px',
-                                                            'borderRadius': '8px', 'borderLeft': '4px solid #10b981'},
+                                                     style={'background': 'white', 'padding': Spacing.XL,
+                                                            'borderRadius': '8px', 'borderLeft': f'{Borders.EXTRA_THICK} solid #10b981'},
                                                      children=[
                                                          html.H4(
                                                              content.get('parameters.detainee_population.title',
                                                                          'Detainee Population'),
-                                                             style={'fontSize': '16px', 'fontWeight': '600',
-                                                                    'color': '#10b981', 'margin': '0 0 12px 0'}
+                                                             style={'fontSize': FontSizes.H5, 'fontWeight': '600',
+                                                                    'color': '#10b981', 'margin': f'0 0 {Spacing.MD} 0'}
                                                          ),
                                                          html.Div(children=[
                                                              html.Div(style={'marginBottom': '10px'}, children=[
                                                                  html.Div(
                                                                      sec.get('label', ''),
-                                                                     style={'fontSize': '12px', 'fontWeight': '700',
-                                                                            'color': '#374151',
+                                                                     style={'fontSize': FontSizes.LABEL, 'fontWeight': '700',
+                                                                            'color': Colors.GRAY_900,
                                                                             'textTransform': 'uppercase',
                                                                             'letterSpacing': '0.04em',
-                                                                            'marginBottom': '4px'}
+                                                                            'marginBottom': Spacing.XS}
                                                                  ),
                                                                  html.P(
                                                                      sec.get('text', ''),
-                                                                     style={'fontSize': '13px', 'color': '#374151',
-                                                                            'lineHeight': '1.5', 'margin': '0'}
+                                                                     style={'fontSize': '13px', 'color': Colors.GRAY_900,
+                                                                            'lineHeight': LineHeights.NORMAL, 'margin': '0'}
                                                                  )
                                                              ])
                                                              for sec in
@@ -2495,29 +2516,29 @@ app.layout = html.Div(className='app-container', children=[
                                                  html.Div(
                                                      id='parameter-length-of-stay',
                                                      className='jumbotron',
-                                                     style={'background': 'white', 'padding': '20px',
-                                                            'borderRadius': '8px', 'borderLeft': '4px solid #f59e0b'},
+                                                     style={'background': 'white', 'padding': Spacing.XL,
+                                                            'borderRadius': '8px', 'borderLeft': f'{Borders.EXTRA_THICK} solid #f59e0b'},
                                                      children=[
                                                          html.H4(
                                                              content.get('parameters.length_of_stay.title',
                                                                          'Length of Stay'),
-                                                             style={'fontSize': '16px', 'fontWeight': '600',
-                                                                    'color': '#f59e0b', 'margin': '0 0 12px 0'}
+                                                             style={'fontSize': FontSizes.H5, 'fontWeight': '600',
+                                                                    'color': '#f59e0b', 'margin': f'0 0 {Spacing.MD} 0'}
                                                          ),
                                                          html.Div(children=[
                                                              html.Div(style={'marginBottom': '10px'}, children=[
                                                                  html.Div(
                                                                      sec.get('label', ''),
-                                                                     style={'fontSize': '12px', 'fontWeight': '700',
-                                                                            'color': '#374151',
+                                                                     style={'fontSize': FontSizes.LABEL, 'fontWeight': '700',
+                                                                            'color': Colors.GRAY_900,
                                                                             'textTransform': 'uppercase',
                                                                             'letterSpacing': '0.04em',
-                                                                            'marginBottom': '4px'}
+                                                                            'marginBottom': Spacing.XS}
                                                                  ),
                                                                  html.P(
                                                                      sec.get('text', ''),
-                                                                     style={'fontSize': '13px', 'color': '#374151',
-                                                                            'lineHeight': '1.5', 'margin': '0'}
+                                                                     style={'fontSize': '13px', 'color': Colors.GRAY_900,
+                                                                            'lineHeight': LineHeights.NORMAL, 'margin': '0'}
                                                                  )
                                                              ])
                                                              for sec in
@@ -2531,29 +2552,29 @@ app.layout = html.Div(className='app-container', children=[
                                                  html.Div(
                                                      id='parameter-crime-effect',
                                                      className='jumbotron',
-                                                     style={'background': 'white', 'padding': '20px',
-                                                            'borderRadius': '8px', 'borderLeft': '4px solid #ef4444'},
+                                                     style={'background': 'white', 'padding': Spacing.XL,
+                                                            'borderRadius': '8px', 'borderLeft': f'{Borders.EXTRA_THICK} solid #ef4444'},
                                                      children=[
                                                          html.H4(
                                                              content.get('parameters.crime_effect.title',
                                                                          'Crime Effect'),
-                                                             style={'fontSize': '16px', 'fontWeight': '600',
-                                                                    'color': '#ef4444', 'margin': '0 0 12px 0'}
+                                                             style={'fontSize': FontSizes.H5, 'fontWeight': '600',
+                                                                    'color': '#ef4444', 'margin': f'0 0 {Spacing.MD} 0'}
                                                          ),
                                                          html.Div(children=[
                                                              html.Div(style={'marginBottom': '10px'}, children=[
                                                                  html.Div(
                                                                      sec.get('label', ''),
-                                                                     style={'fontSize': '12px', 'fontWeight': '700',
-                                                                            'color': '#374151',
+                                                                     style={'fontSize': FontSizes.LABEL, 'fontWeight': '700',
+                                                                            'color': Colors.GRAY_900,
                                                                             'textTransform': 'uppercase',
                                                                             'letterSpacing': '0.04em',
-                                                                            'marginBottom': '4px'}
+                                                                            'marginBottom': Spacing.XS}
                                                                  ),
                                                                  html.P(
                                                                      sec.get('text', ''),
-                                                                     style={'fontSize': '13px', 'color': '#374151',
-                                                                            'lineHeight': '1.5', 'margin': '0'}
+                                                                     style={'fontSize': '13px', 'color': Colors.GRAY_900,
+                                                                            'lineHeight': LineHeights.NORMAL, 'margin': '0'}
                                                                  )
                                                              ])
                                                              for sec in
@@ -2573,23 +2594,23 @@ app.layout = html.Div(className='app-container', children=[
                                     style={
                                         'fontSize': '18px',
                                         'fontWeight': '600',
-                                        'color': '#374151',
+                                        'color': Colors.GRAY_900,
                                         'marginTop': '0',
-                                        'marginBottom': '12px'
+                                        'marginBottom': Spacing.MD
                                     }
                                 ),
                                 html.P(
                                     content.get('mvpf_explainer.limitations.intro', 'This dashboard is a structured way to translate assumptions into an MVPF for pretrial detention. It is not a definitive estimate of detention\'s "true" social value.'),
                                     style={
-                                        'fontSize': '12px',
-                                        'color': '#4b5563',
-                                        'lineHeight': '1.8',
-                                        'marginBottom': '12px'
+                                        'fontSize': FontSizes.LABEL,
+                                        'color': Colors.GRAY_800,
+                                        'lineHeight': LineHeights.LOOSE,
+                                        'marginBottom': Spacing.MD
                                     }
                                 ),
                                 html.Ul(
-                                    style={'fontSize': '15px', 'color': '#4b5563', 'lineHeight': '1.8',
-                                           'marginBottom': '16px'},
+                                    style={'fontSize': '15px', 'color': Colors.GRAY_800, 'lineHeight': LineHeights.LOOSE,
+                                           'marginBottom': Spacing.LG},
                                     children=[
                                         html.Li(item) for item in content.get('mvpf_explainer.limitations.items', [
                                             'Normative choices drive results: the largest source of variation is how detainee harm is monetized (RHV vs WTP) and whether additional community spillovers are added.',
@@ -2604,9 +2625,9 @@ app.layout = html.Div(className='app-container', children=[
                                     'This tool is designed to inform policy discussions and should be used alongside other evidence, '
                                     'stakeholder input, and contextual knowledge about Cook County Jail operations.',
                                     style={
-                                        'fontSize': '12px',
-                                        'color': '#4b5563',
-                                        'lineHeight': '1.8',
+                                        'fontSize': FontSizes.LABEL,
+                                        'color': Colors.GRAY_800,
+                                        'lineHeight': LineHeights.LOOSE,
                                         'margin': '0',
                                         'fontStyle': 'italic'
                                     }
@@ -2617,14 +2638,14 @@ app.layout = html.Div(className='app-container', children=[
 
                     # Tab 5: About this Data Tool
                     dcc.Tab(label='About', value='tab-about', style={
-                        'padding': '12px 24px',
+                        'padding': f'{Spacing.MD} {Spacing.XXL}',
                         'fontWeight': '500',
-                        'fontSize': '14px'
+                        'fontSize': FontSizes.BODY
                     }, selected_style={
-                        'padding': '12px 24px',
+                        'padding': f'{Spacing.MD} {Spacing.XXL}',
                         'fontWeight': '600',
-                        'fontSize': '14px',
-                        'borderTop': '3px solid #3b82f6',
+                        'fontSize': FontSizes.BODY,
+                        'borderTop': f'{{Borders.THICK}} solid {Colors.PRIMARY_BLUE}',
                         'backgroundColor': 'white'
                     }, children=[
                         html.Div(style={'padding': '24px 0', 'maxWidth': '900px', 'margin': '0 auto'}, children=[
@@ -2632,71 +2653,71 @@ app.layout = html.Div(className='app-container', children=[
                             html.H2(content.get('about.data_sources.title', 'Data Sources'), style={
                                 'fontSize': '18px',
                                 'fontWeight': 'bold',
-                                'color': '#1e293b',
+                                'color': Colors.NAVY_DARK,
                                 'marginTop': '0',
-                                'marginBottom': '16px'
+                                'marginBottom': Spacing.LG
                             }),
                             html.P(content.get('about.data_sources.content', ''), style={
-                                'fontSize': '12px',
-                                'color': '#4b5563',
-                                'lineHeight': '1.8',
-                                'marginBottom': '32px'
+                                'fontSize': FontSizes.LABEL,
+                                'color': Colors.GRAY_800,
+                                'lineHeight': LineHeights.LOOSE,
+                                'marginBottom': Spacing.XXXL
                             }),
 
                             # About Cook County Jail Section
                             html.H2(content.get('about.about_ccj.title', 'About Cook County Jail'), style={
                                 'fontSize': '18px',
                                 'fontWeight': 'bold',
-                                'color': '#1e293b',
+                                'color': Colors.NAVY_DARK,
                                 'marginTop': '0',
-                                'marginBottom': '16px'
+                                'marginBottom': Spacing.LG
                             }),
                             html.P(content.get('about.about_ccj.content', ''), style={
-                                'fontSize': '12px',
-                                'color': '#4b5563',
-                                'lineHeight': '1.8',
-                                'marginBottom': '32px'
+                                'fontSize': FontSizes.LABEL,
+                                'color': Colors.GRAY_800,
+                                'lineHeight': LineHeights.LOOSE,
+                                'marginBottom': Spacing.XXXL
                             }),
 
                             # Contact Section
                             html.H2(content.get('about.contact.title', 'Contact'), style={
                                 'fontSize': '18px',
                                 'fontWeight': 'bold',
-                                'color': '#1e293b',
+                                'color': Colors.NAVY_DARK,
                                 'marginTop': '0',
-                                'marginBottom': '16px'
+                                'marginBottom': Spacing.LG
                             }),
                             html.P(content.get('about.contact.content', ''), style={
-                                'fontSize': '12px',
-                                'color': '#4b5563',
-                                'lineHeight': '1.8',
-                                'marginBottom': '32px'
+                                'fontSize': FontSizes.LABEL,
+                                'color': Colors.GRAY_800,
+                                'lineHeight': LineHeights.LOOSE,
+                                'marginBottom': Spacing.XXXL
                             }),
 
                             # Acknowledgements Section
                             html.H2(content.get('about.acknowledgements.title', 'Acknowledgements'), style={
                                 'fontSize': '18px',
                                 'fontWeight': 'bold',
-                                'color': '#1e293b',
+                                'color': Colors.NAVY_DARK,
                                 'marginTop': '0',
-                                'marginBottom': '16px'
+                                'marginBottom': Spacing.LG
                             }),
                             html.P(content.get('about.acknowledgements.development', ''), style={
-                                'fontSize': '12px',
-                                'color': '#4b5563',
-                                'lineHeight': '1.8',
-                                'marginBottom': '16px'
+                                'fontSize': FontSizes.LABEL,
+                                'color': Colors.GRAY_800,
+                                'lineHeight': LineHeights.LOOSE,
+                                'marginBottom': Spacing.LG
                             }),
                             html.P(content.get('about.acknowledgements.framework', ''), style={
-                                'fontSize': '12px',
-                                'color': '#4b5563',
-                                'lineHeight': '1.8',
-                                'marginBottom': '16px'
+                                'fontSize': FontSizes.LABEL,
+                                'color': Colors.GRAY_800,
+                                'lineHeight': LineHeights.LOOSE,
+                                'marginBottom': Spacing.LG
                             }),
                             html.P(content.get('about.acknowledgements.data_access', ''), style={
-                                'fontSize': '12px',
-                                'color': '#4b5563',
-                                'lineHeight': '1.8',
+                                'fontSize': FontSizes.LABEL,
+                                'color': Colors.GRAY_800,
+                                'lineHeight': LineHeights.LOOSE,
                                 'marginBottom': '48px'
                             })
                         ])
@@ -2706,23 +2727,25 @@ app.layout = html.Div(className='app-container', children=[
                 # Standalone Disclaimer Section (outside of tabs)
                 html.Div(style={
                     'maxWidth': '900px',
-                    'margin': '16px auto 24px auto',
-                    'padding': '12px',
-                    'backgroundColor': '#E8E8E8',
-                    'borderLeft': '4px solid #2C5F6F',
-                    'borderRadius': '4px'
+                    'margin': f'{Spacing.LG} auto {Spacing.XXL} auto',
+                    'padding': Spacing.MD,
+                    'backgroundColor': Colors.GRAY_200,
+                    'borderLeft': f'{Borders.EXTRA_THICK} solid {Colors.TEAL_PRIMARY}',
+                    'borderRadius': BorderRadius.SM
                 }, children=[
                     html.H2(content.get('about.disclaimer.title', 'Disclaimer'), style={
-                        'fontSize': '12px',
-                        'fontWeight': 'bold',
-                        'color': '#1e293b',
+                        'fontSize': FontSizes.EXTRA_SMALL,
+                        'fontWeight': '600',
+                        'color': Colors.NAVY_DARK,
                         'marginTop': '0',
-                        'marginBottom': '16px'
+                        'marginBottom': Spacing.SM,
+                        'textTransform': 'uppercase',
+                        'letterSpacing': '0.5px'
                     }),
                     html.P(content.get('about.disclaimer.content', ''), style={
-                        'fontSize': '10px',
-                        'color': '#4b5563',
-                        'lineHeight': '1.2',
+                        'fontSize': FontSizes.TINY,
+                        'color': Colors.GRAY_800,
+                        'lineHeight': LineHeights.TIGHT,
                         'margin': '0'
                     })
                 ])
@@ -2857,27 +2880,27 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
     detainee_subs = []
     for name, value in result.get('detainee_breakdown', {}).items():
         detainee_subs.append(
-            html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'fontSize': '12px', 'color': '#6b7280', 'marginTop': '4px'}, children=[
+            html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'fontSize': FontSizes.LABEL, 'color': Colors.GRAY_600, 'marginTop': Spacing.XS}, children=[
                 html.Span(name, style={'maxWidth': '60%'}),
-                html.Span(f"${int(value):,}", style={'fontWeight': '500', 'color': '#2563eb'})
+                html.Span(f"${int(value):,}", style={'fontWeight': '500', 'color': Colors.PRIMARY_BLUE_DARK})
             ])
         )
 
     society_subs = []
     for name, value in result.get('society_breakdown', {}).items():
         society_subs.append(
-            html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'fontSize': '12px', 'color': '#6b7280', 'marginTop': '4px'}, children=[
+            html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'fontSize': FontSizes.LABEL, 'color': Colors.GRAY_600, 'marginTop': Spacing.XS}, children=[
                 html.Span(name, style={'maxWidth': '60%'}),
-                html.Span(f"${int(value):,}", style={'fontWeight': '500', 'color': '#16a34a'})
+                html.Span(f"${int(value):,}", style={'fontWeight': '500', 'color': Colors.SUCCESS_GREEN})
             ])
         )
 
     govt_subs = []
     for name, value in result.get('govt_breakdown', {}).items():
         govt_subs.append(
-            html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'fontSize': '12px', 'color': '#6b7280', 'marginTop': '4px'}, children=[
+            html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'fontSize': FontSizes.LABEL, 'color': Colors.GRAY_600, 'marginTop': Spacing.XS}, children=[
                 html.Span(name, style={'maxWidth': '60%'}),
-                html.Span(f"${int(value):,}", style={'fontWeight': '500', 'color': '#dc2626'})
+                html.Span(f"${int(value):,}", style={'fontWeight': '500', 'color': Colors.ERROR_RED})
             ])
         )
 
@@ -2892,20 +2915,20 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
         ]),
 
         html.Div(className='kpi-interpretation', style={
-            'marginTop': '24px',
-            'padding': '20px',
+            'marginTop': Spacing.XXL,
+            'padding': Spacing.XL,
             'background': '#f0f9ff',
             'borderRadius': '8px',
-            'border': '1px solid #bfdbfe'
+            'border': f'{Borders.THIN} solid #bfdbfe'
         }, children=[
-            html.Div(style={'marginBottom': '12px'}, children=[
+            html.Div(style={'marginBottom': Spacing.MD}, children=[
                 html.Span(label, className='kpi-badge', style={
                     'backgroundColor': badge_color,
                     'color': badge_text_color,
                     'display': 'inline-block',
                     'padding': '6px 14px',
                     'borderRadius': '9999px',
-                    'fontSize': '14px',
+                    'fontSize': FontSizes.BODY,
                     'fontWeight': '600'
                 })
             ]),
@@ -2915,32 +2938,32 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
                 else content.get('kpi_card.interpretation_negative', 'Consider reviewing program efficiency.'),
                 style={
                     'marginTop': '0',
-                    'marginBottom': '16px',
+                    'marginBottom': Spacing.LG,
                     'color': '#1e3a8a',
-                    'fontSize': '14px',
-                    'lineHeight': '1.6',
+                    'fontSize': FontSizes.BODY,
+                    'lineHeight': LineHeights.RELAXED,
                     'fontWeight': '500'
                 }
             ),
 
-            html.Div(style={'marginTop': '16px', 'paddingTop': '16px', 'borderTop': '1px solid #bfdbfe'}, children=[
+            html.Div(style={'marginTop': Spacing.LG, 'paddingTop': Spacing.LG, 'borderTop': f'{Borders.THIN} solid #bfdbfe'}, children=[
                 html.H4(
                     content.get('interpretation_card.title', 'How to Interpret'),
                     style={
-                        'fontSize': '14px',
+                        'fontSize': FontSizes.BODY,
                         'fontWeight': '600',
                         'color': '#1e3a8a',
                         'marginTop': '0',
-                        'marginBottom': '12px'
+                        'marginBottom': Spacing.MD
                     }
                 ),
                 html.Ul(
                     style={
                         'margin': '0',
-                        'paddingLeft': '20px',
+                        'paddingLeft': Spacing.XL,
                         'color': '#1e40af',
                         'fontSize': '13px',
-                        'lineHeight': '1.8'
+                        'lineHeight': LineHeights.LOOSE
                     },
                     children=[
                         html.Li([html.Strong(content.get('interpretation_card.levels.very_high.threshold', 'MVPF ≥ 2.5:')), ' ' + content.get('interpretation_card.levels.very_high.description', 'Very high social return on investment')]),
@@ -2954,16 +2977,16 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
         ]),
 
         # Calculation row -  above components
-        html.Div(className='kpi-calculation', style={'marginTop': '12px', 'marginBottom': '24px', 'paddingTop': '0', 'borderTop': 'none'}, children=[
+        html.Div(className='kpi-calculation', style={'marginTop': Spacing.MD, 'marginBottom': Spacing.XXL, 'paddingTop': '0', 'borderTop': 'none'}, children=[
             html.P([
                 html.Strong(content.get('kpi_card.calculation_label', 'Calculation: ')),
                 f"MVPF = (${int(result['detainee_values']):,} + ${int(result['society_values']):,}) / ${int(result['govt_cost']):,} = {mvpf:.4f}"
             ], style={'margin': '0',
-                      'fontSize': '20px',})
+                      'fontSize': FontSizes.H4,})
         ]),
 
         # Component sections in 3-column grid
-        html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': '16px'}, children=[
+        html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': Spacing.LG}, children=[
             # Detainee Values Component
             html.Div(className='kpi-component', children=[
                 html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'alignItems': 'flex-start'}, children=[
@@ -2971,17 +2994,17 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
                         html.A(href='#detainee-values-section', className='kpi-component-link', children=[
                             html.H4(content.get('kpi_card.components.detainee.title', 'Values for Detainees'))
                         ]),
-                        html.P(f"${int(result['detainee_values']):,}", style={'color': '#2563eb', 'margin': '0'})
+                        html.P(f"${int(result['detainee_values']):,}", style={'color': Colors.PRIMARY_BLUE_DARK, 'margin': '0'})
                     ]),
                     # Parameters on the right
-                    html.Div(style={'textAlign': 'right', 'fontSize': '11px', 'color': '#6b7280'}, children=[
+                    html.Div(style={'textAlign': 'right', 'fontSize': '11px', 'color': Colors.GRAY_600}, children=[
                         html.Div([html.Span(content.get('kpi_card.parameter_labels.felony_rate', 'Felony Rate: '), style={'fontWeight': '500'}), f"{params['fel_rate']:.1%}"]),
                         html.Div([html.Span(content.get('kpi_card.parameter_labels.population_mult', 'Population Mult: '), style={'fontWeight': '500'}), f"{params['n_detainees_mult']:.0%}"])
                     ])
                 ]),
                 # Subcomponents list
-                html.Div(style={'marginTop': '12px', 'paddingTop': '8px', 'borderTop': '1px solid #e5e7eb'}, children=[
-                    html.Span(content.get('kpi_card.subcomponents_label', 'Subcomponents:'), style={'fontSize': '11px', 'fontWeight': '600', 'color': '#374151', 'textTransform': 'uppercase'}),
+                html.Div(style={'marginTop': Spacing.MD, 'paddingTop': Spacing.SM, 'borderTop': f'{{Borders.THIN}} solid {Colors.GRAY_300}'}, children=[
+                    html.Span(content.get('kpi_card.subcomponents_label', 'Subcomponents:'), style={'fontSize': '11px', 'fontWeight': '600', 'color': Colors.GRAY_900, 'textTransform': 'uppercase'}),
                     html.Div(children=detainee_subs)
                 ])
             ]),
@@ -2992,17 +3015,17 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
                         html.A(href='#society-values-section', className='kpi-component-link', children=[
                             html.H4(content.get('kpi_card.components.society.title', 'Value for Society'))
                         ]),
-                        html.P(f"${int(result['society_values']):,}", style={'color': '#16a34a', 'margin': '0'})
+                        html.P(f"${int(result['society_values']):,}", style={'color': Colors.SUCCESS_GREEN, 'margin': '0'})
                     ]),
                     # Parameters on the right
-                    html.Div(style={'textAlign': 'right', 'fontSize': '11px', 'color': '#6b7280'}, children=[
+                    html.Div(style={'textAlign': 'right', 'fontSize': '11px', 'color': Colors.GRAY_600}, children=[
                         html.Div([html.Span(content.get('kpi_card.parameter_labels.community_mult', 'Community Mult: '), style={'fontWeight': '500'}), f"{params['n_society_mult']:.0%}"]),
                         html.Div([html.Span(content.get('kpi_card.parameter_labels.length_of_stay', 'Length of Stay: '), style={'fontWeight': '500'}), f"{params['los_days']:.0f} days"])
                     ])
                 ]),
                 # Subcomponents list
-                html.Div(style={'marginTop': '12px', 'paddingTop': '8px', 'borderTop': '1px solid #e5e7eb'}, children=[
-                    html.Span(content.get('kpi_card.subcomponents_label', 'Subcomponents:'), style={'fontSize': '11px', 'fontWeight': '600', 'color': '#374151', 'textTransform': 'uppercase'}),
+                html.Div(style={'marginTop': Spacing.MD, 'paddingTop': Spacing.SM, 'borderTop': f'{{Borders.THIN}} solid {Colors.GRAY_300}'}, children=[
+                    html.Span(content.get('kpi_card.subcomponents_label', 'Subcomponents:'), style={'fontSize': '11px', 'fontWeight': '600', 'color': Colors.GRAY_900, 'textTransform': 'uppercase'}),
                     html.Div(children=society_subs)
                 ])
             ]),
@@ -3013,17 +3036,17 @@ def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
                         html.A(href='#government-cost-section', className='kpi-component-link', children=[
                             html.H4(content.get('kpi_card.components.government.title', 'Government Costs'))
                         ]),
-                        html.P(f"${int(result['govt_cost']):,}", style={'color': '#dc2626', 'margin': '0'})
+                        html.P(f"${int(result['govt_cost']):,}", style={'color': Colors.ERROR_RED, 'margin': '0'})
                     ]),
                     # Parameters on the right
-                    html.Div(style={'textAlign': 'right', 'fontSize': '11px', 'color': '#6b7280'}, children=[
+                    html.Div(style={'textAlign': 'right', 'fontSize': '11px', 'color': Colors.GRAY_600}, children=[
                         html.Div([html.Span(content.get('kpi_card.parameter_labels.population_mult', 'Population Mult: '), style={'fontWeight': '500'}), f"{params['n_detainees_mult']:.0%}"]),
                         html.Div([html.Span(content.get('kpi_card.parameter_labels.length_of_stay', 'Length of Stay: '), style={'fontWeight': '500'}), f"{params['los_days']:.0f} days"])
                     ])
                 ]),
                 # Subcomponents list
-                html.Div(style={'marginTop': '12px', 'paddingTop': '8px', 'borderTop': '1px solid #e5e7eb'}, children=[
-                    html.Span(content.get('kpi_card.subcomponents_label', 'Subcomponents:'), style={'fontSize': '11px', 'fontWeight': '600', 'color': '#374151', 'textTransform': 'uppercase'}),
+                html.Div(style={'marginTop': Spacing.MD, 'paddingTop': Spacing.SM, 'borderTop': f'{{Borders.THIN}} solid {Colors.GRAY_300}'}, children=[
+                    html.Span(content.get('kpi_card.subcomponents_label', 'Subcomponents:'), style={'fontSize': '11px', 'fontWeight': '600', 'color': Colors.GRAY_900, 'textTransform': 'uppercase'}),
                     html.Div(children=govt_subs)
                 ])
             ])
@@ -3038,27 +3061,27 @@ def _build_kpi_card_split(result, mvpf, badge_color, badge_text_color, label, pa
     detainee_subs = []
     for name, value in result.get('detainee_breakdown', {}).items():
         detainee_subs.append(
-            html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'fontSize': '12px', 'color': '#6b7280', 'marginTop': '4px'}, children=[
+            html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'fontSize': FontSizes.LABEL, 'color': Colors.GRAY_600, 'marginTop': Spacing.XS}, children=[
                 html.Span(name, style={'maxWidth': '60%'}),
-                html.Span(f"${int(value):,}", style={'fontWeight': '500', 'color': '#2563eb'})
+                html.Span(f"${int(value):,}", style={'fontWeight': '500', 'color': Colors.PRIMARY_BLUE_DARK})
             ])
         )
 
     society_subs = []
     for name, value in result.get('society_breakdown', {}).items():
         society_subs.append(
-            html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'fontSize': '12px', 'color': '#6b7280', 'marginTop': '4px'}, children=[
+            html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'fontSize': FontSizes.LABEL, 'color': Colors.GRAY_600, 'marginTop': Spacing.XS}, children=[
                 html.Span(name, style={'maxWidth': '60%'}),
-                html.Span(f"${int(value):,}", style={'fontWeight': '500', 'color': '#16a34a'})
+                html.Span(f"${int(value):,}", style={'fontWeight': '500', 'color': Colors.SUCCESS_GREEN})
             ])
         )
 
     govt_subs = []
     for name, value in result.get('govt_breakdown', {}).items():
         govt_subs.append(
-            html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'fontSize': '12px', 'color': '#6b7280', 'marginTop': '4px'}, children=[
+            html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'fontSize': FontSizes.LABEL, 'color': Colors.GRAY_600, 'marginTop': Spacing.XS}, children=[
                 html.Span(name, style={'maxWidth': '60%'}),
-                html.Span(f"${int(value):,}", style={'fontWeight': '500', 'color': '#dc2626'})
+                html.Span(f"${int(value):,}", style={'fontWeight': '500', 'color': Colors.ERROR_RED})
             ])
         )
 
@@ -3075,35 +3098,35 @@ def _build_kpi_card_split(result, mvpf, badge_color, badge_text_color, label, pa
 
         # Two-column layout: Explanation (left) and Interpretation (right)
         html.Div(style={
-            'marginTop': '24px',
+            'marginTop': Spacing.XXL,
             'display': 'grid',
             'gridTemplateColumns': '1fr 1fr',
-            'gap': '20px'
+            'gap': Spacing.XL
         }, children=[
             # Left column: Dynamic explanation
             html.Div(style={
-                'padding': '20px',
+                'padding': Spacing.XL,
                 'background': '#f0f9ff',
                 'borderRadius': '8px',
-                'border': '1px solid #bfdbfe'
+                'border': f'{Borders.THIN} solid #bfdbfe'
             }, children=[
                 html.H4(
                     'What This Means',
                     style={
-                        'fontSize': '16px',
+                        'fontSize': FontSizes.H5,
                         'fontWeight': '600',
                         'color': '#1e3a8a',
                         'marginTop': '0',
-                        'marginBottom': '12px'
+                        'marginBottom': Spacing.MD
                     }
                 ),
                 html.P(
                     f"For each dollar spent operating CCJ, ${abs(mvpf):.2f} of {'net value is generated' if mvpf > 0 else 'net harm is caused'} for detainees and society combined.",
                     style={
-                        'margin': '0 0 12px 0',
+                        'margin': f'0 0 {Spacing.MD} 0',
                         'color': '#1e3a8a',
-                        'fontSize': '14px',
-                        'lineHeight': '1.6',
+                        'fontSize': FontSizes.BODY,
+                        'lineHeight': LineHeights.RELAXED,
                         'fontWeight': '500'
                     }
                 ),
@@ -3115,35 +3138,35 @@ def _build_kpi_card_split(result, mvpf, badge_color, badge_text_color, label, pa
                         'margin': '0',
                         'color': '#1e40af',
                         'fontSize': '13px',
-                        'lineHeight': '1.6'
+                        'lineHeight': LineHeights.RELAXED
                     }
                 )
             ]),
 
             # Right column: Interpretation guide
             html.Div(style={
-                'padding': '20px',
+                'padding': Spacing.XL,
                 'background': '#f0f9ff',
                 'borderRadius': '8px',
-                'border': '1px solid #bfdbfe'
+                'border': f'{Borders.THIN} solid #bfdbfe'
             }, children=[
                 html.H4(
                     content.get('interpretation_card.title', 'How to Interpret'),
                     style={
-                        'fontSize': '16px',
+                        'fontSize': FontSizes.H5,
                         'fontWeight': '600',
                         'color': '#1e3a8a',
                         'marginTop': '0',
-                        'marginBottom': '12px'
+                        'marginBottom': Spacing.MD
                     }
                 ),
                 html.Ul(
                     style={
                         'margin': '0',
-                        'paddingLeft': '20px',
+                        'paddingLeft': Spacing.XL,
                         'color': '#1e40af',
                         'fontSize': '13px',
-                        'lineHeight': '1.8'
+                        'lineHeight': LineHeights.LOOSE
                     },
                     children=[
                         html.Li([html.Strong(content.get('interpretation_card.levels.very_high.threshold', 'MVPF ≥ 2.5:')), ' ' + content.get('interpretation_card.levels.very_high.description', 'Very high social return')]),
@@ -3160,42 +3183,42 @@ def _build_kpi_card_split(result, mvpf, badge_color, badge_text_color, label, pa
     # Second component: Calculation and component details (to go below "how to use this result")
     kpi_components = html.Div(className='kpi-card', style={'background': 'transparent'}, children=[
         # Calculation row
-        html.Div(className='kpi-calculation', style={'marginBottom': '24px', 'padding': '20px', 'background': '#f8f9fa', 'borderRadius': '8px'}, children=[
+        html.Div(className='kpi-calculation', style={'marginBottom': Spacing.XXL, 'padding': Spacing.XL, 'background': '#f8f9fa', 'borderRadius': '8px'}, children=[
             html.Div(children=[
                 html.H4(content.get('kpi_card.calculation_label', 'Calculation'), style={
                     'fontSize': '18px',
                     'fontWeight': '600',
-                    'color': '#374151',
+                    'color': Colors.GRAY_900,
                     'marginTop': '0',
-                    'marginBottom': '16px'
+                    'marginBottom': Spacing.LG
                 }),
-                html.Div(style={'fontSize': '16px', 'lineHeight': '1.8', 'color': '#1f2937'}, children=[
+                html.Div(style={'fontSize': FontSizes.H5, 'lineHeight': LineHeights.LOOSE, 'color': '#1f2937'}, children=[
                     html.Div([
                         html.Span('MVPF = (', style={'fontWeight': '500'}),
-                        html.Span('Detainee Values', style={'color': '#2563eb', 'fontWeight': '600'}),
+                        html.Span('Detainee Values', style={'color': Colors.PRIMARY_BLUE_DARK, 'fontWeight': '600'}),
                         html.Span(' + ', style={'fontWeight': '500'}),
-                        html.Span('Society Values', style={'color': '#16a34a', 'fontWeight': '600'}),
+                        html.Span('Society Values', style={'color': Colors.SUCCESS_GREEN, 'fontWeight': '600'}),
                         html.Span(') / ', style={'fontWeight': '500'}),
-                        html.Span('Government Costs', style={'color': '#dc2626', 'fontWeight': '600'})
-                    ], style={'marginBottom': '8px'}),
+                        html.Span('Government Costs', style={'color': Colors.ERROR_RED, 'fontWeight': '600'})
+                    ], style={'marginBottom': Spacing.SM}),
                     html.Div([
                         html.Span('MVPF = (', style={'fontWeight': '500'}),
-                        html.Span(f"${int(result['detainee_values']):,}", style={'color': '#2563eb', 'fontWeight': '600'}),
+                        html.Span(f"${int(result['detainee_values']):,}", style={'color': Colors.PRIMARY_BLUE_DARK, 'fontWeight': '600'}),
                         html.Span(' + ', style={'fontWeight': '500'}),
-                        html.Span(f"${int(result['society_values']):,}", style={'color': '#16a34a', 'fontWeight': '600'}),
+                        html.Span(f"${int(result['society_values']):,}", style={'color': Colors.SUCCESS_GREEN, 'fontWeight': '600'}),
                         html.Span(') / ', style={'fontWeight': '500'}),
-                        html.Span(f"${int(result['govt_cost']):,}", style={'color': '#dc2626', 'fontWeight': '600'})
-                    ], style={'marginBottom': '8px'}),
+                        html.Span(f"${int(result['govt_cost']):,}", style={'color': Colors.ERROR_RED, 'fontWeight': '600'})
+                    ], style={'marginBottom': Spacing.SM}),
                     html.Div([
                         html.Span('MVPF = ', style={'fontWeight': '500'}),
-                        html.Span(f"{mvpf:.4f}", style={'fontSize': '20px', 'fontWeight': '700', 'color': '#1f2937'})
+                        html.Span(f"{mvpf:.4f}", style={'fontSize': FontSizes.H4, 'fontWeight': '700', 'color': '#1f2937'})
                     ])
                 ])
             ])
         ]),
 
         # Component sections in 3-column grid
-        html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': '16px'}, children=[
+        html.Div(style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr 1fr', 'gap': Spacing.LG}, children=[
             # Detainee Values Component
             html.Div(className='kpi-component', children=[
                 html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'alignItems': 'flex-start'}, children=[
@@ -3203,17 +3226,17 @@ def _build_kpi_card_split(result, mvpf, badge_color, badge_text_color, label, pa
                         html.A(href='#detainee-values-section', className='kpi-component-link', children=[
                             html.H4(content.get('kpi_card.components.detainee.title', 'Values for Detainees'))
                         ]),
-                        html.P(f"${int(result['detainee_values']):,}", style={'color': '#2563eb', 'margin': '0'})
+                        html.P(f"${int(result['detainee_values']):,}", style={'color': Colors.PRIMARY_BLUE_DARK, 'margin': '0'})
                     ]),
                     # Parameters on the right
-                    html.Div(style={'textAlign': 'right', 'fontSize': '11px', 'color': '#6b7280'}, children=[
+                    html.Div(style={'textAlign': 'right', 'fontSize': '11px', 'color': Colors.GRAY_600}, children=[
                         html.Div([html.Span(content.get('kpi_card.parameter_labels.felony_rate', 'Felony Rate: '), style={'fontWeight': '500'}), f"{params['fel_rate']:.1%}"]),
                         html.Div([html.Span(content.get('kpi_card.parameter_labels.population_mult', 'Population Mult: '), style={'fontWeight': '500'}), f"{params['n_detainees_mult']:.0%}"])
                     ])
                 ]),
                 # Subcomponents list
-                html.Div(style={'marginTop': '12px', 'paddingTop': '8px', 'borderTop': '1px solid #e5e7eb'}, children=[
-                    html.Span(content.get('kpi_card.subcomponents_label', 'Subcomponents:'), style={'fontSize': '11px', 'fontWeight': '600', 'color': '#374151', 'textTransform': 'uppercase'}),
+                html.Div(style={'marginTop': Spacing.MD, 'paddingTop': Spacing.SM, 'borderTop': f'{{Borders.THIN}} solid {Colors.GRAY_300}'}, children=[
+                    html.Span(content.get('kpi_card.subcomponents_label', 'Subcomponents:'), style={'fontSize': '11px', 'fontWeight': '600', 'color': Colors.GRAY_900, 'textTransform': 'uppercase'}),
                     html.Div(children=detainee_subs)
                 ])
             ]),
@@ -3224,17 +3247,17 @@ def _build_kpi_card_split(result, mvpf, badge_color, badge_text_color, label, pa
                         html.A(href='#society-values-section', className='kpi-component-link', children=[
                             html.H4(content.get('kpi_card.components.society.title', 'Value for Society'))
                         ]),
-                        html.P(f"${int(result['society_values']):,}", style={'color': '#16a34a', 'margin': '0'})
+                        html.P(f"${int(result['society_values']):,}", style={'color': Colors.SUCCESS_GREEN, 'margin': '0'})
                     ]),
                     # Parameters on the right
-                    html.Div(style={'textAlign': 'right', 'fontSize': '11px', 'color': '#6b7280'}, children=[
+                    html.Div(style={'textAlign': 'right', 'fontSize': '11px', 'color': Colors.GRAY_600}, children=[
                         html.Div([html.Span(content.get('kpi_card.parameter_labels.community_mult', 'Community Mult: '), style={'fontWeight': '500'}), f"{params['n_society_mult']:.0%}"]),
                         html.Div([html.Span(content.get('kpi_card.parameter_labels.length_of_stay', 'Length of Stay: '), style={'fontWeight': '500'}), f"{params['los_days']:.0f} days"])
                     ])
                 ]),
                 # Subcomponents list
-                html.Div(style={'marginTop': '12px', 'paddingTop': '8px', 'borderTop': '1px solid #e5e7eb'}, children=[
-                    html.Span(content.get('kpi_card.subcomponents_label', 'Subcomponents:'), style={'fontSize': '11px', 'fontWeight': '600', 'color': '#374151', 'textTransform': 'uppercase'}),
+                html.Div(style={'marginTop': Spacing.MD, 'paddingTop': Spacing.SM, 'borderTop': f'{{Borders.THIN}} solid {Colors.GRAY_300}'}, children=[
+                    html.Span(content.get('kpi_card.subcomponents_label', 'Subcomponents:'), style={'fontSize': '11px', 'fontWeight': '600', 'color': Colors.GRAY_900, 'textTransform': 'uppercase'}),
                     html.Div(children=society_subs)
                 ])
             ]),
@@ -3245,36 +3268,36 @@ def _build_kpi_card_split(result, mvpf, badge_color, badge_text_color, label, pa
                         html.A(href='#government-cost-section', className='kpi-component-link', children=[
                             html.H4(content.get('kpi_card.components.government.title', 'Government Costs'))
                         ]),
-                        html.P(f"${int(result['govt_cost']):,}", style={'color': '#dc2626', 'margin': '0'})
+                        html.P(f"${int(result['govt_cost']):,}", style={'color': Colors.ERROR_RED, 'margin': '0'})
                     ]),
                     # Parameters on the right
-                    html.Div(style={'textAlign': 'right', 'fontSize': '11px', 'color': '#6b7280'}, children=[
+                    html.Div(style={'textAlign': 'right', 'fontSize': '11px', 'color': Colors.GRAY_600}, children=[
                         html.Div([html.Span(content.get('kpi_card.parameter_labels.population_mult', 'Population Mult: '), style={'fontWeight': '500'}), f"{params['n_detainees_mult']:.0%}"]),
                         html.Div([html.Span(content.get('kpi_card.parameter_labels.length_of_stay', 'Length of Stay: '), style={'fontWeight': '500'}), f"{params['los_days']:.0f} days"])
                     ])
                 ]),
                 # Subcomponents list
-                html.Div(style={'marginTop': '12px', 'paddingTop': '8px', 'borderTop': '1px solid #e5e7eb'}, children=[
-                    html.Span(content.get('kpi_card.subcomponents_label', 'Subcomponents:'), style={'fontSize': '11px', 'fontWeight': '600', 'color': '#374151', 'textTransform': 'uppercase'}),
+                html.Div(style={'marginTop': Spacing.MD, 'paddingTop': Spacing.SM, 'borderTop': f'{{Borders.THIN}} solid {Colors.GRAY_300}'}, children=[
+                    html.Span(content.get('kpi_card.subcomponents_label', 'Subcomponents:'), style={'fontSize': '11px', 'fontWeight': '600', 'color': Colors.GRAY_900, 'textTransform': 'uppercase'}),
                     html.Div(children=govt_subs)
                 ])
             ])
         ]),
 
         # Download button at the bottom of KPI components
-        html.Div(style={'marginTop': '24px', 'display': 'flex', 'justifyContent': 'center'}, children=[
+        html.Div(style={'marginTop': Spacing.XXL, 'display': 'flex', 'justifyContent': 'center'}, children=[
             html.Button(
                 content.get('download.button_text', 'Download Current Calculations'),
                 id='btn-download-csv',
                 n_clicks=0,
                 className='download-button',
                 style={
-                    'backgroundColor': '#1E3A5F',
+                    'backgroundColor': Colors.NAVY_MEDIUM,
                     'color': 'white',
                     'border': 'none',
                     'borderRadius': '6px',
-                    'padding': '12px 24px',
-                    'fontSize': '14px',
+                    'padding': f'{Spacing.MD} {Spacing.XXL}',
+                    'fontSize': FontSizes.BODY,
                     'fontWeight': '600',
                     'cursor': 'pointer',
                     'transition': 'all 0.2s',
@@ -3294,20 +3317,20 @@ def _build_interpretation_card():
         html.H4(
             content.get('interpretation_card.title', 'How to Interpret'),
             style={
-                'fontSize': '16px',
+                'fontSize': FontSizes.H5,
                 'fontWeight': '600',
-                'color': '#374151',
+                'color': Colors.GRAY_900,
                 'marginTop': '0',
-                'marginBottom': '12px'
+                'marginBottom': Spacing.MD
             }
         ),
         html.Ul(
             style={
                 'margin': '0',
-                'paddingLeft': '20px',
-                'color': '#4b5563',
-                'fontSize': '14px',
-                'lineHeight': '1.8'
+                'paddingLeft': Spacing.XL,
+                'color': Colors.GRAY_800,
+                'fontSize': FontSizes.BODY,
+                'lineHeight': LineHeights.LOOSE
             },
             children=[
                 html.Li([html.Strong(content.get('interpretation_card.levels.very_high.threshold', 'MVPF ≥ 2.5:')), ' ' + content.get('interpretation_card.levels.very_high.description', 'Very high social return on investment')]),
@@ -3325,7 +3348,7 @@ def _build_benchmark_chart(current_mvpf, benchmarks):
     # Prepare data: current MVPF first, then benchmarks
     names = ['Current MVPF for CCJ']
     values = [current_mvpf]
-    colors = ['#1E3A5F']  # Blue for current
+    colors = [Colors.NAVY_MEDIUM]  # Blue for current
 
     for benchmark in benchmarks:
         bench_mvpf = float(benchmark['mvpf_value'])
@@ -3335,7 +3358,7 @@ def _build_benchmark_chart(current_mvpf, benchmarks):
         names.append(short_name)
         values.append(bench_mvpf)
         # Color based on positive/negative
-        colors.append('#16a34a' if bench_mvpf >= 0 else '#dc2626')
+        colors.append(Colors.SUCCESS_GREEN if bench_mvpf >= 0 else Colors.ERROR_RED)
 
     # Create horizontal bar chart (vertical orientation)
     fig = go.Figure(data=[
@@ -3346,7 +3369,7 @@ def _build_benchmark_chart(current_mvpf, benchmarks):
             marker_color=colors,
             text=[f"{v:.2f}" for v in values],
             textposition='outside',
-            textfont=dict(size=11, color='#374151'),
+            textfont=dict(size=11, color=Colors.GRAY_900),
             cliponaxis=False  # Prevent text from being clipped
         )
     ])
@@ -3372,7 +3395,7 @@ def _build_benchmark_chart(current_mvpf, benchmarks):
     )
 
     # Add vertical line at x=0
-    fig.add_vline(x=0, line_dash="solid", line_color="#9ca3af", line_width=1)
+    fig.add_vline(x=0, line_dash="solid", line_color=Colors.GRAY_500, line_width=1)
 
     # Add vertical line at x=1 (break-even point)
     fig.add_vline(x=1, line_dash="dash", line_color="#f59e0b", line_width=1,
@@ -3383,7 +3406,7 @@ def _build_benchmark_chart(current_mvpf, benchmarks):
 
 def _build_benchmark_card(current_mvpf):
     """Build the benchmark comparison card component with dynamic tiles and chart."""
-    benchmarks = load_benchmarks()
+    # Use cached benchmarks instead of reloading CSV
 
     # Build comparison chart
     benchmark_chart = _build_benchmark_chart(current_mvpf, benchmarks)
@@ -3432,11 +3455,11 @@ def _build_benchmark_card(current_mvpf):
         bench_description = content.get(f'benchmark_descriptions.{benchmark_id}', '')
 
         tile = html.Div(className='benchmark-tile', style={
-            'marginBottom': '16px',
-            'padding': '16px',
+            'marginBottom': Spacing.LG,
+            'padding': Spacing.LG,
             'background': 'white',
             'borderRadius': '8px',
-            'border': '1px solid #e5e7eb'
+            'border': f'{Borders.THIN} solid {Colors.GRAY_300}'
         }, children=[
             html.Div(className='benchmark-tile-header', children=[
                 html.Span(f"{bench_mvpf:.2f}", className=f'benchmark-tile-value {value_class}'),
@@ -3445,10 +3468,10 @@ def _build_benchmark_card(current_mvpf):
             html.Div(className='benchmark-tile-name', children=description),
             html.P(bench_description, style={
                 'fontSize': '13px',
-                'color': '#6b7280',
-                'marginTop': '8px',
-                'marginBottom': '12px',
-                'lineHeight': '1.5'
+                'color': Colors.GRAY_600,
+                'marginTop': Spacing.SM,
+                'marginBottom': Spacing.MD,
+                'lineHeight': LineHeights.NORMAL
             }),
             html.A(
                 'View Source',
@@ -3465,10 +3488,10 @@ def _build_benchmark_card(current_mvpf):
             html.H3(
                 content.get('benchmark_card.title', 'Comparative Benchmarking'),
                 style={
-                    'fontSize': '24px',
+                    'fontSize': FontSizes.H3,
                     'fontWeight': '600',
                     'color': 'white',
-                    'marginBottom': '8px',
+                    'marginBottom': Spacing.SM,
                     'marginTop': '0',
                     'textAlign': 'center',
                 }
@@ -3476,18 +3499,18 @@ def _build_benchmark_card(current_mvpf):
             html.P(
                 content.get('benchmark_card.description', 'Comparing the the actual MVPF values of selected government programs, interventions, and policy initiatives across different domains, and the impact of how 1 US dollar is spent on Cook County Jail comparing to spending on these initiatives.'),
                 style={
-                    'fontSize': '14px',
+                    'fontSize': FontSizes.BODY,
                     'color': 'white',
-                    'marginBottom': '24px',
+                    'marginBottom': Spacing.XXL,
                     'fontWeight': '400'
                 }
             )
         ]),
 
         # Two-column layout: Chart on left (65%), Single column of tiles on right (35%)
-        html.Div(style={'display': 'grid', 'gridTemplateColumns': '65% 35%', 'gap': '24px'}, children=[
+        html.Div(style={'display': 'grid', 'gridTemplateColumns': '65% 35%', 'gap': Spacing.XXL}, children=[
             # Left: Benchmark comparison chart
-            html.Div(style={'background': 'white', 'borderRadius': '8px', 'padding': '16px'}, children=[
+            html.Div(style={'background': 'white', 'borderRadius': '8px', 'padding': Spacing.LG}, children=[
                 dcc.Graph(
                     figure=benchmark_chart,
                     config={'displayModeBar': False}
@@ -3512,7 +3535,7 @@ def _build_numerator_chart(result):
                 content.get('charts.numerator_chart.labels.society_values', 'Society Values')
             ],
             y=[det_val, soc_val],
-            marker_color=['#3b82f6', '#10b981'],
+            marker_color=[Colors.PRIMARY_BLUE, '#10b981'],
             text=[
                 f"${int(det_val):,}",
                 f"${int(soc_val):,}"
@@ -3525,7 +3548,7 @@ def _build_numerator_chart(result):
         title=content.get('charts.numerator_chart.title', 'Willingness to Pay (MVPF numerator value)'),
         xaxis_title='',
         yaxis_title=content.get('charts.numerator_chart.y_axis', 'Value ($)'),
-        paper_bgcolor='#f8fafc',
+        paper_bgcolor=Colors.GRAY_100,
         plot_bgcolor='#ffffff',
         font=dict(family='system-ui', size=12),
         margin=dict(t=50, b=80, l=80, r=40),
@@ -3562,7 +3585,7 @@ def _build_denominator_chart(result):
         title=content.get('charts.denominator_chart.title', 'Marginal Value to Government Costs Comparison'),
         xaxis_title='',
         yaxis_title=content.get('charts.denominator_chart.y_axis', 'Value ($)'),
-        paper_bgcolor='#f8fafc',
+        paper_bgcolor=Colors.GRAY_100,
         plot_bgcolor='#ffffff',
         font=dict(family='system-ui', size=12),
         margin=dict(t=50, b=100, l=80, r=40),
@@ -3627,7 +3650,7 @@ def _build_parameter_comparison_chart(scenario, base_det_p1, base_det_p2, base_s
     # Create grouped bar chart
     fig = go.Figure()
 
-    colors = ['#93c5fd', '#3b82f6', '#1e40af']  # Light to dark blue for below, average, above
+    colors = ['#93c5fd', Colors.PRIMARY_BLUE, '#1e40af']  # Light to dark blue for below, average, above
     labels = ['Lower Bound', 'Baseline', 'Upper Bound']
 
     for i, label in enumerate(labels):
@@ -3647,7 +3670,7 @@ def _build_parameter_comparison_chart(scenario, base_det_p1, base_det_p2, base_s
         xaxis_title='Parameter',
         yaxis_title='MVPF',
         barmode='group',
-        paper_bgcolor='#f8fafc',
+        paper_bgcolor=Colors.GRAY_100,
         plot_bgcolor='#ffffff',
         font=dict(family='system-ui', size=11),
         margin=dict(t=50, b=100, l=60, r=40),
@@ -3692,13 +3715,13 @@ def _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2, detainee_ba
     colors = []
     for mvpf in mvpf_values:
         if mvpf >= 2.5:
-            colors.append('#16a34a')  # Green - Excellent
+            colors.append(Colors.SUCCESS_GREEN)  # Green - Excellent
         elif mvpf >= 1.5:
-            colors.append('#1E3A5F')  # Blue - Good
+            colors.append(Colors.NAVY_MEDIUM)  # Blue - Good
         elif mvpf >= 1.0:
             colors.append('#f59e0b')  # Yellow - Fair
         else:
-            colors.append('#dc2626')  # Red - Poor
+            colors.append(Colors.ERROR_RED)  # Red - Poor
 
     # Create horizontal bar chart with scenarios on y-axis
     labels = [scenario_labels[s] for s in scenarios]
@@ -3726,7 +3749,7 @@ def _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2, detainee_ba
         xaxis_title='MVPF',
         yaxis_title='',
         xaxis_range=x_range,
-        paper_bgcolor='#f8fafc',
+        paper_bgcolor=Colors.GRAY_100,
         plot_bgcolor='#ffffff',
         font=dict(family='system-ui', size=11),
         margin=dict(t=50, b=60, l=180, r=100),
@@ -3736,7 +3759,7 @@ def _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2, detainee_ba
     )
 
     # Add vertical line at x=0
-    fig.add_vline(x=0, line_dash="solid", line_color="#9ca3af", line_width=1)
+    fig.add_vline(x=0, line_dash="solid", line_color=Colors.GRAY_500, line_width=1)
 
     # Add vertical line at x=1 (break-even)
     fig.add_vline(x=1, line_dash="dash", line_color="#f59e0b", line_width=1,
@@ -3772,9 +3795,9 @@ def _build_sensitivity_analysis_chart(parameter_name, param_values, base_det_p1,
         'least conservative': 'Upper bound'
     }
     scenario_colors = {
-        'baseline': '#1E3A5F',  # Blue
-        'most conservative': '#d97706',  # Orange
-        'least conservative': '#16a34a'  # Green
+        'baseline': Colors.NAVY_MEDIUM,  # Blue
+        'most conservative': Colors.WARNING_YELLOW,  # Orange
+        'least conservative': Colors.SUCCESS_GREEN  # Green
     }
 
     variations = ['below', 'average', 'above']
@@ -3864,7 +3887,7 @@ def _build_subcomponents_chart(result):
     # Detainee subcomponents (blue)
     for var_name, value in result.get('detainee_breakdown', {}).items():
         subcomponents.append({'name': var_name, 'value': value, 'category': 'Detainee'})
-        colors.append('#1E3A5F')
+        colors.append(Colors.NAVY_MEDIUM)
 
     # Society subcomponents (green)
     for var_name, value in result.get('society_breakdown', {}).items():
@@ -3908,7 +3931,7 @@ def _build_subcomponents_chart(result):
         xaxis_title='Value ($)',
         yaxis_title='',
         xaxis_range=x_range,
-        paper_bgcolor='#f8fafc',
+        paper_bgcolor=Colors.GRAY_100,
         plot_bgcolor='#ffffff',
         font=dict(family='system-ui', size=11),
         margin=dict(t=50, b=60, l=250, r=100),  # Increased left margin for labels
@@ -3918,7 +3941,7 @@ def _build_subcomponents_chart(result):
     )
 
     # Add a vertical line at x=0 for reference (vertical line for horizontal bars)
-    fig.add_vline(x=0, line_dash="solid", line_color="#9ca3af", line_width=1)
+    fig.add_vline(x=0, line_dash="solid", line_color="Colors.GRAY_500", line_width=1)
 
     return fig
 
@@ -4036,9 +4059,9 @@ def register_callbacks(app):
         selected_scenario = scenario_map.get(button_id, 'baseline')
 
         # Define styles for selected and unselected states
-        baseline_style = {'border': '3px solid #2563eb', 'cursor': 'pointer'} if button_id == 'scenario-btn-baseline' else {'border': '2px solid #e5e7eb', 'cursor': 'pointer'}
-        conservative_style = {'border': '3px solid #d97706', 'cursor': 'pointer'} if button_id == 'scenario-btn-most-conservative' else {'border': '2px solid #e5e7eb', 'cursor': 'pointer'}
-        least_style = {'border': '3px solid #16a34a', 'cursor': 'pointer'} if button_id == 'scenario-btn-least-conservative' else {'border': '2px solid #e5e7eb', 'cursor': 'pointer'}
+        baseline_style = {'border': f'{{Borders.THICK}} solid {Colors.PRIMARY_BLUE_DARK}', 'cursor': 'pointer'} if button_id == 'scenario-btn-baseline' else {'border': f'{{Borders.MEDIUM}} solid {Colors.GRAY_300}', 'cursor': 'pointer'}
+        conservative_style = {'border': f'{Borders.THICK} solid Colors.WARNING_YELLOW', 'cursor': 'pointer'} if button_id == 'scenario-btn-most-conservative' else {'border': f'{{Borders.MEDIUM}} solid {Colors.GRAY_300}', 'cursor': 'pointer'}
+        least_style = {'border': f'{{Borders.THICK}} solid {Colors.SUCCESS_GREEN}', 'cursor': 'pointer'} if button_id == 'scenario-btn-least-conservative' else {'border': f'{{Borders.MEDIUM}} solid {Colors.GRAY_300}', 'cursor': 'pointer'}
 
         return selected_scenario, baseline_style, conservative_style, least_style
 
@@ -4126,13 +4149,13 @@ def register_callbacks(app):
 
         # Determine badge color and label
         if mvpf >= 2.5:
-            badge_color, badge_text_color, label = '#dcfce7', '#16a34a', 'Excellent'
+            badge_color, badge_text_color, label = Colors.SUCCESS_LIGHT, Colors.SUCCESS_GREEN, 'Excellent'
         elif mvpf >= 1.5:
-            badge_color, badge_text_color, label = '#dbeafe', '#2563eb', 'Good'
+            badge_color, badge_text_color, label = Colors.PRIMARY_BLUE_LIGHT, Colors.PRIMARY_BLUE_DARK, 'Good'
         elif mvpf >= 1.0:
-            badge_color, badge_text_color, label = '#fef3c7', '#ca8a04', 'Fair'
+            badge_color, badge_text_color, label = Colors.WARNING_LIGHT, Colors.WARNING_YELLOW, 'Fair'
         else:
-            badge_color, badge_text_color, label = '#fee2e2', '#dc2626', 'Poor'
+            badge_color, badge_text_color, label = Colors.ERROR_LIGHT, Colors.ERROR_RED, 'Poor'
 
         # Build components
         kpi_score, kpi_components = _build_kpi_card_split(result, mvpf, badge_color, badge_text_color, label, params, scenario)

@@ -6,6 +6,14 @@ import json
 from datetime import datetime
 
 from cpi_adjuster import CPIAdjuster
+from formatting import (
+    format_currency,
+    format_ratio,
+    format_mvpf,
+    get_mvpf_rating,
+    format_percentage,
+    format_number
+)
 
 """
 Data export and formatting functions
@@ -181,43 +189,5 @@ class ResultsExporter:
 
 # ==================== FORMATTING HELPERS ====================
 
-def format_currency(value):
-    """Format value as currency string."""
-    return f"${int(value):,}"
-
-def format_ratio(value, decimals=2):
-    """
-    Format value as ratio string.
-
-    Args:
-        value (float): Numeric value
-        decimals (int): Number of decimal places
-
-    Returns:
-        str: Formatted ratio string
-    """
-    return f"{value:.{decimals}f}"
-
-
-def format_mvpf(value):
-    """Format MVPF score."""
-    if value == float('inf'):
-        return "∞"
-    return f"{value:.2f}"
-
-
-def get_mvpf_rating(mvpf):
-    """
-    Get rating and color for MVPF score.
-
-    Returns:
-        tuple: (rating_string, color_hex)
-    """
-    if mvpf >= 2.5:
-        return 'Excellent', '#16a34a'
-    elif mvpf >= 1.5:
-        return 'Good', '#2563eb'
-    elif mvpf >= 1.0:
-        return 'Fair', '#ca8a04'
-    else:
-        return 'Poor', '#dc2626'
+# Formatting functions are now imported from formatting.py module
+# This ensures consistent formatting across the entire application

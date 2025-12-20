@@ -57,23 +57,32 @@ class CPIAdjuster:
       def adjust(self, value: float, from_year: int) -> float:
           """
           Adjust value from source year to default target year (2025).
-          
-          Fast path - uses pre-computed factors.
-          
+
+          Fast path - uses pre-computed factors with caching.
+
           Args:
               value: Amount in source year dollars
               from_year: Source year
-              
+
           Returns:
               Value adjusted to target year
           """
+          # Check cache first
+          cache_key = (value, from_year, self.target_year)
+          if cache_key in self._cache:
+              return self._cache[cache_key]
+
           if from_year not in self.factor_to_2025:
               raise ValueError(
                   f"No CPI data for year {from_year}. "
                   f"Available: {self.year_range[0]}-{self.year_range[1]}"
               )
 
-          return value * self.factor_to_2025[from_year]
+          adjusted = value * self.factor_to_2025[from_year]
+
+          # Cache result
+          self._cache[cache_key] = adjusted
+          return adjusted
 
       def adjust_to_year(self, value: float, from_year: int, to_year: int) -> float:
           """
