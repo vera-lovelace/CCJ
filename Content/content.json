@@ -27,11 +27,11 @@
   },
   "info_tile": {
     "heading": "What is MVPF?",
-    "description": "The Marginal Value of Public Funds (MVPF) is a metric that measures the social welfare benefit of a policy per dollar of government spending. It is a ratio that represents how much value beneficiaries receive relative to what the policy costs. [link to MIT page]",
+    "description": "The Marginal Value of Public Funds (MVPF) is a metric that measures the social welfare benefit of a policy per dollar of government spending. It is a ratio that represents how much value beneficiaries receive relative to what the policy costs. See: [Policy Impacts Library, MIT](https://policyimpacts.org/mvpf-explained/what-is-the-mvpf/).",
     "formula_label": "Applying MVPF to detention",
     "formula": "Most MVPF work looks at policies where the person subject to the policy is also the main beneficiary, such as cash transfers. Detention is different. Jail is imposed on detainees but is justified as benefiting the general public. That is why this tool tracks both Detainee effects and broader Society effects when calculating the MVPF of detention.  \n Understanding MVPF requires not just technical knowledge, but also careful consideration of the ethical and empirical challenges inherent in valuing complex social outcomes. We hope this tool facilitates more informed and nuanced discussions about pre-trial detention policy. ",
     "application_label": "Our Approach to Cook County Jail",
-    "application": "In most MVPF work, people plug in causal estimates for how behavior changes at the intensive margin (for example, working a bit more or less when a benefit changes). For Cook County Jail, we do not have credible intensive-margin estimates for detention, and the policy questions we are interested in are about the extensive margin and the scale of the jail itself: who is detained at all, for how long, and what level of funding or even continued operation is justified. It uses the full annual costs of operating the jail and the full set of impacts on people who are detained to summarize those tradeoffs in an MVPF-style framework. This CCJ calculator is built to help you see how assumptions about extensive-margin harms and benefits feed into both the numerator and the denominator, using 2018 jail spending as the benchmark.  For a fuller discussion of this choice and its limits, see the longer explanation [link to MVPF Explained]."
+    "application": "In most MVPF work, people plug in causal estimates for how behavior changes at the intensive margin (for example, working a bit more or less when a benefit changes). For Cook County Jail, we do not have credible intensive-margin estimates for detention, and the policy questions we are interested in are about the extensive margin and the scale of the jail itself: who is detained at all, for how long, and what level of funding or even continued operation is justified. It uses the full annual costs of operating the jail and the full set of impacts on people who are detained to summarize those tradeoffs in an MVPF-style framework. This CCJ calculator is built to help you see how assumptions about extensive-margin harms and benefits feed into both the numerator and the denominator, using 2018 jail spending as the benchmark.  For a fuller discussion of this choice and its limits, see the [MVPF Explained](#mvpf-explained) tab."
   },
   "tabs": {
     "overview": "Calculation",
@@ -270,7 +270,7 @@
     },
     "what_is_mvpf": {
       "heading": "What is MVPF?",
-      "description": "The Marginal Value of Public Funds (MVPF) is a metric that measures the social welfare benefit of a policy per dollar of government spending. It represents how much value beneficiaries receive relative to what the policy costs. (Hendren and Sprung-Keyser 2020) [link to MIT page]"
+      "description": "The Marginal Value of Public Funds (MVPF) is a metric that measures the social welfare benefit of a policy per dollar of government spending. It represents how much value beneficiaries receive relative to what the policy costs. (Hendren and Sprung-Keyser 2020) See: [Policy Impacts Library, MIT](https://policyimpacts.org/mvpf-explained/what-is-the-mvpf/)."
     },
     "applying_to_detention": {
       "heading": "Applying MVPF to detention in Cook County Jail",

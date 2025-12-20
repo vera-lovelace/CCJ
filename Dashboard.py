@@ -745,7 +745,7 @@ app.layout = html.Div(className='app-container', children=[
                                         }
                                     ),
 
-                                    html.P(
+                                    dcc.Markdown(
                                         content.get(
                                             'info_tile.description',
                                             'The MVPF measures the ratio of beneficiaries willingness to pay to the net cost to the government'
@@ -779,18 +779,8 @@ app.layout = html.Div(className='app-container', children=[
                                     ),
 
                                     # New section: application label + text
-                                    html.P(
-                                        [
-                                            html.Strong(
-                                                content.get('info_tile.application_label', 'Our application of MVPF'),
-                                                style={'color': '#374151'}
-                                            ),
-                                            html.Br(),
-                                            content.get(
-                                                'info_tile.application',
-                                                'How we apply MVPF to Cook County Jail.'
-                                            )
-                                        ],
+                                    dcc.Markdown(
+                                        f"**{content.get('info_tile.application_label', 'Our application of MVPF')}**\n\n{content.get('info_tile.application', 'How we apply MVPF to Cook County Jail.')}",
                                         style={
                                             'fontSize': '14px',
                                             'color': '#6b7280',
@@ -1696,7 +1686,7 @@ app.layout = html.Div(className='app-container', children=[
                                         'marginBottom': '12px'
                                     }
                                 ),
-                                html.P(
+                                dcc.Markdown(
                                     content.get('mvpf_explainer.what_is_mvpf.description', 'The Marginal Value of Public Funds (MVPF) is a metric that measures the social welfare benefit of a policy per dollar of government spending.'),
                                     style={
                                         'color': '#4b5563',
