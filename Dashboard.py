@@ -3,13 +3,19 @@ MVPF Dashboard Application
 Main dashboard layout and callbacks
 """
 
+import sys
+import os
+
+project_root = os.path.dirname(os.path.abspath(__file__))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 # Import global components
 import dash
 from dash import dcc, html, Input, Output, State
 import plotly.graph_objs as go
 from datetime import datetime
 import pandas as pd
-import os
 import csv
 import io
 
@@ -50,7 +56,7 @@ calculator = MVPFCalculator(data_dir='Data')
 # Initialize parameter registry to get CSV-based dropdown options
 param_registry = ParameterRegistry(data_dir='Data')
 
-# Load benchmarks once at startup and cache (avoids repeated CSV reads)
+# Load benchmarks once at startup and cache
 benchmarks = load_benchmarks()
 
 # Get parameter definitions for dropdown generation

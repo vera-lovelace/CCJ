@@ -46,7 +46,6 @@ from mvpf_calculator import MVPFCalculator
 
 # Helper utilities
 from helpers import (
-    convert_dashboard_params,
     ResultsExporter,
     format_currency,
     format_mvpf,
@@ -65,7 +64,6 @@ __all__ = [
     'MVPFCalculator',
 
     # Helpers
-    'convert_dashboard_params',
     'ResultsExporter',
     'format_currency',
     'format_mvpf',
