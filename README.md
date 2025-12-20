@@ -24,17 +24,15 @@ The MVPF calculator evaluates detention policies across three dimensions:
 **Detainee Values** (negative impacts):
 - Willingness to Pay for Freedom
 - Incarceration-Related Harm
-- Post-Release Effects
 
 **Society Values** (benefits):
 - Crime Prevention/Displacement
-- Victimization Cost Reduction
+- Court appearance
 - Community & Economic Spillovers
 
 **Government Costs**:
 - Facility Operations
-- Healthcare Services
-- Processing & Management
+- Crime effect-based changes
 
 **Formula:**
 ```
