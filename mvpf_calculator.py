@@ -1,5 +1,5 @@
 """
-MVPF Calculator - Simple
+MVPF Calculator
 """
 
 import pandas as pd
@@ -413,19 +413,7 @@ class MVPFCalculator:
 def dashboard_params(fel_rate='average', n_detainees_mult='average', n_society_mult='average', los_days='average', crime_weight_mult=None):
     """Convert dashboard dropdowns to parameter dict.
 
-    Uses ParameterRegistry to get correct values:
-    - fel_rate: Felony rate (direct value from CSV, e.g., 0.7)
-    - n_detainees_mult: Detainee population multiplier (0.8, 1.0, 1.2)
-    - n_society_mult: Community size multiplier (0.8, 1.0, 1.2)
-    - los_days: Length of stay in days (direct value from CSV, e.g., 70)
-    - crime_weight_mult: Crime prevention weighting (optional)
-
-    Args:
-        fel_rate: 'below', 'average', or 'above'
-        n_detainees_mult: 'below', 'average', or 'above'
-        n_society_mult: 'below', 'average', or 'above'
-        los_days: 'below', 'average', or 'above'
-        crime_weight_mult: Optional crime weighting
+    Uses ParameterRegistry to get correct values
     """
     # Use the ParameterRegistry for correct value mapping
     result = param_registry.convert_dashboard_input(

@@ -1,5 +1,10 @@
-python3 - c
-"
+"""
+Debug and Testing Utilities
+
+This module contains debugging utilities and test code for the MVPF Calculator.
+Used for development and troubleshooting purposes.
+"""
+
 from mvpf_calculator import MVPFCalculator, dashboard_params
 from parameters import ParameterEffectsRegistry
 

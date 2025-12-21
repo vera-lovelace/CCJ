@@ -21,9 +21,6 @@ class ScenarioManager:
         """
         Initialize scenario manager.
 
-        Args:
-            scenarios_path (str): Path to alternative_calculations.json
-            subcomponent_registry: Registry object to get all available subcomponents
         """
         self.scenarios = self._load_scenarios(scenarios_path)
         self._build_defaults(subcomponent_registry)
@@ -159,7 +156,6 @@ class ScenarioDefinition:
         """
         Get complete parameter configuration for this scenario.
 
-        Starts with preset, then applies overrides.
         """
         from parameters import ParameterPresets
 

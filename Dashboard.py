@@ -19,6 +19,7 @@ import pandas as pd
 import csv
 import io
 
+# Import local components
 from content_loader import ContentManager
 from mvpf_calculator import MVPFCalculator
 from parameters import ParameterRegistry
@@ -94,11 +95,6 @@ N_SOCIETY_OPTIONS = [
 # Initialize the Dash app
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 server = app.server
-
-
-# Style constants are now imported from formatting.py module
-# This ensures consistent styling across the entire application
-
 
 # Custom CSS for styling
 app.index_string = f"""
@@ -758,12 +754,12 @@ app.layout = html.Div(
                             label="Home",
                             value="tab-landing",
                             style={
-                                "padding": f"{Spacing.MD} {Spacing.XXL}",
+                                "padding": f"{Spacing.MD} {Spacing.XL}",
                                 "fontWeight": "500",
                                 "fontSize": FontSizes.BODY,
                             },
                             selected_style={
-                                "padding": f"{Spacing.MD} {Spacing.XXL}",
+                                "padding": f"{Spacing.MD} {Spacing.XL}",
                                 "fontWeight": "600",
                                 "fontSize": FontSizes.BODY,
                                 "borderTop": f"{Borders.THICK} solid {Colors.PRIMARY_BLUE}",
@@ -772,7 +768,7 @@ app.layout = html.Div(
                             children=[
                                 html.Div(
                                     style={
-                                        "padding": f"48px {Spacing.XXL}",
+                                        "padding": f"48px {Spacing.XL}",
                                         "maxWidth": "900px",
                                         "margin": "0 auto",
                                     },
@@ -787,13 +783,13 @@ app.layout = html.Div(
                                                 "fontSize": "36px",
                                                 "fontWeight": "bold",
                                                 "color": Colors.NAVY_DARK,
-                                                "marginBottom": Spacing.XXL,
+                                                "marginBottom": Spacing.XL,
                                                 "textAlign": "center",
                                             },
                                         ),
                                         # Purpose section
                                         html.Div(
-                                            style={"marginBottom": Spacing.XXXL},
+                                            style={"marginBottom": Spacing.LG},
                                             children=[
                                                 html.H3(
                                                     content.get("understanding.purpose.title", ""),
@@ -817,7 +813,7 @@ app.layout = html.Div(
                                                         "color": Colors.GRAY_800,
                                                         "lineHeight": LineHeights.LOOSE,
                                                         "margin": "0",
-                                                        "padding": Spacing.XL,
+                                                        "padding": Spacing.LG,
                                                         "borderRadius": "0px",
                                                         "marginBottom": "12px",
                                                     },
@@ -829,7 +825,7 @@ app.layout = html.Div(
                                                         "color": Colors.GRAY_800,
                                                         "lineHeight": LineHeights.LOOSE,
                                                         "margin": "0",
-                                                        "padding": Spacing.XL,
+                                                        "padding": Spacing.LG,
                                                         "borderRadius": "0px",
                                                         "marginBottom": "12px",
                                                     },
@@ -839,7 +835,7 @@ app.layout = html.Div(
                                         # Description
                                         html.Div(
                                             style={
-                                                "padding": Spacing.XL,
+                                                "padding": Spacing.XXXL,
                                                 "borderRadius": "0px",
                                                 "marginBottom": "48px",
                                             },
@@ -2260,7 +2256,7 @@ app.layout = html.Div(
                                                 ),
                                             ],
                                         ),
-                                        # Current Analysis Settings (moved before sensitivity analysis)
+                                        # Current Analysis Settings
                                         html.Div(
                                             style={
                                                 "backgroundColor": Colors.GRAY_50,
@@ -3019,7 +3015,7 @@ app.layout = html.Div(
                                                         "margin": f"0 0 {Spacing.XXL} 0",
                                                     },
                                                 ),
-                                                # Methodology section (visual equation + top-justified + in-page links)
+                                                # Methodology section
                                                 html.Div(
                                                     style={"marginBottom": Spacing.XXXL},
                                                     children=[
@@ -5708,7 +5704,7 @@ def _build_kpi_card_split(result, mvpf, badge_color, badge_text_color, label, pa
         ],
     )
 
-    # Second component: Calculation and component details (to go below "how to use this result")
+    # Second component: Calculation and component details
     kpi_components = html.Div(
         className="kpi-card",
         style={"background": "transparent"},
@@ -7053,7 +7049,7 @@ def _build_subcomponents_chart(result):
     values = [s["value"] for s in subcomponents]
     text_labels = [f"${int(v):,}" for v in values]
 
-    # Calculate x-axis range to ensure all bars are visible (horizontal bars use x-axis for values)
+    # Calculate x-axis range to ensure all bars are visible
     if values:
         min_val = min(values)
         max_val = max(values)

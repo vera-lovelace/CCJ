@@ -230,9 +230,6 @@ class SubcomponentRegistry:
         """
         Get all metadata for a subcomponent.
 
-        Args:
-            row_var (str): Subcomponent identifier
-
         Returns:
             dict: Complete metadata
         """
@@ -241,9 +238,6 @@ class SubcomponentRegistry:
     def list_subcomponents(self, component=None):
         """
         List all subcomponents, optionally filtered by component type.
-
-        Args:
-            component (str, optional): Filter by component type
 
         Returns:
             list: Subcomponent row_var identifiers
@@ -259,10 +253,6 @@ class SubcomponentRegistry:
     def get_parameter_effects_for(self, row_var):
         """
         Get list of parameters that affect a subcomponent.
-
-        Args:
-            row_var (str): Subcomponent identifier
-
         Returns:
             list: Parameter keys that affect this subcomponent
         """

@@ -190,12 +190,6 @@ class ParameterRegistry:
         """
         Convert dashboard dropdown selections to parameter values.
 
-        Args (new names):
-            fel_rate: 'below' | 'average' | 'above'
-            n_detainees: 'below' | 'average' | 'above'
-            n_society: 'below' | 'average' | 'above'
-            los_days: 'below' | 'average' | 'above'
-
         Returns:
             Dict of parameter values (direct values and multipliers)
         """

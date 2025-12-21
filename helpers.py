@@ -157,7 +157,3 @@ class ResultsExporter:
         return pd.DataFrame(results)
 
 
-# ==================== FORMATTING HELPERS ====================
-
-# Formatting functions are now imported from formatting.py module
-# This ensures consistent formatting across the entire application
