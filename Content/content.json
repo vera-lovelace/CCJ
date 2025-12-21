@@ -365,11 +365,11 @@
       "subcomponents": {
         "harm_valuation": {
           "button_text": "Willingness to Pay derived from Relative Harm Valuation",
-          "explanation": "The baseline detainee component, which measures harm by comparing each day in custody to crime-victimization cost benchmarks such as robbery or aggravated assault. This produces a larger per-day harm value than detainee self-reported WTP (~$4,000/day), and scales with whatever length of stay (non-linearly), population, or charge mix the user chooses. Because it reflects broader social harm rather than ability-to-pay limits, it is used as the default. Source: crime-harm equivalence estimates from Stevenson & Mayson (2022)."
+          "explanation": "The baseline detainee component, which measures harm by comparing each day in custody to crime-victimization cost benchmarks such as robbery or aggravated assault. This produces a larger per-day harm value than detainee self-reported WTP (~$4,000/day), and scales with whatever length of stay (non-linearly), population, or charge mix the user chooses. Because it reflects broader social harm rather than ability-to-pay limits, it is used as the default. Source: crime-harm equivalence estimates from [Stevenson & Mayson (2022)](https://ssrn.com/abstract=3398451)."
         },
         "wtp_freedom": {
           "button_text": "Willingness to Pay for Freedom",
-          "explanation": "An alternative detainee valuation based on stated willingness-to-pay (WTP) per day to avoid jail, drawn from surveys of people facing detention. Valued at $11/day in 2018 dollars. This approach reflects detainees' own monetary tradeoffs and can be scaled using any assumed length of stay or detainee population. It typically produces much smaller harm estimates than the baseline Relative Harm Valuation, which makes the overall MVPF less negative and is therefore a more conservative choice. Source: detainee WTP evidence summarized in Stevenson & Mayson (2022)."
+          "explanation": "An alternative detainee valuation based on stated willingness-to-pay (WTP) per day to avoid jail, drawn from surveys of people facing detention. Valued at $11/day in 2018 dollars. This approach reflects detainees' own monetary tradeoffs and can be scaled using any assumed length of stay or detainee population. It typically produces much smaller harm estimates than the baseline Relative Harm Valuation, which makes the overall MVPF less negative and is therefore a more conservative choice. Source: detainee WTP evidence summarized in [Stevenson & Mayson (2022)](https://ssrn.com/abstract=3398451)."
         }
       }
     },

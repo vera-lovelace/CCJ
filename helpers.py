@@ -36,36 +36,6 @@ def load_historical_results(filename='mvpf_results.csv'):
         print(f"File {filename} not found.")
         return pd.DataFrame()
 
-def convert_dashboard_params(detainee_param1, detainee_param2,
-                             society_param1, society_param2):
-    """
-    Convert dashboard dropdown values to parameter multipliers.
-
-    Args:
-        detainee_param1: Crime rate (below/moderate/significant)
-        detainee_param2: Detainee population (below/average/above)
-        society_param1: Community size (below/average/above)
-        society_param2: Length of stay (below/average/above)
-
-    Returns:
-        dict: Parameter multipliers for calculate()
-    """
-    maps = {
-        'crime': {'below': 0.5, 'moderate': 1.0, 'significant': 1.5},
-        'pop': {'below': 0.8, 'average': 1.0, 'above': 1.2},
-        'community': {'below': 0.9, 'average': 1.0, 'above': 1.1},
-        'los': {'below': 0.7, 'average': 1.0, 'above': 1.3}
-    }
-
-    return {
-        'crime_rate_mult': maps['crime'].get(detainee_param1, 1.0),
-        'detainee_pop_mult': maps['pop'].get(detainee_param2, 1.0),
-        'community_size_mult': maps['community'].get(society_param1, 1.0),
-        'length_of_stay_mult': maps['los'].get(society_param2, 1.0),
-        'crime_weight_mult': 1.0,
-        'crime_effect': 0,
-    }
-
 
 # ==================== RESULTS EXPORT ====================
 

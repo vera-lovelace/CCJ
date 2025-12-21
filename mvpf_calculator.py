@@ -8,9 +8,15 @@ import os
 from datetime import datetime
 
 from cpi_adjuster import CPIAdjuster
-from helpers import convert_dashboard_params
 from subcomponents import SubcomponentRegistry
 from parameters import ParameterRegistry, ParameterEffectsRegistry
+from constants import (
+    COMPONENT_TYPES,
+    DETAINEE_VALUES,
+    SOCIETY_VALUES,
+    GOVT_COST,
+    INFINITE_MVPF,
+)
 
 
 param_registry = ParameterRegistry()
@@ -94,7 +100,7 @@ class MVPFCalculator:
         gov_total, gov_breakdown = self._calc_component(govt_list, params)
 
         # Calculate MVPF
-        mvpf = (det_total + soc_total) / gov_total if gov_total != 0 else float('inf')
+        mvpf = (det_total + soc_total) / gov_total if gov_total != 0 else INFINITE_MVPF
 
         return {
             'scenario': scenario_def.key,
@@ -210,10 +216,6 @@ class MVPFCalculator:
 
         return value
 
-    def dashboard_params(**kwargs):
-        """Convert dashboard inputs to parameters."""
-        return param_registry.convert_dashboard_input(**kwargs)
-
     def _get_multiplier(self, row_var, params):
         """
         Get parameter multiplier for a subcomponent.
@@ -240,8 +242,8 @@ class MVPFCalculator:
                 multiplier *= params.get('n_society_mult', 1.0)
             # For full population params, apply base × multiplier
             elif param == 'n_detainees_mult':
-                # base_n_detainees × adjustment_multiplier
-                base = self.weights.get('n_detainees', 33945)
+                # Use user's baseline input if provided, otherwise use CSV default
+                base = params.get('n_detainees_base', self.weights.get('n_detainees', 33945))
                 param_value = params.get(param, 1.0)
                 multiplier *= base * param_value
             elif param == 'n_society_mult':
@@ -254,6 +256,19 @@ class MVPFCalculator:
                 multiplier *= params.get(param, 1.0)
 
         return multiplier
+
+    def _flatten_breakdown(self, breakdown_dict, prefix):
+        """
+        Flatten a breakdown dictionary into a flat dictionary with prefixed keys.
+
+        Args:
+            breakdown_dict: Dictionary of component names and values
+            prefix: Prefix to add to each key (e.g., 'det_', 'soc_', 'gov_')
+
+        Returns:
+            dict: Flattened dictionary with prefixed keys
+        """
+        return {f'{prefix}{name}': val for name, val in breakdown_dict.items()}
 
     def calculate_all_scenarios(self, params=None):
         """Calculate all scenarios."""
@@ -289,17 +304,10 @@ class MVPFCalculator:
                 'numerator': result['detainee_values'] + result['society_values'],
             }
 
-            # Add detainee breakdown
-            for name, val in result['detainee_breakdown'].items():
-                row[f'det_{name}'] = val
-
-            # Add society breakdown
-            for name, val in result['society_breakdown'].items():
-                row[f'soc_{name}'] = val
-
-            # Add govt breakdown
-            for name, val in result['govt_breakdown'].items():
-                row[f'gov_{name}'] = val
+            # Add component breakdowns
+            row.update(self._flatten_breakdown(result['detainee_breakdown'], 'det_'))
+            row.update(self._flatten_breakdown(result['society_breakdown'], 'soc_'))
+            row.update(self._flatten_breakdown(result['govt_breakdown'], 'gov_'))
 
             # Add parameters used
             for param_key, param_val in result['parameters_used'].items():
@@ -344,13 +352,10 @@ class MVPFCalculator:
                 for param_key, param_val in r['parameters_used'].items():
                     row[f'param_{param_key}'] = param_val
 
-            # Add breakdowns
-            for name, val in r.get('detainee_breakdown', {}).items():
-                row[f'det_{name}'] = val
-            for name, val in r.get('society_breakdown', {}).items():
-                row[f'soc_{name}'] = val
-            for name, val in r.get('govt_breakdown', {}).items():
-                row[f'gov_{name}'] = val
+            # Add component breakdowns
+            row.update(self._flatten_breakdown(r.get('detainee_breakdown', {}), 'det_'))
+            row.update(self._flatten_breakdown(r.get('society_breakdown', {}), 'soc_'))
+            row.update(self._flatten_breakdown(r.get('govt_breakdown', {}), 'gov_'))
 
             rows.append(row)
 
@@ -389,13 +394,10 @@ class MVPFCalculator:
                 for param_key, param_val in r['parameters_used'].items():
                     row[f'param_{param_key}'] = param_val
 
-            # Add breakdowns
-            for name, val in r.get('detainee_breakdown', {}).items():
-                row[f'det_{name}'] = val
-            for name, val in r.get('society_breakdown', {}).items():
-                row[f'soc_{name}'] = val
-            for name, val in r.get('govt_breakdown', {}).items():
-                row[f'gov_{name}'] = val
+            # Add component breakdowns
+            row.update(self._flatten_breakdown(r.get('detainee_breakdown', {}), 'det_'))
+            row.update(self._flatten_breakdown(r.get('society_breakdown', {}), 'soc_'))
+            row.update(self._flatten_breakdown(r.get('govt_breakdown', {}), 'gov_'))
 
             rows.append(row)
 

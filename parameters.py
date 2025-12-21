@@ -482,65 +482,6 @@ class ParameterPresets:
   #result = calculator.calculate('baseline', params)
 
 
-class ParameterValidator:
-    """Validate parameter inputs and provide warnings."""
-
-    # Define reasonable bounds (not hard limits, but warning thresholds)
-    # Includes both new param names and legacy names for compatibility
-    REASONABLE_BOUNDS = {
-        # New parameter names (direct values)
-        'fel_rate': (0.3, 1.0),  # Felony rate: 30% to 100%
-        'los_days': (30, 365),  # Length of stay: 30 to 365 days
-        'n_detainees_mult': (0.5, 2.0),  # Detainee population multiplier
-        'n_society_mult': (0.7, 1.5),  # Community size multiplier
-
-
-        # Other parameters
-        'crime_weight_mult': (0.2, 3.0),
-        'crime_effect': (-4, 14),
-    }
-
-    @classmethod
-    def validate(cls, params: Dict[str, float], strict=False) -> Dict[str, float]:
-        """
-        Validate parameter dictionary.
-
-        Args:
-            params: Parameter multipliers
-            strict: If True, raise error on out-of-bounds. If False, warn.
-
-        Returns:
-            Validated parameters
-        """
-        validated = {}
-        warnings = []
-
-        for key, value in params.items():
-            if key not in cls.REASONABLE_BOUNDS:
-                warnings.append(f"Unknown parameter '{key}' - ignoring")
-                continue
-
-            min_val, max_val = cls.REASONABLE_BOUNDS[key]
-
-            if value < min_val or value > max_val:
-                msg = (f"Parameter '{key}' value {value:.2f} is outside "
-                       f"reasonable range [{min_val}, {max_val}]")
-                if strict:
-                    raise ValueError(msg)
-                else:
-                    warnings.append(msg)
-
-            validated[key] = value
-
-        # Print warnings
-        if warnings:
-            print("⚠️ Parameter Validation Warnings:")
-            for w in warnings:
-                print(f"  - {w}")
-
-        return validated
-
-
 class ParameterSensitivityAnalyzer:
     """Analyze sensitivity of MVPF to parameter changes."""
 

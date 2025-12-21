@@ -44,6 +44,9 @@ __author__ = "Adrienn J. Sinapis"
 # Main calculator (primary interface)
 from mvpf_calculator import MVPFCalculator
 
+# Constants
+from constants import COMPONENT_TYPES, DETAINEE_VALUES, SOCIETY_VALUES, GOVT_COST
+
 # Helper utilities
 from helpers import (
     ResultsExporter,
@@ -62,6 +65,12 @@ import graphs
 __all__ = [
     # Main class
     'MVPFCalculator',
+
+    # Constants
+    'COMPONENT_TYPES',
+    'DETAINEE_VALUES',
+    'SOCIETY_VALUES',
+    'GOVT_COST',
 
     # Helpers
     'ResultsExporter',
