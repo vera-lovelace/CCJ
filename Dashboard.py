@@ -716,102 +716,42 @@ app.layout = html.Div(className='app-container', children=[
                                 html.P(
                                     content.get('understanding.purpose.description',
                                                 'This interactive dashboard provides a comprehensive analysis of the Marginal Value of Public Funds (MVPF) '
-                                                'for Cook County Jail operations. It enables policymakers, researchers, and stakeholders to evaluate the '
-                                                'social welfare impacts of detention policies through a systematic, data-driven framework.'),
+                                                'for Cook County Jail operations. '),
                                     style={
                                         'fontSize': FontSizes.H5,
                                         'color': Colors.GRAY_800,
                                         'lineHeight': LineHeights.LOOSE,
-                                        'margin': '0'
+                                        'margin': '0',
+                                        'padding': Spacing.XL,
+                                        'borderRadius': '0px',
+                                        'marginBottom': '12px',
+                                    }
+                                ),
+                                html.P(
+                                    'The MVPF measures the social welfare benefit of a policy per dollar of government spending. The below interactive MVPF calculator helps policymakers and researchers understand the tradeoffs involved in pretrial detention by quantifying both costs and benefits in a common framework. We use Cook County Jail in 2018 as our base case.',
+                                    style={
+                                        'fontSize': FontSizes.H5,
+                                        'color': Colors.GRAY_800,
+                                        'lineHeight': LineHeights.LOOSE,
+                                        'margin': '0',
+                                        'padding': Spacing.XL,
+                                        'borderRadius': '0px',
+                                        'marginBottom': '12px',
                                     }
                                 )
+
                             ]),
 
-                            # Information Tile
-                            html.Div(
-                                style={
-                                    'background': 'white',
-                                    'padding': Spacing.XL,
-                                    'borderRadius': '8px',
-                                    'marginBottom': Spacing.XXXL,
-                                    'border': f'{Borders.THIN} solid {Colors.GRAY_300}'
-                                },
-                                children=[
-                                    html.H3(
-                                        content.get('info_tile.heading', 'About MVPF'),
-                                        style={
-                                            'fontSize': FontSizes.H5,
-                                            'fontWeight': '600',
-                                            'color': Colors.GRAY_900,
-                                            'marginTop': '0',
-                                            'marginBottom': Spacing.SM
-                                        }
-                                    ),
-
-                                    dcc.Markdown(
-                                        content.get(
-                                            'info_tile.description',
-                                            'The MVPF measures the ratio of beneficiaries willingness to pay to the net cost to the government'
-                                        ),
-                                        style={
-                                            'fontSize': FontSizes.BODY,
-                                            'color': Colors.GRAY_600,
-                                            'lineHeight': LineHeights.RELAXED,
-                                            'margin': f'0 0 {Spacing.MD} 0'
-                                        }
-                                    ),
-
-                                    html.P(
-                                        [
-                                            html.Strong(
-                                                content.get('info_tile.formula_label', 'Formula:'),
-                                                style={'color': Colors.GRAY_900}
-                                            ),
-                                            html.Br(),
-                                            content.get(
-                                                'info_tile.formula',
-                                                'MVPF = (Detainee + Society) / Government Cost'
-                                            )
-                                        ],
-                                        style={
-                                            'fontSize': FontSizes.BODY,
-                                            'color': Colors.GRAY_600,
-                                            'lineHeight': LineHeights.RELAXED,
-                                            'margin': f'0 0 {Spacing.LG} 0'
-                                        }
-                                    ),
-
-                                    # New section: application label + text
-                                    dcc.Markdown(
-                                        f"**{content.get('info_tile.application_label', 'Our application of MVPF')}**\n\n{content.get('info_tile.application', 'How we apply MVPF to Cook County Jail.')}",
-                                        style={
-                                            'fontSize': FontSizes.BODY,
-                                            'color': Colors.GRAY_600,
-                                            'lineHeight': LineHeights.RELAXED,
-                                            'margin': '0'
-                                        }
-                                    ),
-                                ]
-                            ),
 
                             # Description
                             html.Div(style={
 
-                                'padding': Spacing.XXXL,
+                                'padding': Spacing.XL,
                                 'borderRadius': '0px',
                                 'marginBottom': '48px',
 
                             }, children=[
-                                html.P([
-                                    'This interactive dashboard helps you analyze the ',
-                                    html.Strong('Marginal Value of Public Funds (MVPF)'),
-                                    ' for Cook County Jail operations. The MVPF measures the social welfare benefit of a policy per dollar of government spending.'
-                                ], style={
-                                    'fontSize': FontSizes.H5,
-                                    'color': Colors.GRAY_950,
-                                    'lineHeight': LineHeights.LOOSE,
-                                    'marginBottom': Spacing.LG
-                                }),
+
                                 html.P(
                                     'Use the tabs below to explore different aspects of the analysis, from high-level overview to detailed scenario comparisons and benchmarking against other government programs.',
                                     style={
@@ -967,7 +907,76 @@ app.layout = html.Div(className='app-container', children=[
                                         )
                                     ])
                                 ])
-                            ])
+
+                            ]),
+
+                            # Information Tile
+                            html.Div(
+                                style={
+                                    'background': 'white',
+                                    'padding': Spacing.XL,
+                                    'borderRadius': '8px',
+                                    'marginBottom': Spacing.XXXL,
+                                    'border': f'{Borders.THIN} solid {Colors.GRAY_300}'
+                                },
+                                children=[
+                                    html.H3(
+                                        content.get('info_tile.heading', 'About MVPF'),
+                                        style={
+                                            'fontSize': FontSizes.H5,
+                                            'fontWeight': '600',
+                                            'color': Colors.GRAY_900,
+                                            'marginTop': '0',
+                                            'marginBottom': Spacing.SM
+                                        }
+                                    ),
+
+                                    dcc.Markdown(
+                                        content.get(
+                                            'info_tile.description',
+                                            'The MVPF measures the ratio of beneficiaries willingness to pay to the net cost to the government'
+                                        ),
+                                        style={
+                                            'fontSize': FontSizes.BODY,
+                                            'color': Colors.GRAY_600,
+                                            'lineHeight': LineHeights.RELAXED,
+                                            'margin': f'0 0 {Spacing.MD} 0'
+                                        }
+                                    ),
+
+                                    html.P(
+                                        [
+                                            html.Strong(
+                                                content.get('info_tile.formula_label', 'Formula:'),
+                                                style={'color': Colors.GRAY_900}
+                                            ),
+                                            html.Br(),
+                                            content.get(
+                                                'info_tile.formula',
+                                                'MVPF = (Detainee + Society) / Government Cost'
+                                            )
+                                        ],
+                                        style={
+                                            'fontSize': FontSizes.BODY,
+                                            'color': Colors.GRAY_600,
+                                            'lineHeight': LineHeights.RELAXED,
+                                            'margin': f'0 0 {Spacing.LG} 0'
+                                        }
+                                    ),
+
+                                    # New section: application label + text
+                                    dcc.Markdown(
+                                        f"**{content.get('info_tile.application_label', 'Our application of MVPF')}**\n\n{content.get('info_tile.application', 'How we apply MVPF to Cook County Jail.')}",
+                                        style={
+                                            'fontSize': FontSizes.BODY,
+                                            'color': Colors.GRAY_600,
+                                            'lineHeight': LineHeights.RELAXED,
+                                            'margin': '0'
+                                        }
+                                    ),
+                                ]
+                            ),
+
                         ])
                     ]),
 
@@ -1208,6 +1217,38 @@ app.layout = html.Div(className='app-container', children=[
                                                     'borderRadius': '6px',
                                                     'boxSizing': 'border-box'
                                                 }
+                                            )
+                                        ]),
+
+                                        # Population Multiplier Slider
+                                        html.Div(style={'marginTop': Spacing.LG}, children=[
+                                            html.Label([
+                                                'Population Multiplier: ',
+                                                html.Span(id='detainee-multiplier-display', children='100%', style={
+                                                    'fontWeight': 'bold',
+                                                    'color': Colors.PRIMARY_BLUE
+                                                })
+                                            ], style={
+                                                'fontSize': FontSizes.LABEL,
+                                                'fontWeight': '500',
+                                                'color': Colors.GRAY_900,
+                                                'marginBottom': Spacing.SM,
+                                                'display': 'block'
+                                            }),
+                                            dcc.Slider(
+                                                id='detainee-param2',
+                                                min=0.1,
+                                                max=2.0,
+                                                value=1.0,
+                                                marks={
+                                                    0.1: {'label': '10%', 'style': {'fontSize': '8px'}},
+                                                    0.5: {'label': '50%', 'style': {'fontSize': '8px'}},
+                                                    1.0: {'label': '100%', 'style': {'fontSize': '8px'}},
+                                                    1.5: {'label': '150%', 'style': {'fontSize': '8px'}},
+                                                    2.0: {'label': '200%', 'style': {'fontSize': '8px'}}
+                                                },
+                                                step=0.05,
+                                                tooltip={'placement': 'bottom', 'always_visible': False}
                                             )
                                         ])
                                     ]),
@@ -1468,7 +1509,7 @@ app.layout = html.Div(className='app-container', children=[
 
                                         # Download Analysis Card
                                         html.Div(style={
-                                            'background': 'linear-gradient(135deg, Colors.PRIMARY_BLUE_DARK 0%, Colors.NAVY_MEDIUM 100%)',
+                                            'background': Colors.NAVY_MEDIUM,
                                             'padding': Spacing.XL,
                                             'borderRadius': '10px',
                                             'boxShadow': '0 4px 6px rgba(37, 99, 235, 0.1)'
@@ -1478,7 +1519,7 @@ app.layout = html.Div(className='app-container', children=[
                                                 style={
                                                     'fontSize': '18px',
                                                     'fontWeight': '600',
-                                                    'color': 'white',
+                                                    'color': Colors.GRAY_300,
                                                     'marginTop': '0',
                                                     'marginBottom': '10px'
                                                 }
@@ -1487,7 +1528,7 @@ app.layout = html.Div(className='app-container', children=[
                                                 content.get('download.analysis_card.description', 'Export detailed calculations, assumptions and sensitivity analyses in CSV format'),
                                                 style={
                                                     'fontSize': '13px',
-                                                    'color': 'rgba(255, 255, 255, 0.9)',
+                                                    'color': Colors.GRAY_300,
                                                     'marginBottom': '14px',
                                                     'lineHeight': LineHeights.NORMAL
                                                 }
@@ -1532,10 +1573,163 @@ app.layout = html.Div(className='app-container', children=[
                                 style={
                                     'fontSize': FontSizes.BODY,
                                     'color': Colors.GRAY_600,
-                                    'marginBottom': Spacing.XXL,
+                                    'marginBottom': Spacing.XL,
                                     'lineHeight': LineHeights.RELAXED
                                 }
                             ),
+
+                            # Selected Parameters Display
+                            html.Div(style={
+                                'backgroundColor': Colors.GRAY_50,
+                                'padding': Spacing.XL,
+                                'borderRadius': BorderRadius.MD,
+                                'marginBottom': Spacing.XXXL,
+                                'border': f'{Borders.THIN} solid {Colors.GRAY_300}'
+                            }, children=[
+                                html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'alignItems': 'center', 'marginBottom': Spacing.LG}, children=[
+                                    html.H4('Current Analysis Settings', style={
+                                        'fontSize': FontSizes.H5,
+                                        'fontWeight': '600',
+                                        'color': Colors.NAVY_DARK,
+                                        'marginTop': '0',
+                                        'marginBottom': '0'
+                                    }),
+                                    html.Button([
+                                        html.Span('← ', style={'marginRight': '4px'}),
+                                        'Change Parameters'
+                                    ],
+                                    id='btn-back-to-calculation',
+                                    n_clicks=0,
+                                    style={
+                                        'backgroundColor': Colors.NAVY_MEDIUM,
+                                        'color': 'white',
+                                        'border': 'none',
+                                        'padding': f'{Spacing.SM} {Spacing.LG}',
+                                        'borderRadius': BorderRadius.SM,
+                                        'fontSize': FontSizes.BODY_SM,
+                                        'fontWeight': '600',
+                                        'cursor': 'pointer',
+                                        'transition': 'all 0.2s',
+                                        'boxShadow': '0 2px 4px rgba(0, 0, 0, 0.1)'
+                                    })
+                                ]),
+                                html.Div(style={
+                                    'display': 'grid',
+                                    'gridTemplateColumns': 'repeat(auto-fit, minmax(180px, 1fr))',
+                                    'gap': Spacing.LG
+                                }, children=[
+                                    # Scenario Parameter
+                                    html.Div(style={
+                                        'backgroundColor': 'white',
+                                        'padding': Spacing.MD,
+                                        'borderRadius': BorderRadius.SM,
+                                        'border': f'{Borders.THIN} solid {Colors.GRAY_200}'
+                                    }, children=[
+                                        html.Div(style={'display': 'flex', 'alignItems': 'center', 'marginBottom': Spacing.XS}, children=[
+                                            html.Span('📊', style={'fontSize': '20px', 'marginRight': Spacing.SM}),
+                                            html.Span('Scenario', style={
+                                                'fontSize': FontSizes.LABEL,
+                                                'fontWeight': '600',
+                                                'color': Colors.GRAY_700
+                                            })
+                                        ]),
+                                        html.Div(id='sensitivity-param-scenario', style={
+                                            'fontSize': FontSizes.H5,
+                                            'fontWeight': 'bold',
+                                            'color': Colors.NAVY_MEDIUM,
+                                            'marginTop': Spacing.XS
+                                        })
+                                    ]),
+                                    # Felony Rate Parameter
+                                    html.Div(style={
+                                        'backgroundColor': 'white',
+                                        'padding': Spacing.MD,
+                                        'borderRadius': BorderRadius.SM,
+                                        'border': f'{Borders.THIN} solid {Colors.GRAY_200}'
+                                    }, children=[
+                                        html.Div(style={'display': 'flex', 'alignItems': 'center', 'marginBottom': Spacing.XS}, children=[
+                                            html.Span('⚖️', style={'fontSize': '20px', 'marginRight': Spacing.SM}),
+                                            html.Span('Felony Rate', style={
+                                                'fontSize': FontSizes.LABEL,
+                                                'fontWeight': '600',
+                                                'color': Colors.GRAY_700
+                                            })
+                                        ]),
+                                        html.Div(id='sensitivity-param-felony-rate', style={
+                                            'fontSize': FontSizes.H4,
+                                            'fontWeight': 'bold',
+                                            'color': Colors.NAVY_MEDIUM,
+                                            'marginTop': Spacing.XS
+                                        })
+                                    ]),
+                                    # Detainee Population Parameter
+                                    html.Div(style={
+                                        'backgroundColor': 'white',
+                                        'padding': Spacing.MD,
+                                        'borderRadius': BorderRadius.SM,
+                                        'border': f'{Borders.THIN} solid {Colors.GRAY_200}'
+                                    }, children=[
+                                        html.Div(style={'display': 'flex', 'alignItems': 'center', 'marginBottom': Spacing.XS}, children=[
+                                            html.Span('👥', style={'fontSize': '20px', 'marginRight': Spacing.SM}),
+                                            html.Span('Detainee Population', style={
+                                                'fontSize': FontSizes.LABEL,
+                                                'fontWeight': '600',
+                                                'color': Colors.GRAY_700
+                                            })
+                                        ]),
+                                        html.Div(id='sensitivity-param-detainee-pop', style={
+                                            'fontSize': FontSizes.H4,
+                                            'fontWeight': 'bold',
+                                            'color': Colors.NAVY_MEDIUM,
+                                            'marginTop': Spacing.XS
+                                        })
+                                    ]),
+                                    # Length of Stay Parameter
+                                    html.Div(style={
+                                        'backgroundColor': 'white',
+                                        'padding': Spacing.MD,
+                                        'borderRadius': BorderRadius.SM,
+                                        'border': f'{Borders.THIN} solid {Colors.GRAY_200}'
+                                    }, children=[
+                                        html.Div(style={'display': 'flex', 'alignItems': 'center', 'marginBottom': Spacing.XS}, children=[
+                                            html.Span('📅', style={'fontSize': '20px', 'marginRight': Spacing.SM}),
+                                            html.Span('Length of Stay', style={
+                                                'fontSize': FontSizes.LABEL,
+                                                'fontWeight': '600',
+                                                'color': Colors.GRAY_700
+                                            })
+                                        ]),
+                                        html.Div(id='sensitivity-param-los', style={
+                                            'fontSize': FontSizes.H4,
+                                            'fontWeight': 'bold',
+                                            'color': Colors.NAVY_MEDIUM,
+                                            'marginTop': Spacing.XS
+                                        })
+                                    ]),
+                                    # Crime Effect Parameter
+                                    html.Div(style={
+                                        'backgroundColor': 'white',
+                                        'padding': Spacing.MD,
+                                        'borderRadius': BorderRadius.SM,
+                                        'border': f'{Borders.THIN} solid {Colors.GRAY_200}'
+                                    }, children=[
+                                        html.Div(style={'display': 'flex', 'alignItems': 'center', 'marginBottom': Spacing.XS}, children=[
+                                            html.Span('🔍', style={'fontSize': '20px', 'marginRight': Spacing.SM}),
+                                            html.Span('Crime Effect', style={
+                                                'fontSize': FontSizes.LABEL,
+                                                'fontWeight': '600',
+                                                'color': Colors.GRAY_700
+                                            })
+                                        ]),
+                                        html.Div(id='sensitivity-param-crime-effect', style={
+                                            'fontSize': FontSizes.H4,
+                                            'fontWeight': 'bold',
+                                            'color': Colors.NAVY_MEDIUM,
+                                            'marginTop': Spacing.XS
+                                        })
+                                    ])
+                                ])
+                            ]),
 
                             # Sensitivity Analysis Graphs (One per row with descriptions)
 
@@ -1733,7 +1927,7 @@ app.layout = html.Div(className='app-container', children=[
                                         'marginBottom': Spacing.MD
                                     }
                                 ),
-                                html.P(
+                                dcc.Markdown(
                                     content.get('mvpf_explainer.applying_to_detention.paragraph1', 'Most MVPF work looks at policies where the person subject to the policy is also the main beneficiary.'),
                                     style={
                                         'color': Colors.GRAY_800,
@@ -1742,7 +1936,7 @@ app.layout = html.Div(className='app-container', children=[
                                         'margin': f'0 0 {Spacing.MD} 0',
                                     }
                                 ),
-                                html.P(
+                                dcc.Markdown(
                                     content.get('mvpf_explainer.applying_to_detention.paragraph2', 'Most studies on detention focus on marginal changes.'),
                                     style={
                                         'color': Colors.GRAY_800,
@@ -1751,7 +1945,7 @@ app.layout = html.Div(className='app-container', children=[
                                         'margin': f'0 0 {Spacing.MD} 0'
                                     }
                                 ),
-                                html.P(
+                                dcc.Markdown(
                                     content.get('mvpf_explainer.applying_to_detention.paragraph3'),
                                     style={
                                         'color': Colors.GRAY_900,
@@ -2040,7 +2234,8 @@ app.layout = html.Div(className='app-container', children=[
                                                                          content.get('components_breakdown.detainee_values.subcomponents.harm_valuation.button_text', 'Detainee Harm: Willingness to Pay derived from Relative Harm Valuation'),
                                                                          id='detainee-harm-btn',
                                                                          n_clicks=0,
-                                                                         className='collapse-toggle'
+                                                                         className='collapse-toggle',
+                                                                         style={'backgroundColor': Colors.NAVY_MEDIUM, 'color': Colors.GRAY_300}
                                                                      ),
                                                                      html.Div(
                                                                          id='detainee-harm',
@@ -2063,7 +2258,8 @@ app.layout = html.Div(className='app-container', children=[
                                                                          content.get('components_breakdown.detainee_values.subcomponents.wtp_freedom.button_text', 'Detainee Harm: Willingness to Pay for Freedom'),
                                                                          id='detainee-wtp-btn',
                                                                          n_clicks=0,
-                                                                         className='collapse-toggle'
+                                                                         className='collapse-toggle',
+                                                                         style={'backgroundColor': Colors.NAVY_MEDIUM, 'color': Colors.GRAY_300}
                                                                      ),
                                                                      html.Div(
                                                                          id='detainee-wtp',
@@ -2129,7 +2325,8 @@ app.layout = html.Div(className='app-container', children=[
                                                                          content.get('components_breakdown.society_values.subcomponents.crime_prevention.button_text', 'Crime Prevention'),
                                                                          id='society-crime-btn',
                                                                          n_clicks=0,
-                                                                         className='collapse-toggle'
+                                                                         className='collapse-toggle',
+                                                                         style={'backgroundColor': Colors.NAVY_MEDIUM, 'color': Colors.GRAY_300}
                                                                      ),
                                                                      html.Div(
                                                                          id='society-crime',
@@ -2151,13 +2348,14 @@ app.layout = html.Div(className='app-container', children=[
                                                                          content.get('components_breakdown.society_values.subcomponents.court_appearance.button_text', 'Court Appearance Effects'),
                                                                          id='society-court-btn',
                                                                          n_clicks=0,
-                                                                         className='collapse-toggle'
+                                                                         className='collapse-toggle',
+                                                                         style={'backgroundColor': Colors.NAVY_MEDIUM, 'color': Colors.GRAY_300}
                                                                      ),
                                                                      html.Div(
                                                                          id='society-court',
                                                                          style={'display': 'none'},
                                                                          children=[
-                                                                             html.P(
+                                                                             dcc.Markdown(
                                                                                  content.get('components_breakdown.society_values.subcomponents.court_appearance.explanation', ''),
                                                                                  style={
                                                                                      'fontSize': '13px',
@@ -2174,7 +2372,8 @@ app.layout = html.Div(className='app-container', children=[
                                                                          content.get('components_breakdown.society_values.subcomponents.community_spillovers.button_text', 'Community and Economic Spillovers'),
                                                                          id='society-spill-btn',
                                                                          n_clicks=0,
-                                                                         className='collapse-toggle'
+                                                                         className='collapse-toggle',
+                                                                         style={'backgroundColor': Colors.NAVY_MEDIUM, 'color': Colors.GRAY_300}
                                                                      ),
                                                                      html.Div(
                                                                          id='society-spill',
@@ -2240,13 +2439,14 @@ app.layout = html.Div(className='app-container', children=[
                                                                          content.get('components_breakdown.government_cost.subcomponents.operational.button_text', 'Operational Costs'),
                                                                          id='gov-op-btn',
                                                                          n_clicks=0,
-                                                                         className='collapse-toggle'
+                                                                         className='collapse-toggle',
+                                                                         style={'backgroundColor': Colors.NAVY_MEDIUM, 'color': Colors.GRAY_300}
                                                                      ),
                                                                      html.Div(
                                                                          id='gov-op',
                                                                          style={'display': 'none'},
                                                                          children=[
-                                                                             html.P(
+                                                                             dcc.Markdown(
                                                                                  content.get('components_breakdown.government_cost.subcomponents.operational.explanation', ''),
                                                                                  style={
                                                                                      'fontSize': '13px',
@@ -2263,13 +2463,14 @@ app.layout = html.Div(className='app-container', children=[
                                                                          content.get('components_breakdown.government_cost.subcomponents.crime_decrease.button_text', 'Costs associated with Crime Effect: Decrease'),
                                                                          id='gov-crime-decrease-btn',
                                                                          n_clicks=0,
-                                                                         className='collapse-toggle'
+                                                                         className='collapse-toggle',
+                                                                         style={'backgroundColor': Colors.NAVY_MEDIUM, 'color': Colors.GRAY_300}
                                                                      ),
                                                                      html.Div(
                                                                          id='gov-crime-decrease',
                                                                          style={'display': 'none'},
                                                                          children=[
-                                                                             html.P(
+                                                                             dcc.Markdown(
                                                                                  content.get('components_breakdown.government_cost.subcomponents.crime_decrease.explanation', ''),
                                                                                  style={
                                                                                      'fontSize': '13px',
@@ -2655,15 +2856,15 @@ app.layout = html.Div(className='app-container', children=[
                         'backgroundColor': 'white'
                     }, children=[
                         html.Div(style={'padding': '24px 0', 'maxWidth': '900px', 'margin': '0 auto'}, children=[
-                            # Data Sources Section
-                            html.H2(content.get('about.data_sources.title', 'Data Sources'), style={
+                            # Contact Section
+                            html.H2(content.get('about.contact.title', 'Contact'), style={
                                 'fontSize': '18px',
                                 'fontWeight': 'bold',
                                 'color': Colors.NAVY_DARK,
                                 'marginTop': '0',
                                 'marginBottom': Spacing.LG
                             }),
-                            html.P(content.get('about.data_sources.content', ''), style={
+                            html.P(content.get('about.contact.content', ''), style={
                                 'fontSize': FontSizes.LABEL,
                                 'color': Colors.GRAY_800,
                                 'lineHeight': LineHeights.LOOSE,
@@ -2685,15 +2886,15 @@ app.layout = html.Div(className='app-container', children=[
                                 'marginBottom': Spacing.XXXL
                             }),
 
-                            # Contact Section
-                            html.H2(content.get('about.contact.title', 'Contact'), style={
+                            # Data Sources Section
+                            html.H2(content.get('about.data_sources.title', 'Data Sources'), style={
                                 'fontSize': '18px',
                                 'fontWeight': 'bold',
                                 'color': Colors.NAVY_DARK,
                                 'marginTop': '0',
                                 'marginBottom': Spacing.LG
                             }),
-                            html.P(content.get('about.contact.content', ''), style={
+                            dcc.Markdown(content.get('about.data_sources.content', ''), style={
                                 'fontSize': FontSizes.LABEL,
                                 'color': Colors.GRAY_800,
                                 'lineHeight': LineHeights.LOOSE,
@@ -3410,7 +3611,7 @@ def _build_benchmark_chart(current_mvpf, benchmarks):
     return fig
 
 
-def _build_benchmark_card(current_mvpf):
+def _build_benchmark_card(current_mvpf, scenario='baseline', params=None):
     """Build the benchmark comparison card component with dynamic tiles and chart."""
     # Use cached benchmarks instead of reloading CSV
 
@@ -3503,14 +3704,63 @@ def _build_benchmark_card(current_mvpf):
                 }
             ),
             html.P(
-                content.get('benchmark_card.description', 'Comparing the the actual MVPF values of selected government programs, interventions, and policy initiatives across different domains, and the impact of how 1 US dollar is spent on Cook County Jail comparing to spending on these initiatives.'),
+                'This section compares the MVPF values of selected government programs, interventions, and policy initiatives across different domains. Each comparison shows how one dollar spent on Cook County Jail detention compares to spending on other policy initiatives, helping contextualize the relative social value of pretrial detention against other uses of public funds.',
                 style={
                     'fontSize': FontSizes.BODY,
                     'color': 'white',
-                    'marginBottom': Spacing.XXL,
-                    'fontWeight': '400'
+                    'marginBottom': Spacing.LG,
+                    'fontWeight': '400',
+                    'lineHeight': LineHeights.RELAXED
                 }
-            )
+            ),
+            # Current Settings Display
+            html.Div(style={
+                'backgroundColor': 'rgba(255, 255, 255, 0.15)',
+                'padding': Spacing.MD,
+                'borderRadius': BorderRadius.SM,
+                'marginBottom': Spacing.XXL,
+                'border': f'{Borders.THIN} solid rgba(255, 255, 255, 0.2)'
+            }, children=[
+                html.Div(style={
+                    'fontSize': FontSizes.LABEL,
+                    'color': 'rgba(255, 255, 255, 0.9)',
+                    'fontWeight': '600',
+                    'marginBottom': Spacing.XS,
+                    'textTransform': 'uppercase',
+                    'letterSpacing': '0.5px'
+                }, children='Current Analysis Settings'),
+                html.Div(style={
+                    'display': 'flex',
+                    'flexWrap': 'wrap',
+                    'gap': Spacing.LG,
+                    'fontSize': FontSizes.BODY_SM,
+                    'color': 'white'
+                }, children=[
+                    html.Div(children=[
+                        html.Span('Scenario: ', style={'opacity': '0.8'}),
+                        html.Span(scenario.replace('_', ' ').title(), style={'fontWeight': '600'})
+                    ]),
+                    html.Div(children=[
+                        html.Span('Felony Rate: ', style={'opacity': '0.8'}),
+                        html.Span(f"{params.get('fel_rate', 0.7):.0%}" if params else "70%", style={'fontWeight': '600'})
+                    ]),
+                    html.Div(children=[
+                        html.Span('Detainee Population: ', style={'opacity': '0.8'}),
+                        html.Span(f"{params.get('n_detainees_base', 33945) * params.get('n_detainees_mult', 1.0):,.0f}" if params else "33,945", style={'fontWeight': '600'})
+                    ]),
+                    html.Div(children=[
+                        html.Span('Length of Stay: ', style={'opacity': '0.8'}),
+                        html.Span(f"{params.get('los_days', 70):.0f} days" if params else "70 days", style={'fontWeight': '600'})
+                    ]),
+                    html.Div(children=[
+                        html.Span('Crime Effect: ', style={'opacity': '0.8'}),
+                        html.Span(
+                            f"{params.get('crime_effect', 0):+.0f}%" if params and params.get('crime_effect', 0) != 0 else "0% (No Effect)",
+                            style={'fontWeight': '600'}
+                        )
+                    ])
+                ])
+            ])
         ]),
 
         # Two-column layout: Chart on left (65%), Single column of tiles on right (35%)
@@ -3783,8 +4033,8 @@ def _build_sensitivity_analysis_chart(parameter_name, param_values, base_det_p1,
     -----------
     parameter_name : str
         Name of the parameter being varied ('Felony Rate', 'Detainee Population', 'Community Size', 'Length of Stay')
-    param_values : dict
-        Dictionary mapping 'below', 'average', 'above' to actual parameter values
+    param_values : list
+        Array of parameter values to test (e.g., [0.1, 0.2, ..., 1.0])
     base_det_p1, base_det_p2, base_soc_p1, base_soc_p2 : float
         Base parameter values to use when not varying the parameter
     crime_effect : float, optional
@@ -3806,12 +4056,9 @@ def _build_sensitivity_analysis_chart(parameter_name, param_values, base_det_p1,
         'least conservative': Colors.SUCCESS_GREEN  # Green
     }
 
-    variations = ['below', 'average', 'above']
-
     # Create descriptive x-axis labels with actual parameter values
     x_labels = []
-    for variation in variations:
-        value = param_values[variation]
+    for value in param_values:
         if parameter_name == 'Felony Rate':
             x_labels.append(f"{value:.0%}")
         elif parameter_name == 'Detainee Population':
@@ -3828,18 +4075,18 @@ def _build_sensitivity_analysis_chart(parameter_name, param_values, base_det_p1,
     for scenario in scenarios:
         mvpf_values = []
 
-        for variation in variations:
+        for value in param_values:
             # Determine which parameter to vary based on parameter_name
             if parameter_name == 'Felony Rate':
-                result = _calculate_mvpf(scenario, param_values[variation], base_det_p2, base_soc_p1, base_soc_p2, crime_effect=crime_effect)
+                result = _calculate_mvpf(scenario, value, base_det_p2, base_soc_p1, base_soc_p2, crime_effect=crime_effect)
             elif parameter_name == 'Detainee Population':
-                result = _calculate_mvpf(scenario, base_det_p1, param_values[variation], base_soc_p1, base_soc_p2, crime_effect=crime_effect)
+                result = _calculate_mvpf(scenario, base_det_p1, value, base_soc_p1, base_soc_p2, crime_effect=crime_effect)
             elif parameter_name == 'Community Size':
-                result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, param_values[variation], base_soc_p2, crime_effect=crime_effect)
+                result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, value, base_soc_p2, crime_effect=crime_effect)
             elif parameter_name == 'Length of Stay':
-                result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, base_soc_p1, param_values[variation], crime_effect=crime_effect)
+                result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, base_soc_p1, value, crime_effect=crime_effect)
             elif parameter_name == 'Crime Effect':
-                result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, base_soc_p1, base_soc_p2, crime_effect=param_values[variation])
+                result = _calculate_mvpf(scenario, base_det_p1, base_det_p2, base_soc_p1, base_soc_p2, crime_effect=value)
             else:
                 result = {'mvpf': 0}
 
@@ -4085,12 +4332,25 @@ def register_callbacks(app):
 
     @app.callback(
         Output('detainee-population-value', 'children'),
-        Input('detainee-baseline-input', 'value')
+        [Input('detainee-baseline-input', 'value'),
+         Input('detainee-param2', 'value')]
     )
-    def update_detainee_display(baseline):
-        """Update displayed detainee population based on baseline value."""
+    def update_detainee_display(baseline, multiplier):
+        """Update displayed detainee population based on baseline value and multiplier."""
         baseline_value = baseline if baseline is not None else n_detainees_param.base_value
-        return f"{baseline_value:,.0f}"
+        mult_value = multiplier if multiplier is not None else 1.0
+        total = baseline_value * mult_value
+        return f"{total:,.0f}"
+
+    @app.callback(
+        Output('detainee-multiplier-display', 'children'),
+        Input('detainee-param2', 'value')
+    )
+    def update_detainee_multiplier_display(value):
+        """Update displayed multiplier percentage."""
+        if value is None:
+            value = 1.0
+        return f"{value:.0%}"
 
     @app.callback(
         Output('los-days-value', 'children'),
@@ -4124,15 +4384,16 @@ def register_callbacks(app):
         [Input('btn-calculate', 'n_clicks')],
         [State('scenario-selector', 'data'),
          State('detainee-param1', 'value'),
+         State('detainee-param2', 'value'),
          State('detainee-baseline-input', 'value'),
          State('society-param2', 'value'),
          State('crime-effect-slider', 'value')]
     )
-    def update_dashboard(n_clicks, scenario, det_p1, det_baseline, soc_p2, crime_effect):
+    def update_dashboard(n_clicks, scenario, det_p1, det_p2, det_baseline, soc_p2, crime_effect):
         """Main callback to update all dashboard components."""
         # Convert string parameters from State to floats
         det_p1 = float(det_p1) if det_p1 is not None else 0.7
-        det_p2 = 1.0
+        det_p2 = float(det_p2) if det_p2 is not None else 1.0
         det_baseline = float(det_baseline) if det_baseline is not None else n_detainees_base_param.default_value
         soc_p2 = float(soc_p2) if soc_p2 is not None else 70
         crime_effect = float(crime_effect) if crime_effect is not None else 0
@@ -4165,7 +4426,7 @@ def register_callbacks(app):
 
         # Build components
         kpi_score, kpi_components = _build_kpi_card_split(result, mvpf, badge_color, badge_text_color, label, params, scenario)
-        benchmark_card = _build_benchmark_card(mvpf)
+        benchmark_card = _build_benchmark_card(mvpf, scenario, params)
         numerator_fig = _build_numerator_chart(result)
         denominator_fig = _build_denominator_chart(result)
         scenario_comparison_fig = _build_scenario_comparison_chart(det_p1, det_p2, soc_p1, soc_p2, det_baseline, crime_effect)
@@ -4180,47 +4441,43 @@ def register_callbacks(app):
         [Output('sensitivity-felony-rate', 'figure'),
          Output('sensitivity-detainee-population', 'figure'),
          Output('sensitivity-crime-effect', 'figure'),
-         Output('sensitivity-length-of-stay', 'figure')],
+         Output('sensitivity-length-of-stay', 'figure'),
+         Output('sensitivity-param-scenario', 'children'),
+         Output('sensitivity-param-felony-rate', 'children'),
+         Output('sensitivity-param-detainee-pop', 'children'),
+         Output('sensitivity-param-los', 'children'),
+         Output('sensitivity-param-crime-effect', 'children')],
         [Input('btn-calculate', 'n_clicks')],
-        [State('detainee-param1', 'value'),
+        [State('scenario-selector', 'data'),
+         State('detainee-param1', 'value'),
+         State('detainee-param2', 'value'),
          State('society-param2', 'value'),
-         State('crime-effect-slider', 'value')]
+         State('crime-effect-slider', 'value'),
+         State('detainee-baseline-input', 'value')]
     )
-    def update_sensitivity_analysis(n_clicks, det_p1, soc_p2, crime_effect):
+    def update_sensitivity_analysis(n_clicks, scenario, det_p1, det_p2, soc_p2, crime_effect, det_baseline):
         """Update sensitivity analysis graphs for baseline, most conservative, and least conservative scenarios."""
         # Convert string parameters from State to floats
         det_p1 = float(det_p1) if det_p1 is not None else 0.7
-        det_p2 = 1.0
+        det_p2 = float(det_p2) if det_p2 is not None else 1.0
         soc_p2 = float(soc_p2) if soc_p2 is not None else 70
         crime_effect = float(crime_effect) if crime_effect is not None else 0
 
         # Use default value for community size multiplier
         soc_p1 = 1.0
 
-        # Define parameter value mappings for each parameter
-        fel_rate_values = {
-            'below': fel_rate_param.dropdown_map['below'],
-            'average': fel_rate_param.dropdown_map['average'],
-            'above': fel_rate_param.dropdown_map['above']
-        }
+        # Define parameter value arrays using all slider marks (full ranges)
+        # Felony Rate: All 10 marks from slider (10% to 100%)
+        fel_rate_values = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
-        n_detainees_values = {
-            'below': n_detainees_param.dropdown_map['below'],
-            'average': n_detainees_param.dropdown_map['average'],
-            'above': n_detainees_param.dropdown_map['above']
-        }
+        # Detainee Population: All 5 marks from slider (10% to 200%)
+        n_detainees_values = [0.1, 0.5, 1.0, 1.5, 2.0]
 
-        crime_effect_values = {
-            'below': -4,
-            'average': 0,
-            'above': 14
-        }
+        # Crime Effect: All 4 marks from slider (-4 to +14)
+        crime_effect_values = [-4, 0, 5, 14]
 
-        los_days_values = {
-            'below': los_days_param.dropdown_map['below'],
-            'average': los_days_param.dropdown_map['average'],
-            'above': los_days_param.dropdown_map['above']
-        }
+        # Length of Stay: All 4 marks from slider (1 to 365 days)
+        los_days_values = [1, 70, 203, 365]
 
         # Build all 4 sensitivity analysis charts
         # For non-crime-effect charts, use the current crime_effect slider value
@@ -4241,7 +4498,26 @@ def register_callbacks(app):
             'Length of Stay', los_days_values, det_p1, det_p2, soc_p1, soc_p2, crime_effect=crime_effect
         )
 
-        return felony_rate_fig, detainee_pop_fig, crime_effect_fig, length_of_stay_fig
+        # Format parameter displays
+        scenario_display = (scenario or 'baseline').replace('_', ' ').title()
+        felony_rate_display = f"{det_p1:.0%}"
+
+        # Calculate total detainee population
+        baseline_value = det_baseline if det_baseline is not None else n_detainees_param.base_value
+        total_detainees = baseline_value * det_p2
+        detainee_pop_display = f"{total_detainees:,.0f} ({det_p2:.0%})"
+
+        los_display = f"{soc_p2:.0f} days"
+
+        if crime_effect > 0:
+            crime_effect_display = f"+{crime_effect:.0f}%"
+        elif crime_effect < 0:
+            crime_effect_display = f"{crime_effect:.0f}%"
+        else:
+            crime_effect_display = "0% (No Effect)"
+
+        return (felony_rate_fig, detainee_pop_fig, crime_effect_fig, length_of_stay_fig,
+                scenario_display, felony_rate_display, detainee_pop_display, los_display, crime_effect_display)
 
     # -------------------------------------------------------------------------
     # Tab Navigation Callbacks (Combined landing page cards + sidebar)
@@ -4263,11 +4539,12 @@ def register_callbacks(app):
          Input('nav-about', 'n_clicks'),
          Input('link-to-overview', 'n_clicks'),
          Input('link-to-scenarios', 'n_clicks'),
-         Input('link-to-benchmarking', 'n_clicks')],
+         Input('link-to-benchmarking', 'n_clicks'),
+         Input('btn-back-to-calculation', 'n_clicks')],
         prevent_initial_call=True
     )
     def sidebar_navigation(home_clicks, overview_clicks, scenarios_clicks, benchmarking_clicks, descriptions_clicks, about_clicks,
-                          overview_card_clicks, scenarios_card_clicks, benchmarking_card_clicks):
+                          overview_card_clicks, scenarios_card_clicks, benchmarking_card_clicks, back_to_calc_clicks):
         """Handle navigation from left sidebar buttons and landing page cards."""
         ctx = dash.callback_context
 
@@ -4286,7 +4563,8 @@ def register_callbacks(app):
             'nav-about': 'tab-about',
             'link-to-overview': 'tab-overview',
             'link-to-scenarios': 'tab-scenarios',
-            'link-to-benchmarking': 'tab-benchmarking'
+            'link-to-benchmarking': 'tab-benchmarking',
+            'btn-back-to-calculation': 'tab-overview'
         }
 
         # Get the tab value for the clicked button
@@ -4313,17 +4591,18 @@ def register_callbacks(app):
         Input('btn-download-csv', 'n_clicks'),
         [State('scenario-selector', 'data'),
          State('detainee-param1', 'value'),
+         State('detainee-param2', 'value'),
          State('society-param2', 'value')],
         prevent_initial_call=True
     )
-    def download_csv(n_clicks, scenario, det_p1, soc_p2):
+    def download_csv(n_clicks, scenario, det_p1, det_p2, soc_p2):
         """Generate and download CSV file with current MVPF results."""
         if n_clicks is None or n_clicks == 0:
             return None
 
         # Convert string parameters from State to floats
         det_p1 = float(det_p1) if det_p1 is not None else 0.7
-        det_p2 = 1.0
+        det_p2 = float(det_p2) if det_p2 is not None else 1.0
         soc_p2 = float(soc_p2) if soc_p2 is not None else 70
 
         # Use default value for community size multiplier
@@ -4353,17 +4632,18 @@ def register_callbacks(app):
         Input('download-analysis-button', 'n_clicks'),
         [State('scenario-selector', 'data'),
          State('detainee-param1', 'value'),
+         State('detainee-param2', 'value'),
          State('society-param2', 'value')],
         prevent_initial_call=True
     )
-    def download_full_analysis(n_clicks, scenario, det_p1, soc_p2):
+    def download_full_analysis(n_clicks, scenario, det_p1, det_p2, soc_p2):
         """Generate and download comprehensive CSV with calculations and sensitivity analyses."""
         if n_clicks is None or n_clicks == 0:
             return None
 
         # Convert string parameters from State to floats
         det_p1 = float(det_p1) if det_p1 is not None else 0.7
-        det_p2 = 1.0
+        det_p2 = float(det_p2) if det_p2 is not None else 1.0
         soc_p2 = float(soc_p2) if soc_p2 is not None else 70
         soc_p1 = 1.0  # Default value for community size multiplier
 
