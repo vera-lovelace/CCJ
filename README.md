@@ -49,16 +49,30 @@ MVPF = (Detainee Values + Society Values) / Government Costs
 ### MVPF Calculator Capabilities
 - **Multiple Scenarios**: Baseline, conservative/least conservative, reform programs, capacity expansion
 - **CSV-Driven Configuration**: Parameters and subcomponent values loaded from data files
-- **CPI Adjustment**: Automatic inflation adjustment for monetary values
+- **CPI Adjustment**: Automatic inflation adjustment for monetary values (2011-2025)
 - **Component Registry**: Modular subcomponent system for detainee values, society values, and government costs
 - **Scenario Management**: JSON-based scenario definitions with component selection and parameter overrides
+- **Parameter Effects Registry**: Centralized mapping of which parameters affect which subcomponents
 
 ### Dashboard Features
-- **Interactive Parameter Controls**: CSV-driven dropdowns for felony rate, length of stay, population size
+- **Interactive Parameter Controls**: CSV-driven dropdowns for felony rate, length of stay, population size, crime effect
 - **Real-Time Calculation**: Instant MVPF recalculation as parameters change
 - **Component Breakdown**: Detailed visualization of detainee, society, and government cost components
-- **Scenario Comparison**: Compare baseline against alternative policy scenarios
+- **Scenario Comparison**: Compare baseline against alternative policy scenarios side-by-side
 - **Benchmark Comparisons**: View MVPF against other public policy interventions
+- **Sensitivity Analysis**: Interactive charts showing how MVPF changes across parameter ranges
+- **Data Export**: Download calculation results as CSV for further analysis
+
+### Architecture
+- **Modular Design**: Separated concerns across specialized modules
+  - `mvpf_calculator.py`: Core calculation engine
+  - `parameters.py`: Parameter definitions and effects registry
+  - `scenarios.py`: Scenario management system
+  - `subcomponents.py`: Component value registry and calculations
+  - `formatting.py`: Centralized styling and color definitions
+  - `graphs.py`: Chart and visualization generation
+  - `helpers.py`: Utility functions for dashboard operations
+  - `constants.py`: Application-wide constants and thresholds
 
 ## 🔧 Available Scenarios
 
@@ -78,11 +92,67 @@ Dashboard parameters are CSV-driven with dropdown options:
 - **Crime Effect**: Adjusts the assumed impact of detention on future crime rate of detainees.
 
 
+## 🚀 Getting Started
+
+### Installation
+```bash
+# Clone repository
+git clone <repository-url>
+cd CCJ
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the dashboard
+python Dashboard.py
+```
+
+The dashboard will be available at `http://localhost:8050`
+
+### Project Structure
+```
+CCJ/
+├── Dashboard.py              # Main dashboard application
+├── mvpf_calculator.py        # Core MVPF calculation engine
+├── parameters.py             # Parameter definitions and registry
+├── scenarios.py              # Scenario management
+├── subcomponents.py          # Component value calculations
+├── formatting.py             # Styling constants and formatters
+├── graphs.py                 # Chart generation functions
+├── helpers.py                # Utility functions
+├── constants.py              # Application constants
+├── cpi_adjuster.py          # CPI inflation adjustment
+├── content_loader.py         # Content management
+└── Data/                     # CSV data files and configurations
+    ├── subcomponent_values.csv
+    ├── alternative_calculations.json
+    ├── mvpf_comparisons.csv
+    └── cpi_data.csv
+```
+
+### Key Modules
+
+**MVPFCalculator** (`mvpf_calculator.py`)
+- Main calculation engine for MVPF scores
+- Scenario-based calculations with parameter overrides
+- Component-level breakdown and analysis
+
+**ParameterRegistry** (`parameters.py`)
+- Centralized parameter definitions with bounds and validation
+- Parameter effects mapping (which parameters affect which components)
+- CSV-driven parameter configuration
+
+**Dashboard** (`Dashboard.py`)
+- Plotly Dash interactive web application
+- Real-time parameter adjustment and visualization
+- Multiple analysis views (KPI, scenarios, benchmarks, sensitivity)
+
 ##  Acknowledgments
 
 - We acknowledge the foundational research in criminal justice, welfare economics, and public policy that informs our methodology.
 - We thank Cook County government agencies for providing access to administrative data and operational information.
 - This project also benefited from open-source software tools and libraries that enable interactive data visualization and analysis.
+
 ---
 
 **Disclaimer**: This is a research tool for policy analysis. Results should be interpreted carefully with domain expertise and validated with subject matter experts before use in decision-making.

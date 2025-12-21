@@ -1,7 +1,42 @@
 """
- Parameter Management for MVPF Calculator
- Centralizes all parameter definitions, mappings, and conversions
- """
+Parameter Management for MVPF Calculator
+
+Centralizes all parameter definitions, mappings, and conversions.
+
+PARAMETER NAMING CONVENTIONS:
+==============================
+
+Three types of parameters are used throughout the system:
+
+1. BASE Parameters (e.g., n_detainees_base)
+   - Type: Absolute count/value
+   - Example: 33,945 (detainee population count)
+   - Usage: Provides the baseline value for calculations
+   - In calculations: Used as the starting point before multipliers
+
+2. MULT Parameters (e.g., n_detainees_mult)
+   - Type: Multiplier (typically 0.8 to 1.2)
+   - Applied WITH base: base × multiplier
+   - Example: 33,945 × 1.2 = 40,734
+   - Usage: Scales the baseline population up or down
+   - In calculations: base_value × n_detainees_mult
+
+3. SCALE_ONLY Parameters (e.g., n_detainees_scale_only)
+   - Type: Multiplier (typically 0.8 to 1.2)
+   - Applied WITHOUT base: just the multiplier
+   - Example: 1.2 (percentage adjustment only)
+   - Usage: Percentage adjustment where base population isn't needed
+   - In calculations: value × n_detainees_mult (no base applied)
+
+EXAMPLES:
+=========
+- det_wtp_freedom uses 'n_detainees_mult': $value × (33,945 × 1.2)
+- soc_spillover uses 'n_detainees_scale_only': $value × 1.2 (no base)
+
+The distinction ensures proper scaling:
+- MULT: When the subcomponent value is per-detainee and needs population scaling
+- SCALE_ONLY: When the subcomponent already includes population or needs only % adjustment
+"""
 import pandas as pd
 import os
 from dataclasses import dataclass, field
@@ -315,7 +350,7 @@ class ParameterEffectsRegistry:
             'soc_spillover': [  # Note: no 's' - matches CSV
                 # Unit: "dollars per detainee" - $294,728 per detainee
                 'n_detainees_mult',  # Per detainee value × detainee population (base × mult)
-                'n_society_adj',  # Society weight adjustment only (0.8/1.0/1.2), no base
+                'n_society_scale_only',  # Society weight adjustment only (0.8/1.0/1.2), no base
             ],
 
             # ==================== GOVERNMENT COST ====================

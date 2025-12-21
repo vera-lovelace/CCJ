@@ -90,52 +90,8 @@ class SubcomponentRegistry:
         - crime_weight_mult: Crime prevention weighting
         - recidivism_mult: Recidivism rate impact
         """
-        self.param_effects = {
-            # ==================== DETAINEE VALUES ====================
-            'det_wtp_freedom': [
-                'los_days',  # Longer stays → more harm during detention
-                'n_detainees_mult'  # More detainees → scales total WTP
-            ],
-
-            'det_rel_harm': [
-                'los_days',  # Longer stays → more harm during detention
-                'n_detainees_mult'  # Scale by detainee population (base × multiplier)
-            ],
-
-            # ==================== SOCIETY VALUES ====================
-            'soc_court': [
-                'n_detainees_mult'  # Per detainee value × detainee population
-            ],
-
-            'soc_crime_prevention': [
-                # Unit: "dollars per detainee" - value is $0 currently
-                'n_detainees_mult',  # Per detainee value × detainee population
-                'fel_rate'  # Felony rate affects crime prevention value
-            ],
-
-            'soc_victimization': [
-                # Unit: "dollar per victim" - $875,000 per victim
-                # This is a per-victim cost, not per-detainee or per-society
-                # Don't multiply by population - it's already a unit cost
-                'fel_rate'  # Felony rate affects victimization likelihood
-            ],
-
-            'soc_spillover': [
-                # Unit: "dollars per detainee" - $294,728 per detainee
-                'n_detainees_mult',  # Per detainee value × detainee population (base × mult)
-                'n_society_adj'  # Society weight adjustment only (0.8/1.0/1.2), no base
-            ],
-
-            # ==================== GOVERNMENT COST ====================
-            'gov_operations': [
-                # Fixed cost - not scaled by parameters
-            ],
-
-            'gov_health': [
-                'los_days',  # Longer stays → more health needs
-                'n_detainees_mult'  # More detainees → scales total health costs
-            ]
-        }
+        # Use ParameterEffectsRegistry as single source of truth for parameter effects
+        self.param_effects = ParameterEffectsRegistry.get_effects_mapping()
 
     def calculate(self, row_var, params=None):
         """

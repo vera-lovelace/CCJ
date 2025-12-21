@@ -16,6 +16,10 @@ from constants import (
     SOCIETY_VALUES,
     GOVT_COST,
     INFINITE_MVPF,
+    NEUTRAL_MULTIPLIER,
+    SIGN_POSITIVE,
+    SIGN_NEGATIVE,
+    ZERO
 )
 
 
@@ -100,7 +104,7 @@ class MVPFCalculator:
         gov_total, gov_breakdown = self._calc_component(govt_list, params)
 
         # Calculate MVPF
-        mvpf = (det_total + soc_total) / gov_total if gov_total != 0 else INFINITE_MVPF
+        mvpf = (det_total + soc_total) / gov_total if gov_total != ZERO else INFINITE_MVPF
 
         return {
             'scenario': scenario_def.key,
@@ -122,7 +126,7 @@ class MVPFCalculator:
 
     def _calc_component(self, row_var_list, params):
         """Calculate total and breakdown for a list of subcomponents."""
-        total = 0
+        total = ZERO
         breakdown = {}
 
         for row_var in row_var_list:
@@ -202,7 +206,7 @@ class MVPFCalculator:
             value = float(row['selected_value'])
 
         # Apply sign (for non-special cases)
-        sign = 1 if str(row['sign']).lower() == 'positive' else -1
+        sign = SIGN_POSITIVE if str(row['sign']).lower() == 'positive' else SIGN_NEGATIVE
         value = abs(value) * sign
 
         # Apply CPI adjustment
@@ -223,7 +227,7 @@ class MVPFCalculator:
         For population-based parameters (n_detainees_mult, n_society_mult),
         applies: base_value × multiplier (e.g., 33,945 × 1.0 = 33,945)
 
-        For adjustment-only parameters (n_detainees_adj, n_society_adj),
+        For scale-only parameters (n_detainees_scale_only, n_society_scale_only),
         applies: just the multiplier (e.g., 1.0) without base
 
         For direct value parameters (los_days, fel_rate),
@@ -231,14 +235,14 @@ class MVPFCalculator:
         """
         effects = ParameterEffectsRegistry.get_effects_mapping()  # Single source!
 
-        multiplier = 1.0
+        multiplier = NEUTRAL_MULTIPLIER
         for param in effects.get(row_var, []):
-            # For adjustment-only params, use the corresponding _mult param value
-            if param == 'n_detainees_adj':
-                # Just the adjustment multiplier (0.8/1.0/1.2), no base
+            # For scale-only params, use the corresponding _mult param value without base
+            if param == 'n_detainees_scale_only':
+                # Just the scale multiplier (0.8/1.0/1.2), no base population
                 multiplier *= params.get('n_detainees_mult', 1.0)
-            elif param == 'n_society_adj':
-                # Just the adjustment multiplier (0.8/1.0/1.2), no base
+            elif param == 'n_society_scale_only':
+                # Just the scale multiplier (0.8/1.0/1.2), no base population
                 multiplier *= params.get('n_society_mult', 1.0)
             # For full population params, apply base × multiplier
             elif param == 'n_detainees_mult':
@@ -408,31 +412,11 @@ class MVPFCalculator:
         return csv_string
 
 
-# ==================== HELPER FUNCTION ====================
-
-def dashboard_params(fel_rate='average', n_detainees_mult='average', n_society_mult='average', los_days='average', crime_weight_mult=None):
-    """Convert dashboard dropdowns to parameter dict.
-
-    Uses ParameterRegistry to get correct values
-    """
-    # Use the ParameterRegistry for correct value mapping
-    result = param_registry.convert_dashboard_input(
-        fel_rate=fel_rate,
-        n_detainees=n_detainees_mult,
-        n_society=n_society_mult,
-        los_days=los_days
-    )
-
-    if crime_weight_mult is not None:
-        mult_maps = {'low': 0.5, 'moderate': 1.0, 'average': 1.0, 'high': 1.5}
-        result['crime_weight_mult'] = mult_maps.get(crime_weight_mult, 1.0)
-
-    return result
-
-
 # ==================== USAGE ====================
 
 if __name__ == '__main__':
+    from helpers import dashboard_params
+
     # Initialize once
     calc = MVPFCalculator()
 

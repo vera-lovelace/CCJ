@@ -19,7 +19,7 @@ class CPIAdjuster:
       def __init__(self, data_dir='Data', target_year=2025):
           """
           Initialize CPI adjuster with data directory.
-          
+
           Args:
               data_dir: Directory containing CPI.csv
               target_year: Default target year for adjustments (default: 2025)
@@ -27,21 +27,52 @@ class CPIAdjuster:
           self.target_year = target_year
           self.data_dir = data_dir
 
-          # Load CPI data
+          # Load CPI data with error handling
           cpi_path = os.path.join(data_dir, 'CPI.csv')
-          self.cpi_df = pd.read_csv(cpi_path)
+          try:
+              self.cpi_df = pd.read_csv(cpi_path)
 
-          # Build fast lookup structures
-          self.cpi_annual = dict(zip(self.cpi_df['year'],
-                                     self.cpi_df['cpi_annual']))
-          self.factor_to_2025 = dict(zip(self.cpi_df['year'],
-                                         self.cpi_df['factor_to_2025']))
+              # Validate required columns exist
+              required_cols = ['year', 'cpi_annual', 'factor_to_2025']
+              missing_cols = [col for col in required_cols if col not in self.cpi_df.columns]
+              if missing_cols:
+                  raise ValueError(f"Missing required columns in CPI.csv: {missing_cols}")
+
+              # Build fast lookup structures
+              self.cpi_annual = dict(zip(self.cpi_df['year'],
+                                         self.cpi_df['cpi_annual']))
+              self.factor_to_2025 = dict(zip(self.cpi_df['year'],
+                                             self.cpi_df['factor_to_2025']))
+
+              print(f"✓ CPIAdjuster loaded: {len(self.cpi_df)} years "
+                    f"({self.year_range[0]}-{self.year_range[1]})")
+
+          except FileNotFoundError:
+              print(f"⚠ Warning: CPI data file not found at {cpi_path}")
+              print(f"⚠ Using default CPI factor of 1.0 (no adjustment)")
+              # Initialize with minimal default data - no adjustment
+              self.cpi_df = pd.DataFrame({'year': [2025], 'cpi_annual': [1.0], 'factor_to_2025': [1.0]})
+              self.cpi_annual = {2025: 1.0}
+              self.factor_to_2025 = {2025: 1.0}
+
+          except (pd.errors.EmptyDataError, pd.errors.ParserError) as e:
+              print(f"⚠ Warning: Error parsing CPI.csv: {e}")
+              print(f"⚠ Using default CPI factor of 1.0 (no adjustment)")
+              # Initialize with minimal default data
+              self.cpi_df = pd.DataFrame({'year': [2025], 'cpi_annual': [1.0], 'factor_to_2025': [1.0]})
+              self.cpi_annual = {2025: 1.0}
+              self.factor_to_2025 = {2025: 1.0}
+
+          except Exception as e:
+              print(f"⚠ Warning: Unexpected error loading CPI data: {e}")
+              print(f"⚠ Using default CPI factor of 1.0 (no adjustment)")
+              # Initialize with minimal default data
+              self.cpi_df = pd.DataFrame({'year': [2025], 'cpi_annual': [1.0], 'factor_to_2025': [1.0]})
+              self.cpi_annual = {2025: 1.0}
+              self.factor_to_2025 = {2025: 1.0}
 
           # Cache for custom calculations
           self._cache: Dict[Tuple, float] = {}
-
-          print(f"✓ CPIAdjuster loaded: {len(self.cpi_df)} years "
-                f"({self.year_range[0]}-{self.year_range[1]})")
 
       @property
       def year_range(self) -> Tuple[int, int]:

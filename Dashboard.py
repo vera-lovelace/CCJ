@@ -30,6 +30,8 @@ from formatting import (
     LineHeights,
     Borders,
     BorderRadius,
+    BoxShadows,
+    Transitions,
     CommonStyles,
     Gradients,
     format_currency,
@@ -39,13 +41,32 @@ from formatting import (
     BODY_TEXT_STYLE,
     HEADER_2_STYLE,
 )
-
-
-def load_benchmarks(data_dir="Data"):
-    """Load benchmark comparison data from CSV file."""
-    filepath = os.path.join(data_dir, "mvpf_comparisons.csv")
-    df = pd.read_csv(filepath)
-    return df.to_dict("records")
+from constants import (
+    MAX_CONTAINER_WIDTH,
+    Z_INDEX_TOOLTIP,
+    Z_INDEX_MODAL,
+    DEFAULT_PORT,
+    FONT_WEIGHT_NORMAL,
+    FONT_WEIGHT_MEDIUM,
+    FONT_WEIGHT_SEMIBOLD,
+    FONT_WEIGHT_BOLD
+)
+from helpers import (
+    load_benchmarks,
+    get_scenario_description,
+    toggle_style,
+    convert_dropdown_to_params,
+    calculate_mvpf_for_dashboard,
+)
+from graphs import (
+    build_benchmark_chart,
+    build_numerator_chart,
+    build_denominator_chart,
+    build_parameter_comparison_chart,
+    build_scenario_comparison_chart,
+    build_sensitivity_analysis_chart,
+    build_subcomponents_chart,
+)
 
 
 # Initialize content manager
@@ -4767,140 +4788,6 @@ app.layout = html.Div(
 # All dashboard callbacks are registered via register_callbacks()
 # =============================================================================
 
-
-def _get_scenario_description(scenario):
-    """Return the description for a given scenario."""
-    descriptions = {
-        "baseline": "Represents current operations at Cook County Jail with standard parameters. This scenario serves as the reference point for comparison.",
-        "most conservative": "Uses conservative estimates for all parameters, minimizing potential benefits and maximizing costs. Provides a lower-bound estimate of MVPF.",
-        "least conservative": "Uses optimistic estimates that maximize potential benefits and minimize costs. Provides an upper-bound estimate of MVPF.",
-    }
-    return descriptions.get(scenario, "No description available for this scenario.")
-
-
-def _toggle_style(n_clicks, style):
-    """Helper function to toggle visibility of collapsible sections."""
-    if not n_clicks:
-        return style or {"display": "none"}
-    if not style or style.get("display") == "none":
-        return {"display": "block"}
-    return {"display": "none"}
-
-
-def _convert_dropdown_to_params(
-    fel_rate_sel,
-    n_detainees_sel,
-    n_society_sel,
-    los_days_sel,
-    n_detainees_base=None,
-    crime_effect=0,
-):
-    """
-    Convert dashboard slider values to parameter values.
-
-    Parameters:
-    -----------
-    fel_rate_sel : float
-        Felony rate value (0.5 to 1.0)
-    n_detainees_sel : float
-        Detainee population multiplier (0.8 to 1.2)
-    n_society_sel : float
-        Community size multiplier (0.8 to 1.2)
-    los_days_sel : float
-        Length of stay in days (60 to 203)
-    n_detainees_base : float, optional
-        Baseline detainee population. If None, uses default value.
-    crime_effect : float, optional
-        Crime effect multiplier (-4 to 14). Defaults to 0 (no effect).
-
-    Returns:
-    --------
-    dict : Parameter values for calculator
-    """
-    # Use provided baseline or fall back to default
-    baseline = (
-        n_detainees_base if n_detainees_base is not None else n_detainees_base_param.default_value
-    )
-
-    # Sliders now return numeric values directly
-    return {
-        "fel_rate": fel_rate_sel,
-        "los_days": los_days_sel,
-        "n_detainees_mult": n_detainees_sel,
-        "n_detainees_base": baseline,
-        "n_society_mult": n_society_sel,
-        "crime_weight_mult": 1.0,
-        "crime_effect": crime_effect,
-    }
-
-
-def _calculate_mvpf(
-    scenario,
-    detainee_param1,
-    detainee_param2,
-    society_param1,
-    society_param2,
-    detainee_baseline=None,
-    crime_effect=0,
-):
-    """
-    Calculate MVPF using the modular MVPFCalculator class.
-
-    Parameters:
-    -----------
-    scenario : str
-        Scenario name (e.g., 'baseline', 'most conservative', etc.)
-    detainee_param1 : float
-        Felony rate value (0.5 to 1.0)
-    detainee_param2 : float
-        Detainee population multiplier (0.8 to 1.2)
-    society_param1 : float
-        Community size multiplier (0.8 to 1.2)
-    society_param2 : float
-        Length of stay in days (60 to 203)
-    detainee_baseline : float, optional
-        Baseline detainee population. If None, uses default value.
-    crime_effect : float, optional
-        Crime effect multiplier (-4 to 14). Defaults to 0 (no effect).
-
-    Returns:
-    --------
-    dict : MVPF results with all breakdowns
-    """
-    params = _convert_dropdown_to_params(
-        fel_rate_sel=detainee_param1,
-        n_detainees_sel=detainee_param2,
-        n_society_sel=society_param1,
-        los_days_sel=society_param2,
-        n_detainees_base=detainee_baseline,
-        crime_effect=crime_effect,
-    )
-
-    result = calculator.calculate(scenario, params)
-
-    # Extract breakdown values for backwards compatibility
-    detainee_breakdown = list(result["detainee_breakdown"].values())
-    society_breakdown = list(result["society_breakdown"].values())
-    govt_breakdown = list(result["govt_breakdown"].values())
-
-    def safe_get(lst, index, default=0):
-        try:
-            return lst[index]
-        except IndexError:
-            return default
-
-    result["detainee_sub1"] = safe_get(detainee_breakdown, 0)
-    result["detainee_sub2"] = safe_get(detainee_breakdown, 1)
-    result["society_sub1"] = safe_get(society_breakdown, 0)
-    result["society_sub2"] = safe_get(society_breakdown, 1)
-    result["society_sub3"] = safe_get(society_breakdown, 2)
-    result["govt_sub1"] = safe_get(govt_breakdown, 0)
-    result["govt_sub2"] = safe_get(govt_breakdown, 1)
-    result["govt_sub3"] = safe_get(govt_breakdown, 2)
-
-    return result
-
-
 def _build_kpi_card(result, mvpf, badge_color, badge_text_color, label, params):
     """Build the KPI card component with subcomponent details and parameters."""
 
@@ -6230,82 +6117,12 @@ def _build_interpretation_card():
         ],
     )
 
-
-def _build_benchmark_chart(current_mvpf, benchmarks):
-    """Build the benchmark comparison bar chart (vertical orientation)."""
-    # Prepare data: current MVPF first, then benchmarks
-    names = ["Current MVPF for CCJ"]
-    values = [current_mvpf]
-    colors = [Colors.NAVY_MEDIUM]  # Blue for current
-
-    for benchmark in benchmarks:
-        bench_mvpf = float(benchmark["mvpf_value"])
-        description = benchmark["Description"]
-        # Shorten long names for chart labels
-        short_name = description if len(description) <= 40 else description[:37] + "..."
-        names.append(short_name)
-        values.append(bench_mvpf)
-        # Color based on positive/negative
-        colors.append(Colors.SUCCESS_GREEN if bench_mvpf >= 0 else Colors.ERROR_RED)
-
-    # Create horizontal bar chart (vertical orientation)
-    fig = go.Figure(
-        data=[
-            go.Bar(
-                y=names,
-                x=values,
-                orientation="h",
-                marker_color=colors,
-                text=[f"{v:.2f}" for v in values],
-                textposition="outside",
-                textfont=dict(size=11, color=Colors.GRAY_900),
-                cliponaxis=False,  # Prevent text from being clipped
-            )
-        ]
-    )
-
-    # Calculate x-axis range with extra padding for text labels
-    min_val = min(values)
-    max_val = max(values)
-    padding = max(abs(max_val), abs(min_val)) * 0.3  # Increased padding for text visibility
-    x_range = [min(0, min_val - padding), max(0, max_val + padding)]
-
-    fig.update_layout(
-        title=None,
-        xaxis_title="MVPF",
-        yaxis_title="",
-        xaxis_range=x_range,
-        paper_bgcolor="white",
-        plot_bgcolor="#f9fafb",
-        font=dict(family="system-ui", size=11),
-        margin=dict(t=20, b=40, l=250, r=100),  # Increased right margin for text labels
-        showlegend=False,
-        height=max(450, len(names) * 50),  # Increased height for better spacing
-        yaxis=dict(autorange="reversed"),  # Put Current MVPF at top
-    )
-
-    # Add vertical line at x=0
-    fig.add_vline(x=0, line_dash="solid", line_color=Colors.GRAY_500, line_width=1)
-
-    # Add vertical line at x=1 (break-even point)
-    fig.add_vline(
-        x=1,
-        line_dash="dash",
-        line_color="#f59e0b",
-        line_width=1,
-        annotation_text="Break-even",
-        annotation_position="top",
-    )
-
-    return fig
-
-
 def _build_benchmark_card(current_mvpf, scenario="baseline", params=None):
     """Build the benchmark comparison card component with dynamic tiles and chart."""
     # Use cached benchmarks instead of reloading CSV
 
     # Build comparison chart
-    benchmark_chart = _build_benchmark_chart(current_mvpf, benchmarks)
+    benchmark_chart = build_benchmark_chart(current_mvpf, benchmarks)
 
     benchmark_tiles = []
     for benchmark in benchmarks:
@@ -6561,538 +6378,6 @@ def _build_benchmark_card(current_mvpf, scenario="baseline", params=None):
         ],
     )
 
-
-def _build_numerator_chart(result):
-    """Build the numerator chart showing Detainee Values and Society Values."""
-    det_val = result["detainee_values"]
-    soc_val = result["society_values"]
-
-    fig = go.Figure(
-        data=[
-            go.Bar(
-                x=[
-                    content.get("charts.numerator_chart.labels.detainee_values", "Detainee Values"),
-                    content.get("charts.numerator_chart.labels.society_values", "Society Values"),
-                ],
-                y=[det_val, soc_val],
-                marker_color=[Colors.PRIMARY_BLUE, "#10b981"],
-                text=[f"${int(det_val):,}", f"${int(soc_val):,}"],
-                textposition="outside",
-            )
-        ]
-    )
-
-    fig.update_layout(
-        title=content.get(
-            "charts.numerator_chart.title", "Willingness to Pay (MVPF numerator value)"
-        ),
-        xaxis_title="",
-        yaxis_title=content.get("charts.numerator_chart.y_axis", "Value ($)"),
-        paper_bgcolor=Colors.GRAY_100,
-        plot_bgcolor="#ffffff",
-        font=dict(family="system-ui", size=12),
-        margin=dict(t=50, b=80, l=80, r=40),
-        showlegend=False,
-    )
-
-    return fig
-
-
-def _build_denominator_chart(result):
-    """Build the denominator chart showing Government Cost vs Numerator (Detainee + Society)."""
-    gov_val = result["govt_cost"]
-    det_val = result["detainee_values"]
-    soc_val = result["society_values"]
-    numerator = det_val + soc_val
-
-    # Determine colors based on values (negative = red, positive = green/blue)
-    numerator_color = "#10b981" if numerator >= 0 else "#ef4444"
-
-    fig = go.Figure(
-        data=[
-            go.Bar(
-                x=[
-                    content.get(
-                        "charts.denominator_chart.labels.aggregated_value", "Aggregated Value"
-                    ),
-                    content.get(
-                        "charts.denominator_chart.labels.government_cost", "Government Cost"
-                    ),
-                ],
-                y=[numerator, gov_val],
-                marker_color=[numerator_color, "#ef4444"],
-                text=[f"${int(numerator):,}", f"${int(gov_val):,}"],
-                textposition="outside",
-            )
-        ]
-    )
-
-    fig.update_layout(
-        title=content.get(
-            "charts.denominator_chart.title", "Marginal Value to Government Costs Comparison"
-        ),
-        xaxis_title="",
-        yaxis_title=content.get("charts.denominator_chart.y_axis", "Value ($)"),
-        paper_bgcolor=Colors.GRAY_100,
-        plot_bgcolor="#ffffff",
-        font=dict(family="system-ui", size=12),
-        margin=dict(t=50, b=100, l=80, r=40),
-        showlegend=False,
-    )
-
-    return fig
-
-
-def _build_parameter_comparison_chart(
-    scenario,
-    base_det_p1,
-    base_det_p2,
-    base_soc_p1,
-    base_soc_p2,
-    detainee_baseline=None,
-    crime_effect=0,
-):
-    """Build the parameter comparison chart showing MVPF sensitivity to parameter changes."""
-    # Calculate MVPFs for each parameter variation
-    param_variations = {
-        "Felony Rate": [],
-        "Detainee Population": [],
-        "Community Size": [],
-        "Length of Stay": [],
-    }
-
-    # Define parameter value mappings
-    fel_rate_values = {
-        "below": fel_rate_param.dropdown_map["below"],
-        "average": fel_rate_param.dropdown_map["average"],
-        "above": fel_rate_param.dropdown_map["above"],
-    }
-    n_detainees_values = {
-        "below": n_detainees_param.dropdown_map["below"],
-        "average": n_detainees_param.dropdown_map["average"],
-        "above": n_detainees_param.dropdown_map["above"],
-    }
-    n_society_values = {
-        "below": n_society_param.dropdown_map["below"],
-        "average": n_society_param.dropdown_map["average"],
-        "above": n_society_param.dropdown_map["above"],
-    }
-    los_days_values = {
-        "below": los_days_param.dropdown_map["below"],
-        "average": los_days_param.dropdown_map["average"],
-        "above": los_days_param.dropdown_map["above"],
-    }
-
-    # Vary Felony Rate (detainee_param1)
-    for variation in ["below", "average", "above"]:
-        result = _calculate_mvpf(
-            scenario,
-            fel_rate_values[variation],
-            base_det_p2,
-            base_soc_p1,
-            base_soc_p2,
-            detainee_baseline=detainee_baseline,
-            crime_effect=crime_effect,
-        )
-        param_variations["Felony Rate"].append(result["mvpf"])
-
-    # Vary Detainee Population (detainee_param2)
-    for variation in ["below", "average", "above"]:
-        result = _calculate_mvpf(
-            scenario,
-            base_det_p1,
-            n_detainees_values[variation],
-            base_soc_p1,
-            base_soc_p2,
-            detainee_baseline=detainee_baseline,
-            crime_effect=crime_effect,
-        )
-        param_variations["Detainee Population"].append(result["mvpf"])
-
-    # Vary Community Size (society_param1)
-    for variation in ["below", "average", "above"]:
-        result = _calculate_mvpf(
-            scenario,
-            base_det_p1,
-            base_det_p2,
-            n_society_values[variation],
-            base_soc_p2,
-            detainee_baseline=detainee_baseline,
-            crime_effect=crime_effect,
-        )
-        param_variations["Community Size"].append(result["mvpf"])
-
-    # Vary Length of Stay (society_param2)
-    for variation in ["below", "average", "above"]:
-        result = _calculate_mvpf(
-            scenario,
-            base_det_p1,
-            base_det_p2,
-            base_soc_p1,
-            los_days_values[variation],
-            detainee_baseline=detainee_baseline,
-            crime_effect=crime_effect,
-        )
-        param_variations["Length of Stay"].append(result["mvpf"])
-
-    # Create grouped bar chart
-    fig = go.Figure()
-
-    colors = [
-        "#93c5fd",
-        Colors.PRIMARY_BLUE,
-        "#1e40af",
-    ]  # Light to dark blue for below, average, above
-    labels = ["Lower Bound", "Baseline", "Upper Bound"]
-
-    for i, label in enumerate(labels):
-        values = [param_variations[param][i] for param in param_variations.keys()]
-        fig.add_trace(
-            go.Bar(
-                name=label,
-                x=list(param_variations.keys()),
-                y=values,
-                marker_color=colors[i],
-                text=[f"{v:.2f}" for v in values],
-                textposition="outside",
-                textfont=dict(size=10),
-            )
-        )
-
-    fig.update_layout(
-        title="MVPF Sensitivity to Parameter Changes",
-        xaxis_title="Parameter",
-        yaxis_title="MVPF",
-        barmode="group",
-        paper_bgcolor=Colors.GRAY_100,
-        plot_bgcolor="#ffffff",
-        font=dict(family="system-ui", size=11),
-        margin=dict(t=50, b=100, l=60, r=40),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        height=400,
-    )
-
-    # Add horizontal line at y=1 (break-even)
-    fig.add_hline(
-        y=1,
-        line_dash="dash",
-        line_color="#f59e0b",
-        line_width=1,
-        annotation_text="Break-even",
-        annotation_position="right",
-    )
-
-    return fig
-
-
-def _build_scenario_comparison_chart(
-    det_p1, det_p2, soc_p1, soc_p2, detainee_baseline=None, crime_effect=0
-):
-    """Build the scenario comparison chart showing MVPF for all scenarios on y-axis."""
-    scenarios = ["baseline", "most conservative", "least conservative"]
-
-    scenario_labels = {
-        "baseline": "Baseline",
-        "most conservative": "Lower bound",
-        "least conservative": "Upper bound",
-    }
-
-    # Calculate MVPF for each scenario
-    mvpf_values = []
-    for scenario in scenarios:
-        result = _calculate_mvpf(
-            scenario,
-            det_p1,
-            det_p2,
-            soc_p1,
-            soc_p2,
-            detainee_baseline=detainee_baseline,
-            crime_effect=crime_effect,
-        )
-        mvpf_values.append(result["mvpf"])
-
-    # Color bars based on MVPF value (green for good, yellow for fair, red for poor)
-    colors = []
-    for mvpf in mvpf_values:
-        if mvpf >= 2.5:
-            colors.append(Colors.SUCCESS_GREEN)  # Green - Excellent
-        elif mvpf >= 1.5:
-            colors.append(Colors.NAVY_MEDIUM)  # Blue - Good
-        elif mvpf >= 1.0:
-            colors.append("#f59e0b")  # Yellow - Fair
-        else:
-            colors.append(Colors.ERROR_RED)  # Red - Poor
-
-    # Create horizontal bar chart with scenarios on y-axis
-    labels = [scenario_labels[s] for s in scenarios]
-
-    fig = go.Figure(
-        data=[
-            go.Bar(
-                y=labels,
-                x=mvpf_values,
-                marker_color=colors,
-                text=[f"{v:.2f}" for v in mvpf_values],
-                textposition="outside",
-                textfont=dict(size=11),
-                orientation="h",
-            )
-        ]
-    )
-
-    # Calculate x-axis range
-    min_val = min(mvpf_values)
-    max_val = max(mvpf_values)
-    padding = max(abs(max_val), abs(min_val)) * 0.15
-    x_range = [min(0, min_val - padding), max(0, max_val + padding)]
-
-    fig.update_layout(
-        title="MVPF Comparison Across Scenarios",
-        xaxis_title="MVPF",
-        yaxis_title="",
-        xaxis_range=x_range,
-        paper_bgcolor=Colors.GRAY_100,
-        plot_bgcolor="#ffffff",
-        font=dict(family="system-ui", size=11),
-        margin=dict(t=50, b=60, l=180, r=100),
-        showlegend=False,
-        bargap=0.3,
-        height=max(400, len(scenarios) * 50),
-    )
-
-    # Add vertical line at x=0
-    fig.add_vline(x=0, line_dash="solid", line_color=Colors.GRAY_500, line_width=1)
-
-    # Add vertical line at x=1 (break-even)
-    fig.add_vline(
-        x=1,
-        line_dash="dash",
-        line_color="#f59e0b",
-        line_width=1,
-        annotation_text="Break-even",
-        annotation_position="top",
-    )
-
-    return fig
-
-
-def _build_sensitivity_analysis_chart(
-    parameter_name, param_values, base_det_p1, base_det_p2, base_soc_p1, base_soc_p2, crime_effect=0
-):
-    """
-    Build a sensitivity analysis chart showing how one parameter affects MVPF for baseline,
-    least conservative, and most conservative scenarios.
-
-    Parameters:
-    -----------
-    parameter_name : str
-        Name of the parameter being varied ('Felony Rate', 'Detainee Population', 'Community Size', 'Length of Stay')
-    param_values : list
-        Array of parameter values to test (e.g., [0.1, 0.2, ..., 1.0])
-    base_det_p1, base_det_p2, base_soc_p1, base_soc_p2 : float
-        Base parameter values to use when not varying the parameter
-    crime_effect : float, optional
-        Crime effect multiplier (-4 to 14). Defaults to 0 (no effect).
-
-    Returns:
-    --------
-    plotly.graph_objs.Figure
-    """
-    scenarios = ["baseline", "most conservative", "least conservative"]
-    scenario_labels = {
-        "baseline": "Baseline",
-        "most conservative": "Lower Bound",
-        "least conservative": "Upper bound",
-    }
-    scenario_colors = {
-        "baseline": Colors.NAVY_MEDIUM,  # Blue
-        "most conservative": Colors.WARNING_YELLOW,  # Orange
-        "least conservative": Colors.SUCCESS_GREEN,  # Green
-    }
-
-    # Create descriptive x-axis labels with actual parameter values
-    x_labels = []
-    for value in param_values:
-        if parameter_name == "Felony Rate":
-            x_labels.append(f"{value:.0%}")
-        elif parameter_name == "Detainee Population":
-            x_labels.append(f"{value:.0%}")
-        elif parameter_name == "Length of Stay":
-            x_labels.append(f"{value:.0f} days")
-        elif parameter_name == "Crime Effect":
-            x_labels.append(f"{value:+.0f}%")
-        else:
-            x_labels.append(f"{value:.1f}")
-
-    fig = go.Figure()
-
-    for scenario in scenarios:
-        mvpf_values = []
-
-        for value in param_values:
-            # Determine which parameter to vary based on parameter_name
-            if parameter_name == "Felony Rate":
-                result = _calculate_mvpf(
-                    scenario,
-                    value,
-                    base_det_p2,
-                    base_soc_p1,
-                    base_soc_p2,
-                    crime_effect=crime_effect,
-                )
-            elif parameter_name == "Detainee Population":
-                result = _calculate_mvpf(
-                    scenario,
-                    base_det_p1,
-                    value,
-                    base_soc_p1,
-                    base_soc_p2,
-                    crime_effect=crime_effect,
-                )
-            elif parameter_name == "Community Size":
-                result = _calculate_mvpf(
-                    scenario,
-                    base_det_p1,
-                    base_det_p2,
-                    value,
-                    base_soc_p2,
-                    crime_effect=crime_effect,
-                )
-            elif parameter_name == "Length of Stay":
-                result = _calculate_mvpf(
-                    scenario,
-                    base_det_p1,
-                    base_det_p2,
-                    base_soc_p1,
-                    value,
-                    crime_effect=crime_effect,
-                )
-            elif parameter_name == "Crime Effect":
-                result = _calculate_mvpf(
-                    scenario, base_det_p1, base_det_p2, base_soc_p1, base_soc_p2, crime_effect=value
-                )
-            else:
-                result = {"mvpf": 0}
-
-            mvpf_values.append(result["mvpf"])
-
-        fig.add_trace(
-            go.Scatter(
-                x=x_labels,
-                y=mvpf_values,
-                mode="lines+markers",
-                name=scenario_labels[scenario],
-                line=dict(color=scenario_colors[scenario], width=3),
-                marker=dict(size=8, color=scenario_colors[scenario]),
-                text=[f"{v:.2f}" for v in mvpf_values],
-                textposition="top center",
-                textfont=dict(size=10),
-            )
-        )
-
-    fig.update_layout(
-        title=f"Sensitivity to {parameter_name}",
-        xaxis_title=parameter_name,
-        yaxis_title="MVPF",
-        paper_bgcolor="white",
-        plot_bgcolor="#f9fafb",
-        font=dict(family="system-ui", size=11),
-        margin=dict(t=50, b=60, l=60, r=40),
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="right",
-            x=1,
-            bgcolor="rgba(255,255,255,0.8)",
-        ),
-        height=300,
-        hovermode="x unified",
-    )
-
-    # Add horizontal line at y=1 (break-even)
-    fig.add_hline(
-        y=1,
-        line_dash="dash",
-        line_color="#f59e0b",
-        line_width=1,
-        annotation_text="Break-even",
-        annotation_position="right",
-    )
-
-    return fig
-
-
-def _build_subcomponents_chart(result):
-    """Build the subcomponents horizontal bar chart with variable names on y-axis."""
-    # Collect all subcomponents with their variable names and values
-    subcomponents = []
-    colors = []
-
-    # Detainee subcomponents (blue)
-    for var_name, value in result.get("detainee_breakdown", {}).items():
-        subcomponents.append({"name": var_name, "value": value, "category": "Detainee"})
-        colors.append(Colors.NAVY_MEDIUM)
-
-    # Society subcomponents (green)
-    for var_name, value in result.get("society_breakdown", {}).items():
-        subcomponents.append({"name": var_name, "value": value, "category": "Society"})
-        colors.append("#10b981")
-
-    # Government subcomponents (red)
-    for var_name, value in result.get("govt_breakdown", {}).items():
-        subcomponents.append({"name": var_name, "value": value, "category": "Govt"})
-        colors.append("#ef4444")
-
-    # Extract data for the chart
-    names = [s["name"] for s in subcomponents]
-    values = [s["value"] for s in subcomponents]
-    text_labels = [f"${int(v):,}" for v in values]
-
-    # Calculate x-axis range to ensure all bars are visible
-    if values:
-        min_val = min(values)
-        max_val = max(values)
-        # Add padding (20%) to ensure text labels are visible
-        padding = max(abs(max_val), abs(min_val)) * 0.2
-        x_range = [min(0, min_val - padding), max(0, max_val + padding)]
-    else:
-        x_range = None
-
-    fig = go.Figure(
-        data=[
-            go.Bar(
-                y=names,  # Names on y-axis for horizontal bars
-                x=values,  # Values on x-axis for horizontal bars
-                marker_color=colors,
-                text=text_labels,
-                textposition="outside",
-                textfont=dict(size=10),
-                orientation="h",  # Horizontal orientation
-            )
-        ]
-    )
-
-    fig.update_layout(
-        title="Subcomponent Breakdown",
-        xaxis_title="Value ($)",
-        yaxis_title="",
-        xaxis_range=x_range,
-        paper_bgcolor=Colors.GRAY_100,
-        plot_bgcolor="#ffffff",
-        font=dict(family="system-ui", size=11),
-        margin=dict(t=50, b=60, l=250, r=100),  # Increased left margin for labels
-        showlegend=False,
-        bargap=0.3,
-        height=max(400, len(names) * 40),  # Dynamic height based on number of items
-    )
-
-    # Add a vertical line at x=0 for reference (vertical line for horizontal bars)
-    fig.add_vline(x=0, line_dash="solid", line_color="Colors.GRAY_500", line_width=1)
-
-    return fig
-
-
 def register_callbacks(app):
     """
     Register all dashboard callbacks.
@@ -7116,7 +6401,7 @@ def register_callbacks(app):
         State("detainee-wtp", "style"),
     )
     def toggle_detainee_wtp(n_clicks, style):
-        return _toggle_style(n_clicks, style)
+        return toggle_style(n_clicks, style)
 
     @app.callback(
         Output("detainee-harm", "style"),
@@ -7124,7 +6409,7 @@ def register_callbacks(app):
         State("detainee-harm", "style"),
     )
     def toggle_detainee_harm(n_clicks, style):
-        return _toggle_style(n_clicks, style)
+        return toggle_style(n_clicks, style)
 
     @app.callback(
         Output("society-crime", "style"),
@@ -7132,7 +6417,7 @@ def register_callbacks(app):
         State("society-crime", "style"),
     )
     def toggle_society_crime(n_clicks, style):
-        return _toggle_style(n_clicks, style)
+        return toggle_style(n_clicks, style)
 
     @app.callback(
         Output("society-court", "style"),
@@ -7140,7 +6425,7 @@ def register_callbacks(app):
         State("society-court", "style"),
     )
     def toggle_society_court(n_clicks, style):
-        return _toggle_style(n_clicks, style)
+        return toggle_style(n_clicks, style)
 
     @app.callback(
         Output("society-spill", "style"),
@@ -7148,13 +6433,13 @@ def register_callbacks(app):
         State("society-spill", "style"),
     )
     def toggle_society_spill(n_clicks, style):
-        return _toggle_style(n_clicks, style)
+        return toggle_style(n_clicks, style)
 
     @app.callback(
         Output("gov-op", "style"), Input("gov-op-btn", "n_clicks"), State("gov-op", "style")
     )
     def toggle_gov_op(n_clicks, style):
-        return _toggle_style(n_clicks, style)
+        return toggle_style(n_clicks, style)
 
     @app.callback(
         Output("gov-crime-increase", "style"),
@@ -7162,7 +6447,7 @@ def register_callbacks(app):
         State("gov-crime-increase", "style"),
     )
     def toggle_gov_crime_increase(n_clicks, style):
-        return _toggle_style(n_clicks, style)
+        return toggle_style(n_clicks, style)
 
     @app.callback(
         Output("gov-crime-decrease", "style"),
@@ -7170,7 +6455,7 @@ def register_callbacks(app):
         State("gov-crime-decrease", "style"),
     )
     def toggle_gov_crime_decrease(n_clicks, style):
-        return _toggle_style(n_clicks, style)
+        return toggle_style(n_clicks, style)
 
     # -------------------------------------------------------------------------
     # Scenario Selection Callback (Jumbotron Buttons)
@@ -7307,7 +6592,7 @@ def register_callbacks(app):
         soc_p1 = 1.0
 
         # Get params for display in KPI card
-        params = _convert_dropdown_to_params(
+        params = convert_dropdown_to_params(
             fel_rate_sel=det_p1,
             n_detainees_sel=det_p2,
             n_society_sel=soc_p1,
@@ -7316,7 +6601,7 @@ def register_callbacks(app):
             crime_effect=crime_effect,
         )
 
-        result = _calculate_mvpf(
+        result = calculate_mvpf_for_dashboard(
             scenario,
             det_p1,
             det_p2,
@@ -7354,10 +6639,11 @@ def register_callbacks(app):
             result, mvpf, badge_color, badge_text_color, label, params, scenario
         )
         benchmark_card = _build_benchmark_card(mvpf, scenario, params)
-        numerator_fig = _build_numerator_chart(result)
-        denominator_fig = _build_denominator_chart(result)
-        scenario_comparison_fig = _build_scenario_comparison_chart(
-            det_p1, det_p2, soc_p1, soc_p2, det_baseline, crime_effect
+        numerator_fig = build_numerator_chart(result)
+        denominator_fig = build_denominator_chart(result)
+        scenario_comparison_fig = build_scenario_comparison_chart(
+            det_p1, det_p2, soc_p1, soc_p2, det_baseline, crime_effect,
+            calculate_mvpf_func=calculate_mvpf_for_dashboard
         )
 
         return (
@@ -7423,7 +6709,7 @@ def register_callbacks(app):
 
         # Build all 4 sensitivity analysis charts
         # For non-crime-effect charts, use the current crime_effect slider value
-        felony_rate_fig = _build_sensitivity_analysis_chart(
+        felony_rate_fig = build_sensitivity_analysis_chart(
             "Felony Rate",
             fel_rate_values,
             det_p1,
@@ -7431,9 +6717,10 @@ def register_callbacks(app):
             soc_p1,
             soc_p2,
             crime_effect=crime_effect,
+            calculate_mvpf_func=calculate_mvpf_for_dashboard
         )
 
-        detainee_pop_fig = _build_sensitivity_analysis_chart(
+        detainee_pop_fig = build_sensitivity_analysis_chart(
             "Detainee Population",
             n_detainees_values,
             det_p1,
@@ -7441,14 +6728,16 @@ def register_callbacks(app):
             soc_p1,
             soc_p2,
             crime_effect=crime_effect,
+            calculate_mvpf_func=calculate_mvpf_for_dashboard
         )
 
         # For crime effect sensitivity, we vary crime_effect itself, so pass 0 as default
-        crime_effect_fig = _build_sensitivity_analysis_chart(
-            "Crime Effect", crime_effect_values, det_p1, det_p2, soc_p1, soc_p2, crime_effect=0
+        crime_effect_fig = build_sensitivity_analysis_chart(
+            "Crime Effect", crime_effect_values, det_p1, det_p2, soc_p1, soc_p2, crime_effect=0,
+            calculate_mvpf_func=calculate_mvpf_for_dashboard
         )
 
-        length_of_stay_fig = _build_sensitivity_analysis_chart(
+        length_of_stay_fig = build_sensitivity_analysis_chart(
             "Length of Stay",
             los_days_values,
             det_p1,
@@ -7456,6 +6745,7 @@ def register_callbacks(app):
             soc_p1,
             soc_p2,
             crime_effect=crime_effect,
+            calculate_mvpf_func=calculate_mvpf_for_dashboard
         )
 
         # Format parameter displays
@@ -7608,7 +6898,7 @@ def register_callbacks(app):
         # Use default value for community size multiplier
         soc_p1 = 1.0
 
-        params = _convert_dropdown_to_params(
+        params = convert_dropdown_to_params(
             fel_rate_sel=det_p1, n_detainees_sel=det_p2, n_society_sel=soc_p1, los_days_sel=soc_p2
         )
 
@@ -7647,7 +6937,7 @@ def register_callbacks(app):
         soc_p1 = 1.0  # Default value for community size multiplier
 
         # Calculate main result
-        params = _convert_dropdown_to_params(
+        params = convert_dropdown_to_params(
             fel_rate_sel=det_p1, n_detainees_sel=det_p2, n_society_sel=soc_p1, los_days_sel=soc_p2
         )
         result = calculator.calculate(scenario, params)
@@ -7756,7 +7046,7 @@ def register_callbacks(app):
         crime_effects = {"below": -4, "average": 0, "above": 14}
         for variation in ["below", "average", "above"]:
             test_params = params.copy()
-            test_result = _calculate_mvpf(
+            test_result = calculate_mvpf_for_dashboard(
                 scenario, det_p1, det_p2, soc_p1, soc_p2, crime_effect=crime_effects[variation]
             )
             writer.writerow(

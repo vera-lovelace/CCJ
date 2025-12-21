@@ -143,11 +143,42 @@ class BorderRadius:
     """Border radius constants for rounded corners"""
     NONE = '0'
     SM = '4px'
-    MD = '8px'
+    MD = '6px'
+    MD_PLUS = '8px'
     LG = '12px'
     XL = '16px'
     PILL = '9999px'  # Standardized pill shape
     CIRCLE = '50%'
+
+
+# ============================================================================
+# BOX SHADOWS
+# ============================================================================
+
+class BoxShadows:
+    """Box shadow definitions for cards and elevated elements"""
+    NONE = 'none'
+    SM = '0 1px 2px rgba(0,0,0,0.05)'
+    DEFAULT = '0 1px 3px rgba(0,0,0,0.1)'
+    MD = '0 4px 6px rgba(0,0,0,0.1)'
+    LG = '0 10px 15px rgba(0,0,0,0.1)'
+    XL = '0 20px 25px rgba(0,0,0,0.1)'
+    TOOLTIP = '0 4px 6px rgba(0,0,0,0.2)'
+    INNER = 'inset 0 2px 4px rgba(0,0,0,0.06)'
+
+
+# ============================================================================
+# TRANSITIONS
+# ============================================================================
+
+class Transitions:
+    """Transition definitions for animations"""
+    FAST = '150ms ease-in-out'
+    DEFAULT = '200ms ease-in-out'
+    SLOW = '300ms ease-in-out'
+    COLOR = 'color 200ms ease-in-out'
+    BACKGROUND = 'background 200ms ease-in-out'
+    ALL = 'all 200ms ease-in-out'
 
 
 # ============================================================================
@@ -247,6 +278,119 @@ class CommonStyles:
     INPUT_FIELD_FOCUSED = {
         'border': f'{Borders.MEDIUM} solid {Colors.PRIMARY_BLUE}',
         'outline': 'none'
+    }
+
+    # Badge/Pill styles
+    BADGE_PRIMARY = {
+        'display': 'inline-block',
+        'padding': f'{Spacing.XS} {Spacing.MD}',
+        'borderRadius': BorderRadius.PILL,
+        'fontSize': FontSizes.LABEL,
+        'fontWeight': '600',
+        'backgroundColor': Colors.PRIMARY_BLUE,
+        'color': Colors.WHITE
+    }
+
+    BADGE_SUCCESS = {
+        'display': 'inline-block',
+        'padding': f'{Spacing.XS} {Spacing.MD}',
+        'borderRadius': BorderRadius.PILL,
+        'fontSize': FontSizes.LABEL,
+        'fontWeight': '600',
+        'backgroundColor': Colors.SUCCESS_GREEN,
+        'color': Colors.WHITE
+    }
+
+    BADGE_WARNING = {
+        'display': 'inline-block',
+        'padding': f'{Spacing.XS} {Spacing.MD}',
+        'borderRadius': BorderRadius.PILL,
+        'fontSize': FontSizes.LABEL,
+        'fontWeight': '600',
+        'backgroundColor': Colors.WARNING_YELLOW,
+        'color': Colors.WHITE
+    }
+
+    BADGE_ERROR = {
+        'display': 'inline-block',
+        'padding': f'{Spacing.XS} {Spacing.MD}',
+        'borderRadius': BorderRadius.PILL,
+        'fontSize': FontSizes.LABEL,
+        'fontWeight': '600',
+        'backgroundColor': Colors.ERROR_RED,
+        'color': Colors.WHITE
+    }
+
+    # Tooltip style
+    TOOLTIP = {
+        'position': 'absolute',
+        'backgroundColor': Colors.GRAY_900,
+        'color': Colors.WHITE,
+        'padding': Spacing.SM,
+        'borderRadius': BorderRadius.MD,
+        'fontSize': FontSizes.BODY_SM,
+        'boxShadow': BoxShadows.TOOLTIP,
+        'zIndex': '10000'
+    }
+
+    # Info tile
+    INFO_TILE = {
+        'backgroundColor': Colors.WHITE,
+        'padding': Spacing.LG,
+        'borderRadius': BorderRadius.MD_PLUS,
+        'boxShadow': BoxShadows.DEFAULT,
+        'marginBottom': Spacing.LG
+    }
+
+    # Control section
+    CONTROL_SECTION = {
+        'backgroundColor': Colors.WHITE,
+        'padding': Spacing.XL,
+        'borderRadius': BorderRadius.MD_PLUS,
+        'marginBottom': Spacing.XL
+    }
+
+    # Chart container
+    CHART_CONTAINER = {
+        'backgroundColor': Colors.WHITE,
+        'borderRadius': BorderRadius.MD_PLUS,
+        'padding': Spacing.XL,
+        'boxShadow': BoxShadows.DEFAULT
+    }
+
+    # Flex row
+    FLEX_ROW = {
+        'display': 'flex',
+        'flexDirection': 'row',
+        'alignItems': 'center'
+    }
+
+    # Flex column
+    FLEX_COLUMN = {
+        'display': 'flex',
+        'flexDirection': 'column'
+    }
+
+    # Flex space between
+    FLEX_SPACE_BETWEEN = {
+        'display': 'flex',
+        'justifyContent': 'space-between',
+        'alignItems': 'center'
+    }
+
+    # Full width
+    FULL_WIDTH = {
+        'width': '100%'
+    }
+
+    # Text center
+    TEXT_CENTER = {
+        'textAlign': 'center'
+    }
+
+    # Text right
+    TEXT_RIGHT = {
+        'textAlign': 'right'
     }
 
 
